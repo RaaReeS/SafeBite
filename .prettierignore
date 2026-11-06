@@ -4,5 +4,4 @@ node_modules
 dist
 pnpm-lock.yaml
 supabase/.temp
-*.types.ts
 ESPECIFICACION.md

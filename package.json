@@ -17,7 +17,7 @@
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
     "db:test": "supabase test db",
-    "db:types": "supabase gen types typescript --local > packages/core/src/db/database.types.ts"
+    "db:types": "supabase gen types typescript --local > packages/core/src/db/database.types.ts && prettier --write packages/core/src/db/database.types.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

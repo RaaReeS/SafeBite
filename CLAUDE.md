@@ -48,6 +48,10 @@ Especificación completa en `ESPECIFICACION.md`. Léela antes de empezar cualqui
 - `pnpm dev:mobile`: arrancar Expo
 - `pnpm test`: ejecutar tests
 - `pnpm lint`: revisar código
+- `pnpm db:start` / `pnpm db:stop`: arrancar/parar Supabase local (requiere Docker Desktop abierto)
+- `pnpm db:reset`: recrear la BD local aplicando migraciones y `supabase/seed.sql`
+- `pnpm db:test`: tests pgTAP de permisos RLS (`supabase/tests/`)
+- `pnpm db:types`: regenerar `packages/core/src/db/database.types.ts` tras cambiar una migración
 
 ## Fuera del MVP (no implementar todavía)
 
