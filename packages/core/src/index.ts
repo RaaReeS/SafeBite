@@ -9,6 +9,11 @@ export {
   type FilterStatus,
 } from "./filter/status";
 export {
+  evaluateAllergens,
+  type AllergenDeclaration,
+  type AllergenEvaluation,
+} from "./filter/evaluate";
+export {
   FILTER_DISCLAIMER,
   FILTER_EMPTY_PROFILE_HINT,
   FILTER_SOURCE_NOTICE,
