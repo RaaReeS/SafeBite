@@ -63,7 +63,12 @@ export function evaluateAllergens(
   for (const declaration of declarations) {
     if (!isValidDeclaration(declaration)) continue;
     const previous = declared.get(declaration.allergen);
-    if (previous === undefined || LEVEL_SEVERITY[declaration.level] > LEVEL_SEVERITY[previous]) {
+    if (previous === undefined) {
+      declared.set(declaration.allergen, declaration.level);
+      continue;
+    }
+    // Stryker disable next-line EqualityOperator: misma gravedad = mismo nivel, así que `>` y `>=` son equivalentes.
+    if (LEVEL_SEVERITY[declaration.level] > LEVEL_SEVERITY[previous]) {
       declared.set(declaration.allergen, declaration.level);
     }
   }

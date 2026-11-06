@@ -15,26 +15,21 @@ export function isFilterStatus(value: unknown): value is FilterStatus {
   return typeof value === "string" && (FILTER_STATUSES as readonly string[]).includes(value);
 }
 
-/** Gravedad: mayor número = más grave. */
-function severity(status: FilterStatus): number {
-  return FILTER_STATUSES.length - 1 - FILTER_STATUSES.indexOf(status);
-}
-
 /**
  * Comparador para `Array.prototype.sort`: ordena de menos a más grave, de modo
- * que los platos aptos aparecen primero.
+ * que los platos aptos aparecen primero. FILTER_STATUSES va de más a menos
+ * grave, así que un índice menor significa más gravedad.
  */
 export function compareStatus(a: FilterStatus, b: FilterStatus): number {
-  return severity(a) - severity(b);
+  return FILTER_STATUSES.indexOf(b) - FILTER_STATUSES.indexOf(a);
 }
 
 /**
  * Devuelve el estado más grave de la lista. Una lista vacía no aporta
- * información, así que el resultado es `sin_datos`, nunca `apto`.
+ * información, así que el resultado es `sin_datos`, nunca `apto`
+ * (Math.min() sin argumentos es Infinity, que no es un índice válido).
  */
 export function mostSevereStatus(statuses: readonly FilterStatus[]): FilterStatus {
-  if (statuses.length === 0) {
-    return "sin_datos";
-  }
-  return statuses.reduce((worst, status) => (compareStatus(status, worst) > 0 ? status : worst));
+  const worstIndex = Math.min(...statuses.map((status) => FILTER_STATUSES.indexOf(status)));
+  return FILTER_STATUSES[worstIndex] ?? "sin_datos";
 }

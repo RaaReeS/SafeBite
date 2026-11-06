@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { FILTER_DISCLAIMER, FILTER_SOURCE_NOTICE, FILTER_STATUS_LABELS } from "./labels";
+import {
+  FILTER_DISCLAIMER,
+  FILTER_EMPTY_PROFILE_HINT,
+  FILTER_SOURCE_NOTICE,
+  FILTER_STATUS_LABELS,
+} from "./labels";
 import { FILTER_STATUSES } from "./status";
 
 const allTexts = (): string[] =>
@@ -8,7 +13,8 @@ const allTexts = (): string[] =>
       Object.values(byStatus).flatMap((label) => [label.short, label.description]),
     )
     .concat(Object.values(FILTER_DISCLAIMER))
-    .concat(Object.values(FILTER_SOURCE_NOTICE));
+    .concat(Object.values(FILTER_SOURCE_NOTICE))
+    .concat(Object.values(FILTER_EMPTY_PROFILE_HINT));
 
 const normalize = (text: string): string =>
   text
@@ -22,6 +28,10 @@ describe("textos del filtro", () => {
       expect(FILTER_STATUS_LABELS.es[status].short.trim()).not.toBe("");
       expect(FILTER_STATUS_LABELS.es[status].description.trim()).not.toBe("");
     }
+  });
+
+  it("tiene un mensaje no vacío para cuando el perfil está vacío", () => {
+    expect(FILTER_EMPTY_PROFILE_HINT.es.trim()).not.toBe("");
   });
 
   it("incluye el aviso obligatorio literal", () => {
