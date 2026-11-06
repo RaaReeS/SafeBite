@@ -1,0 +1,38 @@
+# Dependencias
+node_modules/
+
+# Builds
+.next/
+dist/
+.turbo/
+*.tsbuildinfo
+
+# Expo
+.expo/
+web-build/
+ios/
+android/
+
+# Supabase
+supabase/.temp/
+supabase/.branches/
+
+# Variables de entorno y secretos: NUNCA al repositorio
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Sistema / editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Logs
+*.log
+coverage/
+playwright-report/
+test-results/
