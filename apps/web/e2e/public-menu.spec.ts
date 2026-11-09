@@ -28,7 +28,11 @@ test.describe("carta pública por QR", () => {
     page,
   }) => {
     await page.goto(`/r/${SEED_SLUG}`);
-    await expect(page.getByRole("heading", { level: 2 })).toHaveText(["Entrantes", "Postres"]);
+    await expect(page.getByRole("heading", { level: 2 })).toHaveText([
+      "¿Qué alérgenos quieres evitar?",
+      "Entrantes",
+      "Postres",
+    ]);
 
     const bread = page.getByRole("listitem").filter({ hasText: "Pan con tomate" });
     await expect(bread).toContainText("4,50 €");

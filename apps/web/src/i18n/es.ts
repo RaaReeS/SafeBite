@@ -233,6 +233,29 @@ export const es = {
     undeclared: (n: number) =>
       n === 1 ? "1 alérgeno sin declarar" : `${n} alérgenos sin declarar`,
     poweredBy: "Carta digital con SafeBite",
+    filterTitle: "¿Qué alérgenos quieres evitar?",
+    filterHint: "Tu selección no se guarda ni se envía: solo se usa en esta pantalla.",
+    clear: "Borrar selección",
+    hideNotSuitable: "Ocultar platos no aptos",
+    summary: (counts: {
+      apto: number;
+      posibles_trazas: number;
+      sin_datos: number;
+      no_apto: number;
+    }) =>
+      [
+        `${counts.apto} ${counts.apto === 1 ? "apto" : "aptos"}`,
+        `${counts.posibles_trazas} con posibles trazas`,
+        `${counts.sin_datos} sin datos suficientes`,
+        `${counts.no_apto} no ${counts.no_apto === 1 ? "apto" : "aptos"}`,
+      ].join(" · "),
+    otherDeclared: "Otros alérgenos declarados:",
+    reasonContains: "Contiene:",
+    reasonTraces: "Puede contener trazas de:",
+    reasonMissing: "Sin datos sobre:",
+    hiddenCount: (n: number) =>
+      n === 1 ? "1 plato no apto oculto." : `${n} platos no aptos ocultos.`,
+    allHidden: "Ningún plato de esta carta es apto según tu selección.",
     notFoundTitle: "Carta no encontrada",
     notFoundText:
       "Esta carta no existe o el establecimiento la ha retirado. Pregunta en el local por su carta.",

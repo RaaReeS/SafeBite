@@ -2,6 +2,7 @@ import "server-only";
 import type { Database } from "@safebite/core";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 import { env } from "@/env";
 
 /**
@@ -10,6 +11,10 @@ import { env } from "@/env";
  * Se crea uno por petición (nunca se reutiliza entre usuarios).
  */
 export async function createSupabaseServerClient() {
+  // Todo lo que usa la sesión se genera en el momento de la petición. Además,
+  // el cliente de Auth consulta la hora al cargar la sesión, algo que Next no
+  // permite durante un prerenderizado.
+  await connection();
   const cookieStore = await cookies();
 
   return createServerClient<Database>(env.supabaseUrl, env.supabasePublishableKey, {
