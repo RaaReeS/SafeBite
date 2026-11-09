@@ -219,6 +219,24 @@ export const es = {
     pdfInstructions:
       "Escanea el código con la cámara de tu móvil para ver la carta y filtrarla según tus alergias.",
   },
+  menu: {
+    metaTitle: (name: string) => `Carta de ${name} · SafeBite`,
+    metaDescription: (name: string) =>
+      `Carta de ${name} con información de alérgenos declarada por el establecimiento.`,
+    call: "Llamar",
+    empty: "Esta carta aún no tiene platos.",
+    uncategorized: "Otros platos",
+    ingredients: "Ingredientes:",
+    declaredContains: "Contiene:",
+    declaredTraces: "Puede contener trazas de:",
+    noDeclarations: "El establecimiento no ha declarado los alérgenos de este plato.",
+    undeclared: (n: number) =>
+      n === 1 ? "1 alérgeno sin declarar" : `${n} alérgenos sin declarar`,
+    poweredBy: "Carta digital con SafeBite",
+    notFoundTitle: "Carta no encontrada",
+    notFoundText:
+      "Esta carta no existe o el establecimiento la ha retirado. Pregunta en el local por su carta.",
+  },
   notFound: {
     title: "Página no encontrada",
     description: "La página que buscas no existe o no tienes acceso a ella.",
