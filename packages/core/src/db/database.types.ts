@@ -125,6 +125,7 @@ export type Database = {
           health_data_consent_at: string | null;
           id: string;
           role: Database["public"]["Enums"]["user_role"];
+          terms_accepted_at: string | null;
           updated_at: string;
         };
         ComputedFields: never;
@@ -134,6 +135,7 @@ export type Database = {
           health_data_consent_at?: string | null;
           id: string;
           role?: Database["public"]["Enums"]["user_role"];
+          terms_accepted_at?: string | null;
           updated_at?: string;
         };
         Update: {
@@ -142,6 +144,7 @@ export type Database = {
           health_data_consent_at?: string | null;
           id?: string;
           role?: Database["public"]["Enums"]["user_role"];
+          terms_accepted_at?: string | null;
           updated_at?: string;
         };
         Relationships: [];
@@ -357,7 +360,10 @@ export type Database = {
       };
     };
     Functions: {
-      [_ in never]: never;
+      set_dish_allergens: {
+        Args: { declarations: Json; target_dish_id: string };
+        Returns: undefined;
+      };
     };
     Enums: {
       allergen:
