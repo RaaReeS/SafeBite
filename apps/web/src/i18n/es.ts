@@ -260,6 +260,18 @@ export const es = {
     notFoundText:
       "Esta carta no existe o el establecimiento la ha retirado. Pregunta en el local por su carta.",
   },
+  appPromo: {
+    button: "Guarda tu perfil: descarga SafeBite",
+    text: "Con la app guardas tus alergias una sola vez y las cartas se filtran automáticamente.",
+    pageTitle: "SafeBite para tu móvil",
+    pageMetaTitle: "App de SafeBite · Próximamente",
+    soon: "Próximamente en Android e iOS.",
+    pageText:
+      "Configura tu perfil de alergias e intolerancias una vez y consulta las cartas de los restaurantes filtradas automáticamente. También podrás escanear el código de barras de productos envasados.",
+    privacy:
+      "Tu perfil de alergias es un dato de salud: solo lo guardaremos con tu consentimiento y nunca lo compartiremos con los restaurantes.",
+    back: "Volver",
+  },
   preview: {
     manage: "Vista previa",
     title: "Vista previa de la carta",

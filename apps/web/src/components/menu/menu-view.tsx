@@ -14,6 +14,7 @@ import {
   type EvaluatedDish,
   type FilterStatus,
 } from "@safebite/core";
+import Link from "next/link";
 import { Fragment, useId, useState } from "react";
 import { getMessages } from "@/i18n";
 import type { MenuDish, MenuRestaurant } from "@/lib/data/public-menu";
@@ -152,6 +153,16 @@ export function MenuView({ restaurant, dishes }: MenuViewProps) {
           </section>
         );
       })}
+
+      <aside className="flex flex-col items-start gap-2 rounded-lg bg-emerald-50 p-4 text-emerald-950 dark:bg-emerald-950 dark:text-emerald-50">
+        <p className="text-sm">{t.appPromo.text}</p>
+        <Link
+          href="/app"
+          className="rounded-md bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700"
+        >
+          {t.appPromo.button}
+        </Link>
+      </aside>
 
       <footer className="flex flex-col gap-3 border-t border-zinc-200 pt-4 dark:border-zinc-800">
         <Notices />

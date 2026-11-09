@@ -79,3 +79,18 @@ test.describe("carta pública por QR", () => {
     expect(html).not.toContain("owner_id");
   });
 });
+
+test.describe("botón de la app", () => {
+  test("la carta invita a descargar la app y lleva a la página de «Próximamente»", async ({
+    page,
+  }) => {
+    await page.goto(`/r/${SEED_SLUG}`);
+    await page.getByRole("link", { name: "Guarda tu perfil: descarga SafeBite" }).click();
+    await expect(page).toHaveURL(/\/app$/);
+    await expect(page.getByRole("heading", { name: "SafeBite para tu móvil" })).toBeVisible();
+    await expect(page.getByText("Próximamente en Android e iOS.")).toBeVisible();
+
+    await page.getByRole("button", { name: "Volver" }).click();
+    await expect(page).toHaveURL(new RegExp(`/r/${SEED_SLUG}$`));
+  });
+});

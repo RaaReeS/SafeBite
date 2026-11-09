@@ -57,6 +57,7 @@ test.describe("vista previa de la carta", () => {
 
     await page.goto(`${url}/vista-previa`);
     await expect(page.getByText("Tu carta aún no está publicada")).toHaveCount(0);
+    await expect(dishNames(page)).toHaveCount(2);
     const preview = await dishNames(page).allInnerTexts();
 
     await page.goto(`/r/${slug}`);
