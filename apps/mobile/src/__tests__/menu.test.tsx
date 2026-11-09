@@ -14,6 +14,10 @@ jest.mock(
     require("@/test-utils/supabase-mock").supabaseModule,
 );
 jest.mock("@/lib/menu", () => ({ getMenu: jest.fn() }));
+jest.mock("@/lib/location", () => ({
+  getCurrentCoordinates: jest.fn(),
+  getCoordinatesIfAllowed: jest.fn(async () => null),
+}));
 jest.mock("@/lib/profile", () => ({
   getHealthProfile: jest.fn(),
   saveMyAllergens: jest.fn(async () => undefined),

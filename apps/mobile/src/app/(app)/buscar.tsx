@@ -7,7 +7,7 @@ import { Notice } from "@/components/notice";
 import { Screen } from "@/components/screen";
 import { TextField } from "@/components/text-field";
 import { getMessages } from "@/i18n";
-import { getCurrentCoordinates } from "@/lib/location";
+import { getCoordinatesIfAllowed, getCurrentCoordinates } from "@/lib/location";
 import {
   listPublishedRestaurants,
   listRestaurantsWithLocation,
@@ -21,10 +21,35 @@ const NEAR_ME_KM = 50;
 
 type Result = { restaurant: RestaurantSummary; distanceKm: number | null };
 
+/** all: todos los publicados · city: filtrados por ciudad · near: a menos de NEAR_ME_KM. */
+type Mode = "all" | "city" | "near";
+
 type State =
   | { kind: "loading"; message?: string }
-  | { kind: "results"; results: Result[]; emptyMessage: string; showingAll: boolean }
+  | { kind: "results"; restaurants: RestaurantSummary[]; mode: Mode; emptyMessage: string }
   | { kind: "error"; message: string; showSettings?: boolean };
+
+/**
+ * Ordena por distancia (calculada en el dispositivo; la ubicación no se envía)
+ * si se conoce la ubicación; si no, mantiene el orden por nombre. Los que no
+ * tienen ubicación van al final. En "near", solo los que están dentro del radio.
+ */
+function arrange(
+  restaurants: RestaurantSummary[],
+  mode: Mode,
+  origin: Coordinates | null,
+): Result[] {
+  if (origin === null) return restaurants.map((restaurant) => ({ restaurant, distanceKm: null }));
+  const located = sortByDistance(restaurants, origin, mode === "near" ? NEAR_ME_KM : undefined).map(
+    ({ item, distanceKm }) => ({ restaurant: item, distanceKm }),
+  );
+  if (mode === "near") return located;
+  const locatedIds = new Set(located.map((r) => r.restaurant.id));
+  const rest = restaurants
+    .filter((r) => !locatedIds.has(r.id))
+    .map((restaurant) => ({ restaurant, distanceKm: null }));
+  return [...located, ...rest];
+}
 
 export default function SearchScreen() {
   const t = getMessages();
@@ -32,41 +57,55 @@ export default function SearchScreen() {
   const [city, setCity] = useState("");
   const [origin, setOrigin] = useState<Coordinates | null>(null);
   const [state, setState] = useState<State>({ kind: "loading" });
+  /** Aviso de ubicación que no sustituye a la lista (al ordenar por cercanía). */
+  const [locationNotice, setLocationNotice] = useState<{ text: string; settings: boolean } | null>(
+    null,
+  );
 
-  /** Con ubicación, ordena por distancia (calculada en el dispositivo); sin ella, por nombre. */
-  function withDistance(restaurants: RestaurantSummary[], from: Coordinates | null): Result[] {
-    if (from === null) return restaurants.map((restaurant) => ({ restaurant, distanceKm: null }));
-    const located = sortByDistance(restaurants, from).map(({ item, distanceKm }) => ({
-      restaurant: item,
-      distanceKm,
-    }));
-    const locatedIds = new Set(located.map((r) => r.restaurant.id));
-    const rest = restaurants
-      .filter((r) => !locatedIds.has(r.id))
-      .map((restaurant) => ({ restaurant, distanceKm: null }));
-    return [...located, ...rest];
-  }
-
-  /** Todos los restaurantes publicados: lo que se ve al abrir la pantalla. */
-  async function showAll(from: Coordinates | null = origin) {
+  async function showAll() {
     setState({ kind: "loading" });
     try {
       const restaurants = await listPublishedRestaurants();
-      setState({
-        kind: "results",
-        results: withDistance(restaurants, from),
-        emptyMessage: t.search.noRestaurants,
-        showingAll: true,
-      });
+      setState({ kind: "results", restaurants, mode: "all", emptyMessage: t.search.noRestaurants });
     } catch {
       setState({ kind: "error", message: t.search.error });
     }
   }
 
   useEffect(() => {
-    void showAll(null);
+    void showAll();
+    // Si el usuario ya dio permiso de ubicación antes, se ordena por cercanía
+    // sin mostrarle ningún aviso. Si no lo dio, no se le pregunta al abrir.
+    void getCoordinatesIfAllowed().then((coordinates) => {
+      if (coordinates !== null) setOrigin(coordinates);
+    });
     // Solo al abrir la pantalla.
   }, []);
+
+  /** Pide la ubicación (con el aviso de permiso si hace falta). */
+  async function locate(): Promise<Coordinates | null> {
+    const location = await getCurrentCoordinates();
+    if (location.status === "denied") {
+      setState({ kind: "error", message: t.search.denied, showSettings: true });
+      return null;
+    }
+    if (location.status === "unavailable") {
+      setState({ kind: "error", message: t.search.unavailable });
+      return null;
+    }
+    setOrigin(location.coordinates);
+    return location.coordinates;
+  }
+
+  /** Ordena la lista actual por cercanía, sin perderla si no hay permiso. */
+  async function sortByProximity() {
+    setLocationNotice(null);
+    const location = await getCurrentCoordinates();
+    if (location.status === "granted") setOrigin(location.coordinates);
+    else if (location.status === "denied")
+      setLocationNotice({ text: t.search.denied, settings: true });
+    else setLocationNotice({ text: t.search.unavailable, settings: false });
+  }
 
   async function searchByCity() {
     const query = city.trim();
@@ -79,9 +118,9 @@ export default function SearchScreen() {
       const restaurants = await searchRestaurantsByCity(query);
       setState({
         kind: "results",
-        results: withDistance(restaurants, origin),
+        restaurants,
+        mode: "city",
         emptyMessage: t.search.noResultsCity(query),
-        showingAll: false,
       });
     } catch {
       setState({ kind: "error", message: t.search.error });
@@ -90,31 +129,21 @@ export default function SearchScreen() {
 
   async function searchNearMe() {
     setState({ kind: "loading", message: t.search.locating });
-    const location = await getCurrentCoordinates();
-    if (location.status === "denied") {
-      setState({ kind: "error", message: t.search.denied, showSettings: true });
-      return;
-    }
-    if (location.status === "unavailable") {
-      setState({ kind: "error", message: t.search.unavailable });
-      return;
-    }
-    setOrigin(location.coordinates);
+    if ((await locate()) === null) return;
     try {
       const restaurants = await listRestaurantsWithLocation();
-      const nearby = sortByDistance(restaurants, location.coordinates, NEAR_ME_KM).map(
-        ({ item, distanceKm }) => ({ restaurant: item, distanceKm }),
-      );
       setState({
         kind: "results",
-        results: nearby,
+        restaurants,
+        mode: "near",
         emptyMessage: t.search.noResultsNear(NEAR_ME_KM),
-        showingAll: false,
       });
     } catch {
       setState({ kind: "error", message: t.search.error });
     }
   }
+
+  const results = state.kind === "results" ? arrange(state.restaurants, state.mode, origin) : [];
 
   return (
     <Screen>
@@ -153,7 +182,19 @@ export default function SearchScreen() {
 
       {state.kind === "results" ? (
         <View style={styles.results}>
-          {state.showingAll ? null : (
+          {locationNotice ? (
+            <>
+              <Notice tone="error" text={locationNotice.text} />
+              {locationNotice.settings ? (
+                <Button
+                  label={t.search.openSettings}
+                  variant="secondary"
+                  onPress={() => void Linking.openSettings()}
+                />
+              ) : null}
+            </>
+          ) : null}
+          {state.mode === "all" ? null : (
             <Button
               label={t.search.showAll}
               variant="link"
@@ -163,16 +204,24 @@ export default function SearchScreen() {
               }}
             />
           )}
-          {state.results.length === 0 ? (
+          {state.mode !== "near" && origin === null && results.length > 0 ? (
+            <Button
+              label={t.search.sortByProximity}
+              variant="link"
+              onPress={() => void sortByProximity()}
+            />
+          ) : null}
+          {results.length === 0 ? (
             <Text style={styles.text}>{state.emptyMessage}</Text>
           ) : (
             <>
               <Text style={styles.muted} accessibilityLiveRegion="polite">
-                {state.showingAll
-                  ? t.search.allRestaurants(state.results.length)
-                  : t.search.results(state.results.length)}
+                {state.mode === "all"
+                  ? t.search.allRestaurants(results.length)
+                  : t.search.results(results.length)}
+                {origin === null ? "" : ` · ${t.search.byProximity}`}
               </Text>
-              {state.results.map(({ restaurant, distanceKm }) => (
+              {results.map(({ restaurant, distanceKm }) => (
                 <Pressable
                   key={restaurant.id}
                   style={({ pressed }) => [styles.card, pressed ? styles.cardPressed : null]}

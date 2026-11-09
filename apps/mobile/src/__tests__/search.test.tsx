@@ -21,7 +21,11 @@ jest.mock("@/lib/restaurants", () => ({
   listRestaurantsWithLocation: jest.fn(),
   requestRestaurant: jest.fn(async () => undefined),
 }));
-jest.mock("@/lib/location", () => ({ getCurrentCoordinates: jest.fn() }));
+jest.mock("@/lib/location", () => ({
+  getCurrentCoordinates: jest.fn(),
+  // Por defecto, el usuario aún no ha dado permiso de ubicación.
+  getCoordinatesIfAllowed: jest.fn(async () => null),
+}));
 
 const mockRestaurants = jest.mocked(restaurants);
 const mockLocation = jest.mocked(location);
@@ -136,6 +140,51 @@ describe("búsqueda por ciudad", () => {
   });
 });
 
+describe("lista inicial ordenada por cercanía", () => {
+  it("si ya dio permiso antes, al abrir ordena de más cerca a más lejos sin pedir nada", async () => {
+    mockLocation.getCoordinatesIfAllowed.mockResolvedValueOnce(SOL);
+    mockRestaurants.listPublishedRestaurants.mockResolvedValueOnce([FAR, NO_LOCATION, MID, NEAR]);
+    await renderSearch();
+    expect(
+      await screen.findByText("Todos los restaurantes (4) · de más cerca a más lejos"),
+    ).toBeTruthy();
+    // Sin radio: todos, por distancia, y al final los que no tienen ubicación.
+    expect(resultNames()).toEqual(["Cerca", "Media", "Barcelona", "Sin ubicacion"]);
+    expect(screen.getByText("a 430 m")).toBeTruthy();
+    expect(mockLocation.getCurrentCoordinates).not.toHaveBeenCalled();
+    expect(screen.queryByRole("button", { name: "Ordenar por cercanía" })).toBeNull();
+  });
+
+  it("si no ha dado permiso, sale por nombre y puede ordenar por cercanía al pulsar", async () => {
+    mockRestaurants.listPublishedRestaurants.mockResolvedValueOnce([MID, NEAR]);
+    mockLocation.getCurrentCoordinates.mockResolvedValueOnce({
+      status: "granted",
+      coordinates: SOL,
+    });
+    await renderSearch();
+    expect(await screen.findByText("Todos los restaurantes (2)")).toBeTruthy();
+    expect(resultNames()).toEqual(["Media", "Cerca"]);
+
+    await press("Ordenar por cercanía");
+    expect(
+      await screen.findByText("Todos los restaurantes (2) · de más cerca a más lejos"),
+    ).toBeTruthy();
+    expect(resultNames()).toEqual(["Cerca", "Media"]);
+    expect(mockLocation.getCurrentCoordinates).toHaveBeenCalledTimes(1);
+  });
+
+  it("si deniega el permiso, la lista sigue visible con el aviso", async () => {
+    mockRestaurants.listPublishedRestaurants.mockResolvedValueOnce([MID, NEAR]);
+    mockLocation.getCurrentCoordinates.mockResolvedValueOnce({ status: "denied" });
+    await renderSearch();
+    await screen.findByText("Todos los restaurantes (2)");
+    await press("Ordenar por cercanía");
+    expect(await screen.findByText(/Sin permiso de ubicación/)).toBeTruthy();
+    expect(screen.getByText("Todos los restaurantes (2)")).toBeTruthy();
+    expect(resultNames()).toEqual(["Media", "Cerca"]);
+  });
+});
+
 describe("cerca de mí", () => {
   it("ordena por distancia, muestra cuánto falta y deja fuera lo lejano", async () => {
     mockLocation.getCurrentCoordinates.mockResolvedValue({ status: "granted", coordinates: SOL });
@@ -143,7 +192,7 @@ describe("cerca de mí", () => {
     await renderSearch();
     await press("Cerca de mí");
 
-    expect(await screen.findByText("2 restaurantes")).toBeTruthy();
+    expect(await screen.findByText("2 restaurantes · de más cerca a más lejos")).toBeTruthy();
     expect(resultNames()).toEqual(["Cerca", "Media"]);
     expect(screen.getByText("a 430 m")).toBeTruthy();
     expect(screen.getByText("a 2,1 km")).toBeTruthy();
@@ -154,7 +203,7 @@ describe("cerca de mí", () => {
     mockRestaurants.listRestaurantsWithLocation.mockResolvedValue([NEAR]);
     await renderSearch();
     await press("Cerca de mí");
-    await screen.findByText("1 restaurante");
+    await screen.findByText("1 restaurante · de más cerca a más lejos");
     expect(mockRestaurants.listRestaurantsWithLocation).toHaveBeenCalledWith();
     expect(screen.getByText(/no se guarda ni se envía/)).toBeTruthy();
   });
@@ -176,11 +225,11 @@ describe("cerca de mí", () => {
     mockRestaurants.searchRestaurantsByCity.mockResolvedValue([NO_LOCATION, MID, NEAR]);
     await renderSearch();
     await press("Cerca de mí");
-    await screen.findByText("1 restaurante");
+    await screen.findByText("1 restaurante · de más cerca a más lejos");
 
     await fireEvent.changeText(screen.getByLabelText("Ciudad"), "Madrid");
     await press("Buscar");
-    expect(await screen.findByText("3 restaurantes")).toBeTruthy();
+    expect(await screen.findByText("3 restaurantes · de más cerca a más lejos")).toBeTruthy();
     // Primero los que tienen ubicación, por distancia; al final, los que no.
     expect(resultNames()).toEqual(["Cerca", "Media", "Sin ubicacion"]);
   });

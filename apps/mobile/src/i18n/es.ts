@@ -90,6 +90,8 @@ export const es = {
     allRestaurants: (n: number) =>
       n === 1 ? "1 restaurante en SafeBite" : `Todos los restaurantes (${n})`,
     showAll: "Ver todos los restaurantes",
+    sortByProximity: "Ordenar por cercanía",
+    byProximity: "de más cerca a más lejos",
     noRestaurants: "Todavía no hay restaurantes publicados.",
     noResultsCity: (city: string) => `No hemos encontrado restaurantes en «${city}».`,
     noResultsNear: (km: number) => `No hay restaurantes a menos de ${km} km.`,
