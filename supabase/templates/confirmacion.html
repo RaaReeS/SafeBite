@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+  <body style="font-family: Arial, Helvetica, sans-serif; color: #18181b; line-height: 1.5">
+    <h1 style="font-size: 20px">Confirma tu cuenta de SafeBite</h1>
+    <p>Hola:</p>
+    <p>
+      Para terminar de crear tu cuenta de restaurante en SafeBite, confirma tu email pulsando este
+      enlace:
+    </p>
+    <p>
+      <a
+        href="{{ .SiteURL }}/auth/confirmar?token_hash={{ .TokenHash }}&type=email&next=/panel"
+        style="
+          display: inline-block;
+          background: #047857;
+          color: #ffffff;
+          padding: 10px 16px;
+          border-radius: 6px;
+          text-decoration: none;
+        "
+        >Confirmar mi cuenta</a
+      >
+    </p>
+    <p style="font-size: 13px; color: #52525b">
+      Si no has creado ninguna cuenta en SafeBite, ignora este mensaje.
+    </p>
+  </body>
+</html>

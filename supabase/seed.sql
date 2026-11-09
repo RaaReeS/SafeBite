@@ -17,7 +17,7 @@ insert into auth.users (
    'authenticated', 'authenticated', 'restaurante@safebite.test',
    extensions.crypt('password123', extensions.gen_salt('bf')), now(),
    '{"provider": "email", "providers": ["email"]}',
-   '{"role": "restaurant_owner", "display_name": "Restaurante Demo"}',
+   '{"role": "restaurant_owner", "display_name": "Restaurante Demo", "accepted_terms": true}',
    now(), now(), '', '', '', ''),
   ('00000000-0000-0000-0000-000000000000', '20000000-0000-0000-0000-000000000001',
    'authenticated', 'authenticated', 'comensal@safebite.test',

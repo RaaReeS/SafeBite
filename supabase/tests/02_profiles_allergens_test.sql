@@ -10,7 +10,10 @@ insert into auth.users (id, raw_user_meta_data) values
   ('cccccccc-0000-0000-0000-000000000000', '{"role": "restaurant_owner"}');
 
 select is(
-  (select count(*)::int from public.profiles), 3,
+  (select count(*)::int from public.profiles where id in (
+     'aaaaaaaa-0000-0000-0000-000000000000',
+     'bbbbbbbb-0000-0000-0000-000000000000',
+     'cccccccc-0000-0000-0000-000000000000')), 3,
   'Se crea un perfil por cada usuario registrado'
 );
 

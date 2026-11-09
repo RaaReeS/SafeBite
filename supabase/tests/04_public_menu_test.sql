@@ -1,4 +1,5 @@
 -- Carta pública por QR: solo lectura, solo lo publicado y activo.
+-- Las consultas se limitan a los datos de este test para no depender del seed.
 begin;
 create extension if not exists pgtap with schema extensions;
 select plan(12);
@@ -26,19 +27,19 @@ set local role anon;
 set local request.jwt.claims = '{"role": "anon"}';
 
 select results_eq(
-  $$ select slug from public.public_restaurants $$,
+  $$ select slug from public.public_restaurants where id in ('aaaa0000-0000-0000-0000-000000000000', 'bbbb0000-0000-0000-0000-000000000000') $$,
   $$ values ('publicado') $$,
   'anon solo ve restaurantes publicados'
 );
 
 select results_eq(
-  $$ select name from public.public_dishes $$,
+  $$ select name from public.public_dishes where restaurant_id in ('aaaa0000-0000-0000-0000-000000000000', 'bbbb0000-0000-0000-0000-000000000000') $$,
   $$ values ('Activo') $$,
   'anon solo ve platos activos de restaurantes publicados'
 );
 
 select results_eq(
-  $$ select dish_id from public.public_dish_allergens $$,
+  $$ select dish_id from public.public_dish_allergens where dish_id in ('aaaa0000-1111-0000-0000-000000000000', 'aaaa0000-2222-0000-0000-000000000000', 'bbbb0000-1111-0000-0000-000000000000') $$,
   $$ values ('aaaa0000-1111-0000-0000-000000000000'::uuid) $$,
   'anon solo ve alérgenos de platos visibles'
 );
@@ -76,7 +77,7 @@ set local role authenticated;
 set local request.jwt.claims = '{"sub": "dddddddd-0000-0000-0000-000000000000", "role": "authenticated"}';
 
 select results_eq(
-  $$ select name from public.public_dishes $$,
+  $$ select name from public.public_dishes where restaurant_id in ('aaaa0000-0000-0000-0000-000000000000', 'bbbb0000-0000-0000-0000-000000000000') $$,
   $$ values ('Activo') $$,
   'Un comensal registrado solo ve platos activos de restaurantes publicados'
 );

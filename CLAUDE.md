@@ -55,6 +55,20 @@ Especificación completa en `ESPECIFICACION.md`. Léela antes de empezar cualqui
 - `pnpm db:reset`: recrear la BD local aplicando migraciones y `supabase/seed.sql`
 - `pnpm db:test`: tests pgTAP de permisos RLS (`supabase/tests/`)
 - `pnpm db:types`: regenerar `packages/core/src/db/database.types.ts` tras cambiar una migración
+- `pnpm test:e2e`: tests de extremo a extremo con Playwright (`apps/web/e2e/`). Requiere Docker abierto, `pnpm db:start` y `apps/web/.env.local` (ver `.env.example`). Usa el puerto 3000 (debe coincidir con `site_url` de `supabase/config.toml`) y lee los emails de Auth en Mailpit.
+
+## Desarrollo local
+
+- En local ningún email sale a internet: los de Auth (confirmación, recuperación) se ven en Mailpit, http://127.0.0.1:54324. La confirmación de email está activada también en local.
+- Cuentas de prueba del seed (contraseña `password123`): `restaurante@safebite.test` y `comensal@safebite.test`.
+
+## Convenciones de la web (Next.js 16)
+
+- `proxy.ts` (antes `middleware.ts`) solo refresca la sesión y hace una redirección optimista. La autorización real se repite en cada página, cada Server Action y cada Route Handler, y RLS es la última barrera.
+- En archivos `"use server"` solo se exportan Server Actions: cualquier export es invocable desde el navegador. Los argumentos de `.bind()` se tratan como entrada no fiable (validar ids, comprobar propietario).
+- Con Cache Components, lo que lee la sesión va dentro de `<Suspense>`. No usar `use cache` con datos de un usuario.
+- Los 404 dentro de contenido en streaming responden 200 con la página de "no encontrado" y `noindex` (comportamiento documentado de Next).
+- Next conserva ocultas en el DOM las páginas visitadas: en los tests, buscar elementos por rol o dentro de un formulario con nombre accesible.
 
 ## Fuera del MVP (no implementar todavía)
 

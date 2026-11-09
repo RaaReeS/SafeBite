@@ -5,8 +5,8 @@ select plan(20);
 
 -- X e Y dueños de restaurante, D comensal.
 insert into auth.users (id, raw_user_meta_data) values
-  ('11111111-0000-0000-0000-000000000000', '{"role": "restaurant_owner"}'),
-  ('22222222-0000-0000-0000-000000000000', '{"role": "restaurant_owner"}'),
+  ('11111111-0000-0000-0000-000000000000', '{"role": "restaurant_owner", "accepted_terms": true}'),
+  ('22222222-0000-0000-0000-000000000000', '{"role": "restaurant_owner", "accepted_terms": true}'),
   ('dddddddd-0000-0000-0000-000000000000', '{}');
 
 -- Restaurante y plato de Y, creados como superusuario.
