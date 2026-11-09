@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Alert } from "@/components/ui/alert";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { PublishedBadge } from "@/components/status-badge";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { env } from "@/env";
+import { isValidCoordinates } from "@safebite/core";
+import { mapUrl } from "@/lib/geocoding";
+import type { MyRestaurant } from "@/lib/data/restaurants";
 import { getMessages } from "@/i18n";
 import { getMyRestaurant } from "@/lib/data/restaurants";
 import { deleteRestaurant, setRestaurantPublished, updateRestaurant } from "../actions";
@@ -49,6 +53,11 @@ export default async function RestaurantPage({ params }: PageProps<"/panel/resta
         </form>
       </section>
 
+      <section className="flex flex-col gap-2 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+        <h2 className="text-lg font-semibold">{t.restaurant.location}</h2>
+        <RestaurantLocation restaurant={restaurant} />
+      </section>
+
       <section className="flex flex-col gap-4">
         <h2 className="text-lg font-semibold">{t.restaurant.details}</h2>
         <RestaurantForm
@@ -75,5 +84,32 @@ export default async function RestaurantPage({ params }: PageProps<"/panel/resta
         </div>
       </section>
     </>
+  );
+}
+
+function RestaurantLocation({ restaurant }: { restaurant: MyRestaurant }) {
+  const t = getMessages();
+  if (isValidCoordinates(restaurant)) {
+    return (
+      <>
+        <p className="text-sm text-zinc-700 dark:text-zinc-300">{t.restaurant.locationFound}</p>
+        <p className="text-sm">
+          <a
+            href={mapUrl(restaurant)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            {t.restaurant.locationCheck}
+          </a>
+        </p>
+        <p className="text-xs text-zinc-500">{t.restaurant.locationAttribution}</p>
+      </>
+    );
+  }
+  return (
+    <Alert tone="warning">
+      {restaurant.address === null ? t.restaurant.locationMissing : t.restaurant.locationNotFound}
+    </Alert>
   );
 }

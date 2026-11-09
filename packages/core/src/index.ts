@@ -28,6 +28,13 @@ export {
   type MenuDishInput,
   type MenuSection,
 } from "./menu/menu";
+export {
+  distanceKm,
+  formatDistance,
+  isValidCoordinates,
+  sortByDistance,
+  type Coordinates,
+} from "./location/distance";
 export { SLUG_MAX_LENGTH, SLUG_MIN_LENGTH, isValidSlug, slugify } from "./validation/slug";
 export {
   PRICE_MAX_CENTS,

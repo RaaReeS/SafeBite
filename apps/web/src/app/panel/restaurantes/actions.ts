@@ -6,6 +6,7 @@ import { notFound, redirect } from "next/navigation";
 import { getMessages } from "@/i18n";
 import { requireRestaurantOwner } from "@/lib/auth";
 import { textField, toFieldErrors, type FormState } from "@/lib/forms";
+import { geocodeAddress } from "@/lib/geocoding";
 import { isUuid } from "@/lib/ids";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -14,6 +15,13 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 // barrera: aunque se manipule el id, nadie puede tocar restaurantes ajenos.
 
 const UNIQUE_VIOLATION = "23505";
+
+/** Coordenadas a partir de la dirección (sin dirección no se ubica: la ciudad sola es imprecisa). */
+async function locate(address: string | null, city: string) {
+  const coordinates = address === null ? null : await geocodeAddress(address, city);
+  return { latitude: coordinates?.latitude ?? null, longitude: coordinates?.longitude ?? null };
+}
+
 const RLS_VIOLATION = "42501";
 
 function readRestaurantForm(formData: FormData) {
@@ -50,7 +58,7 @@ export async function createRestaurant(_prev: FormState, formData: FormData): Pr
   // owner_id lo pone la base de datos (default auth.uid()); el cliente no puede elegirlo.
   const { data, error } = await supabase
     .from("restaurants")
-    .insert(parsed.data)
+    .insert({ ...parsed.data, ...(await locate(parsed.data.address, parsed.data.city)) })
     .select("id")
     .single();
 
@@ -93,7 +101,7 @@ export async function updateRestaurant(
   const supabase = await createSupabaseServerClient();
   const { data: current } = await supabase
     .from("restaurants")
-    .select("slug, published")
+    .select("slug, published, address, city, latitude")
     .eq("id", restaurantId)
     .eq("owner_id", user.id)
     .maybeSingle();
@@ -109,9 +117,17 @@ export async function updateRestaurant(
     };
   }
 
+  // Solo se vuelve a ubicar si cambia la dirección o la ciudad, o si aún no tiene ubicación.
+  const addressChanged =
+    current.address !== parsed.data.address || current.city !== parsed.data.city;
+  const location =
+    addressChanged || current.latitude === null
+      ? await locate(parsed.data.address, parsed.data.city)
+      : {};
+
   const { data, error } = await supabase
     .from("restaurants")
-    .update(parsed.data)
+    .update({ ...parsed.data, ...location })
     .eq("id", restaurantId)
     .eq("owner_id", user.id)
     .select("id")
