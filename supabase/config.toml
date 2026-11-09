@@ -432,3 +432,38 @@ enabled = true
 # formatted with uppercase keywords, indent 2, max width 180, trailing commas,
 # and column/key alignment. Set to "null" to emit raw, unformatted SQL.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":180,\"commaStyle\":\"trailing\"}"
+
+# ---------------------------------------------------------------------------
+# Producción (proyecto de Frankfurt). Estos valores sustituyen a los de arriba,
+# que son para desarrollo local, al ejecutar `supabase config push`.
+# Revisar SIEMPRE antes con `supabase config diff`.
+#
+# El SMTP de producción (Brevo) se configura SOLO en el panel de Supabase
+# (Authentication → Emails → SMTP Settings): sus credenciales nunca van en este
+# archivo. config push no toca lo que no está declarado aquí.
+# ---------------------------------------------------------------------------
+[remotes.production]
+project_id = "alccfbdpkpvwajvpjxqb"
+
+[remotes.production.auth]
+site_url = "https://safebitee.vercel.app"
+additional_redirect_urls = ["https://safebitee.vercel.app/**"]
+
+[remotes.production.auth.email]
+# En local es 1 s para los tests; en producción, 1 min entre reenvíos de emails.
+max_frequency = "1m0s"
+otp_length = 8
+
+[remotes.production.auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+
+[remotes.production.auth.sms]
+enable_confirmations = true
+
+[remotes.production.db.pooler]
+default_pool_size = 15
+max_client_conn = 200
+
+[remotes.production.storage.vector]
+enabled = false
