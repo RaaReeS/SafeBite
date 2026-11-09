@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="es">
+  <body style="font-family: Arial, Helvetica, sans-serif; color: #18181b; line-height: 1.5">
+    <h1 style="font-size: 20px">Restablece tu contraseña</h1>
+    <p>Hola:</p>
+    <p>Hemos recibido una solicitud para restablecer la contraseña de tu cuenta de SafeBite.</p>
+    <p>
+      <a
+        href="{{ .SiteURL }}/auth/confirmar?token_hash={{ .TokenHash }}&type=recovery&next=/nueva-contrasena"
+        style="
+          display: inline-block;
+          background: #047857;
+          color: #ffffff;
+          padding: 10px 16px;
+          border-radius: 6px;
+          text-decoration: none;
+        "
+        >Elegir una contraseña nueva</a
+      >
+    </p>
+    <p style="font-size: 13px; color: #52525b">
+      Si no lo has pedido tú, ignora este mensaje: tu contraseña no cambiará.
+    </p>
+  </body>
+</html>

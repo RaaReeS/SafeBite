@@ -1,0 +1,137 @@
+"use server";
+
+import {
+  emailSchema,
+  newPasswordSchema,
+  safeRedirectPath,
+  signInSchema,
+  signUpSchema,
+} from "@safebite/core";
+import { redirect } from "next/navigation";
+import { env } from "@/env";
+import { getMessages } from "@/i18n";
+import { textField, toFieldErrors, type FormState } from "@/lib/forms";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+
+const RATE_LIMIT_CODES = new Set([
+  "over_request_rate_limit",
+  "over_email_send_rate_limit",
+  "too_many_requests",
+]);
+
+export async function signUp(_prev: FormState, formData: FormData): Promise<FormState> {
+  const t = getMessages();
+  const email = textField(formData, "email") ?? "";
+  const parsed = signUpSchema.safeParse({
+    email,
+    password: textField(formData, "password"),
+    accepted_terms: textField(formData, "accepted_terms"),
+  });
+  if (!parsed.success) {
+    return { status: "error", fieldErrors: toFieldErrors(parsed.error.issues), values: { email } };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.auth.signUp({
+    email: parsed.data.email,
+    password: parsed.data.password,
+    options: {
+      emailRedirectTo: `${env.siteUrl}/auth/confirmar?next=/panel`,
+      // handle_new_user (BD) solo acepta 'restaurant_owner' o 'diner', y
+      // registra la aceptación de términos únicamente si es el booleano true.
+      data: { role: "restaurant_owner", accepted_terms: parsed.data.accepted_terms },
+    },
+  });
+
+  if (error) {
+    const message =
+      error.code !== undefined && RATE_LIMIT_CODES.has(error.code)
+        ? t.common.tooManyAttempts
+        : t.auth.register.couldNotRegister;
+    return { status: "error", message, values: { email } };
+  }
+
+  // Con confirmación de email activada no hay sesión hasta abrir el enlace.
+  // Si el email ya existía, Supabase responde igual (no revela qué emails existen).
+  if (data.session === null) {
+    return { status: "success", message: t.auth.register.checkEmail };
+  }
+  redirect("/panel");
+}
+
+export async function signIn(_prev: FormState, formData: FormData): Promise<FormState> {
+  const t = getMessages();
+  const email = textField(formData, "email") ?? "";
+  const parsed = signInSchema.safeParse({ email, password: textField(formData, "password") });
+  if (!parsed.success) {
+    return { status: "error", fieldErrors: toFieldErrors(parsed.error.issues), values: { email } };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.auth.signInWithPassword(parsed.data);
+  if (error) {
+    let message = t.auth.login.invalidCredentials;
+    if (error.code === "email_not_confirmed") message = t.auth.login.emailNotConfirmed;
+    else if (error.code !== undefined && RATE_LIMIT_CODES.has(error.code)) {
+      message = t.common.tooManyAttempts;
+    }
+    return { status: "error", message, values: { email } };
+  }
+
+  redirect(safeRedirectPath(textField(formData, "next")));
+}
+
+export async function requestPasswordReset(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const t = getMessages();
+  const email = textField(formData, "email") ?? "";
+  const parsed = emailSchema.safeParse({ email });
+  if (!parsed.success) {
+    return { status: "error", fieldErrors: toFieldErrors(parsed.error.issues), values: { email } };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
+    redirectTo: `${env.siteUrl}/auth/confirmar?next=/nueva-contrasena`,
+  });
+  if (error?.code !== undefined && RATE_LIMIT_CODES.has(error.code)) {
+    return { status: "error", message: t.common.tooManyAttempts, values: { email } };
+  }
+
+  // Misma respuesta exista o no la cuenta: no se revela qué emails están registrados.
+  return { status: "success", message: t.auth.forgot.sent };
+}
+
+export async function updatePassword(_prev: FormState, formData: FormData): Promise<FormState> {
+  const t = getMessages();
+  const parsed = newPasswordSchema.safeParse({
+    password: textField(formData, "password"),
+    password_confirmation: textField(formData, "password_confirmation"),
+  });
+  if (!parsed.success) {
+    return { status: "error", fieldErrors: toFieldErrors(parsed.error.issues) };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { data: claims } = await supabase.auth.getClaims();
+  if (!claims) {
+    return { status: "error", message: t.auth.newPassword.expired };
+  }
+
+  const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
+  if (error) {
+    const message =
+      error.code === "same_password" ? t.auth.newPassword.samePassword : t.common.genericError;
+    return { status: "error", message };
+  }
+
+  redirect("/panel");
+}
+
+export async function signOut(): Promise<void> {
+  const supabase = await createSupabaseServerClient();
+  await supabase.auth.signOut();
+  redirect("/login");
+}
