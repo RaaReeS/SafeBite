@@ -201,6 +201,24 @@ export const es = {
         ? "1 plato tiene alérgenos sin declarar."
         : `${n} platos tienen alérgenos sin declarar.`,
   },
+  qr: {
+    title: "Código QR",
+    manage: "Código QR de la carta",
+    backToRestaurant: "← Restaurante",
+    description:
+      "Imprime este código y colócalo en las mesas o en la entrada. Al escanearlo, tus clientes abrirán tu carta y podrán filtrarla según sus alergias.",
+    imageAlt: (name: string) => `Código QR de la carta de ${name}`,
+    opens: "Abre:",
+    downloadPng: "Descargar PNG",
+    downloadPdf: "Descargar PDF para imprimir",
+    notPublished:
+      "Tu carta aún no está publicada: quien escanee el QR verá «no encontrado» hasta que la publiques.",
+    slugWarning:
+      "Si cambias la dirección de la carta, tendrás que volver a imprimir el QR: el anterior dejará de funcionar.",
+    pdfHeading: "Carta con información de alérgenos",
+    pdfInstructions:
+      "Escanea el código con la cámara de tu móvil para ver la carta y filtrarla según tus alergias.",
+  },
   notFound: {
     title: "Página no encontrada",
     description: "La página que buscas no existe o no tienes acceso a ella.",

@@ -25,9 +25,12 @@ export default async function RestaurantPage({ params }: PageProps<"/panel/resta
         <h1 className="text-2xl font-semibold">{restaurant.name}</h1>
         <PublishedBadge published={restaurant.published} />
       </div>
-      <div>
+      <div className="flex flex-wrap gap-3">
         <ButtonLink href={`/panel/restaurantes/${restaurant.id}/platos`}>
           {t.dishes.manage}
+        </ButtonLink>
+        <ButtonLink href={`/panel/restaurantes/${restaurant.id}/qr`} variant="secondary">
+          {t.qr.manage}
         </ButtonLink>
       </div>
 
