@@ -16,6 +16,7 @@ export const VALIDATION_ERROR_CODES = [
   "password_too_short",
   "passwords_mismatch",
   "terms_required",
+  "invalid_code",
 ] as const;
 
 export type ValidationErrorCode = (typeof VALIDATION_ERROR_CODES)[number];
@@ -34,5 +35,6 @@ export const VALIDATION_MESSAGES: Record<Locale, Record<ValidationErrorCode, str
     password_too_short: "La contraseña debe tener al menos 8 caracteres.",
     passwords_mismatch: "Las contraseñas no coinciden.",
     terms_required: "Debes aceptar los términos de uso y la política de privacidad.",
+    invalid_code: "Escribe el código de 6 a 8 cifras que te hemos enviado por email.",
   },
 };

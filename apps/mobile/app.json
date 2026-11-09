@@ -21,6 +21,20 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "scheme": "safebite"
+    "scheme": "safebite",
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "SafeBite usa tu ubicación solo mientras usas la app, para ordenar los restaurantes por cercanía. No se guarda ni se envía a ningún servidor."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
   }
 }

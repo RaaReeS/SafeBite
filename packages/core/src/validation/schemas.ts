@@ -79,3 +79,11 @@ export const dishAllergensSchema = z
     (declarations) => new Set(declarations.map((d) => d.allergen)).size === declarations.length,
     error("duplicate_allergen"),
   );
+
+/** Solicitud de alta de un restaurante ("Pide este restaurante"). Límites de la BD. */
+export const restaurantRequestSchema = z.object({
+  restaurant_name: requiredText(120),
+  city: requiredText(100),
+});
+
+export type RestaurantRequestData = z.output<typeof restaurantRequestSchema>;

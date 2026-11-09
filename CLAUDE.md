@@ -49,7 +49,7 @@ Especificación completa en `ESPECIFICACION.md`. Léela antes de empezar cualqui
 - `pnpm dev:web`: arrancar la web
 - `pnpm dev:mobile`: arrancar Expo
 - `pnpm test`: ejecutar tests (en `packages/core` exige cobertura del 100 % en `src/filter` y `src/allergens`)
-- `pnpm test:mutation`: mutation testing con Stryker sobre el filtro (umbral 100 %). Ejecutarlo tras cualquier cambio en `src/filter` o `src/allergens`.
+- `pnpm test:mutation`: mutation testing con Stryker sobre `src/filter`, `src/allergens` y `src/menu` (umbral 100 %). Ejecutarlo tras cualquier cambio en esas carpetas. `src/allergens/icons.ts` se excluye: son datos de dibujo decorativos, no lógica.
 - `pnpm lint`: revisar código
 - `pnpm db:start` / `pnpm db:stop`: arrancar/parar Supabase local (requiere Docker Desktop abierto)
 - `pnpm db:reset`: recrear la BD local aplicando migraciones y `supabase/seed.sql`
@@ -61,6 +61,8 @@ Especificación completa en `ESPECIFICACION.md`. Léela antes de empezar cualqui
 
 - En local ningún email sale a internet: los de Auth (confirmación, recuperación) se ven en Mailpit, http://127.0.0.1:54324. La confirmación de email está activada también en local.
 - Cuentas de prueba del seed (contraseña `password123`): `restaurante@safebite.test` y `comensal@safebite.test`.
+- App móvil en un dispositivo real (Expo Go): `apps/mobile/.env.local` debe apuntar a la IP del PC en la wifi (`http://<IP>:54321`), no a `127.0.0.1`. Móvil y PC en la misma red.
+- La app declara `@babel/core@7` como dependencia de desarrollo: Stryker (en core) trae Babel 8 al monorepo y Expo necesita la 7.
 
 ## Producción
 
@@ -78,6 +80,13 @@ Especificación completa en `ESPECIFICACION.md`. Léela antes de empezar cualqui
 - Con Cache Components, lo que lee la sesión va dentro de `<Suspense>`. No usar `use cache` con datos de un usuario.
 - Los 404 dentro de contenido en streaming responden 200 con la página de "no encontrado" y `noindex` (comportamiento documentado de Next).
 - Next conserva ocultas en el DOM las páginas visitadas: en los tests, buscar elementos por rol o dentro de un formulario con nombre accesible.
+
+## Convenciones de la app móvil (Expo SDK 58)
+
+- Rutas en `apps/mobile/src/app` con Expo Router. Con sesión solo se accede al grupo `(app)`; sin sesión, solo a `(auth)` (`Stack.Protected`). La ruta raíz `index` solo redirige y debe seguir existiendo: sin ella, abrir la app sin sesión da "Unmatched Route".
+- La sesión de Supabase se guarda cifrada (`src/lib/secure-session-storage.ts`): nunca en AsyncStorage en claro.
+- La confirmación de email y la recuperación de contraseña en la app usan el código del email (`verifyOtp`), no el enlace.
+- Tests con jest-expo y React Native Testing Library v14: `renderRouter`, `fireEvent` y `act` son asíncronos y hay que esperarlos (`await`). Los simuladores van en `src/test-utils/` (todo lo que esté en `__tests__/` se ejecuta como test).
 
 ## Fuera del MVP (no implementar todavía)
 

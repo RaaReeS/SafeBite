@@ -142,3 +142,57 @@ test.describe("aislamiento entre restaurantes", () => {
     await expect(page.getByRole("heading", { name: "Página no encontrada" })).toBeVisible();
   });
 });
+
+test.describe("ubicación del restaurante", () => {
+  // Con GEOCODER=fake: Madrid, Sevilla y Barcelona se ubican; "no existe" no.
+  async function saveAddress(
+    page: import("@playwright/test").Page,
+    address: string,
+    city = "Madrid",
+  ) {
+    const form = restaurantForm(page);
+    await form.getByLabel(/^Dirección \(opcional\)/).fill(address);
+    await form.getByLabel("Ciudad").fill(city);
+    await form.getByRole("button", { name: "Guardar cambios" }).click();
+    await expect(form.getByRole("status")).toHaveText("Cambios guardados.");
+  }
+
+  test("sin dirección, pide añadirla para aparecer en «Cerca de mí»", async ({ page }) => {
+    await registerOwner(page);
+    await createRestaurant(page);
+    await expect(page.getByText("Añade la dirección del establecimiento")).toBeVisible();
+  });
+
+  test("con dirección, se ubica en el mapa y se puede comprobar", async ({ page }) => {
+    await registerOwner(page);
+    await createRestaurant(page);
+    await saveAddress(page, "Calle Mayor 1");
+    await expect(page.getByText("Hemos ubicado tu dirección en el mapa")).toBeVisible();
+    const link = page.getByRole("link", { name: "Comprobar en el mapa" });
+    // Valor exacto del geocodificador simulado: confirma que no se ha llamado a Nominatim.
+    await expect(link).toHaveAttribute(
+      "href",
+      "https://www.openstreetmap.org/?mlat=40.41864&mlon=-3.70196#map=18/40.41864/-3.70196",
+    );
+    await expect(page.getByText("© OpenStreetMap")).toBeVisible();
+  });
+
+  test("si la dirección no se encuentra, lo avisa y el restaurante se guarda igualmente", async ({
+    page,
+  }) => {
+    await registerOwner(page);
+    await createRestaurant(page);
+    await saveAddress(page, "Calle que no existe 0");
+    await expect(page.getByText("No hemos podido ubicar esta dirección")).toBeVisible();
+  });
+
+  test("al cambiar de ciudad, la ubicación se actualiza", async ({ page }) => {
+    await registerOwner(page);
+    await createRestaurant(page);
+    await saveAddress(page, "Calle Mayor 1", "Madrid");
+    const link = page.getByRole("link", { name: "Comprobar en el mapa" });
+    await expect(link).toHaveAttribute("href", /mlat=40\./);
+    await saveAddress(page, "Calle Mayor 1", "Sevilla");
+    await expect(link).toHaveAttribute("href", /mlat=37\./);
+  });
+});

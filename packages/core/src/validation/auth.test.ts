@@ -4,6 +4,7 @@ import {
   PASSWORD_MIN_LENGTH,
   emailSchema,
   newPasswordSchema,
+  otpCodeSchema,
   signInSchema,
   signUpSchema,
 } from "./auth";
@@ -109,5 +110,20 @@ describe("newPasswordSchema", () => {
     expect(
       errorsOf(newPasswordSchema.safeParse({ password: "corta", password_confirmation: "corta" })),
     ).toEqual({ password: "password_too_short" });
+  });
+});
+
+describe("otpCodeSchema", () => {
+  it.each([
+    ["123456", "123456"],
+    ["12345678", "12345678"],
+    [" 123 456 ", "123456"],
+    ["1234 5678", "12345678"],
+  ])("acepta %j -> %j", (input, expected) => {
+    expect(otpCodeSchema.parse({ code: input })).toEqual({ code: expected });
+  });
+
+  it.each([["12345"], ["123456789"], ["12a456"], [""], ["------"]])("rechaza %j", (input) => {
+    expect(errorsOf(otpCodeSchema.safeParse({ code: input }))).toEqual({ code: "invalid_code" });
   });
 });

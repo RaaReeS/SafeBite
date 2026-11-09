@@ -45,3 +45,14 @@ export const newPasswordSchema = z
     path: ["password_confirmation"],
   })
   .transform(({ password }) => ({ password }));
+
+/**
+ * Código de verificación enviado por email (6 dígitos en local, 8 en
+ * producción según otp_length). Se toleran espacios al copiar y pegar.
+ */
+export const otpCodeSchema = z.object({
+  code: z
+    .string(error("invalid_code"))
+    .transform((value) => value.replace(/\s/g, ""))
+    .pipe(z.string().regex(/^\d{6,8}$/, error("invalid_code"))),
+});

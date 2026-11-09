@@ -7,6 +7,7 @@ import {
   getAuthLinkFromEmail,
   login,
   registerOwner,
+  signUpDinerViaApi,
   uniqueEmail,
 } from "./helpers";
 
@@ -151,6 +152,36 @@ test.describe("inicio de sesión", () => {
     await page.goto("/auth/confirmar?token_hash=falso&type=email&next=/panel");
     await expect(page).toHaveURL(/\/login\?error=enlace$/);
     await expect(formAlert(page)).toContainText("El enlace no es válido o ha caducado");
+  });
+});
+
+test.describe("comensales registrados desde la app", () => {
+  test("si abren el enlace del email en el navegador, se les pide volver a la app", async ({
+    page,
+  }) => {
+    const email = uniqueEmail("comensal");
+    await signUpDinerViaApi(email);
+    await page.goto(await getAuthLinkFromEmail(email, "Confirma tu cuenta de SafeBite"));
+    await expect(page).toHaveURL(/\/cuenta-confirmada\?motivo=cuenta$/);
+    await expect(page.getByRole("heading", { name: "Tu cuenta está confirmada" })).toBeVisible();
+    await expect(page.getByText("volver a la app de SafeBite")).toBeVisible();
+  });
+
+  test("si cambian la contraseña con el enlace, terminan en la misma página", async ({ page }) => {
+    const email = uniqueEmail("comensal");
+    await signUpDinerViaApi(email);
+    await page.goto(await getAuthLinkFromEmail(email, "Confirma tu cuenta de SafeBite"));
+    await page.goto("/recuperar");
+    await page.getByLabel("Email").fill(email);
+    await page.getByRole("button", { name: "Enviar enlace" }).click();
+    await expect(page.getByRole("status")).toContainText("Si existe una cuenta");
+    await page.goto(await getAuthLinkFromEmail(email, "Restablece tu contraseña de SafeBite"));
+    await expect(page).toHaveURL(/\/nueva-contrasena$/);
+    await page.getByLabel("Contraseña nueva").fill("otra-contraseña-nueva");
+    await page.getByLabel("Repite la contraseña").fill("otra-contraseña-nueva");
+    await page.getByRole("button", { name: "Guardar contraseña" }).click();
+    await expect(page).toHaveURL(/\/cuenta-confirmada\?motivo=contrasena$/);
+    await expect(page.getByRole("heading", { name: "Contraseña actualizada" })).toBeVisible();
   });
 });
 

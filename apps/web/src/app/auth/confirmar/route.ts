@@ -1,6 +1,7 @@
 import { safeRedirectPath } from "@safebite/core";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
+import { destinationAfterEmailLink } from "@/lib/auth-destination";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const ALLOWED_TYPES: readonly EmailOtpType[] = ["email", "signup", "recovery"];
@@ -33,6 +34,12 @@ export async function GET(request: NextRequest) {
     verified = error === null;
   }
 
-  const destination = verified ? next : "/login?error=enlace";
+  // En la recuperación se va siempre al formulario de contraseña nueva; el
+  // destino según el rol se decide después de guardarla (updatePassword).
+  let destination = "/login?error=enlace";
+  if (verified) {
+    destination =
+      type === "recovery" ? next : await destinationAfterEmailLink(supabase, next, "cuenta");
+  }
   return NextResponse.redirect(new URL(destination, request.nextUrl.origin));
 }

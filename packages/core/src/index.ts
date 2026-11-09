@@ -2,6 +2,12 @@ export { ALLERGENS, isAllergen, type Allergen } from "./allergens/allergens";
 export { ALLERGEN_LEVELS, isAllergenLevel, type AllergenLevel } from "./allergens/levels";
 export { ALLERGEN_LABELS, type Locale } from "./allergens/labels";
 export {
+  ALLERGEN_ICONS,
+  ALLERGEN_ICON_STROKE_WIDTH,
+  ALLERGEN_ICON_VIEWBOX,
+  type IconShape,
+} from "./allergens/icons";
+export {
   FILTER_STATUSES,
   compareStatus,
   isFilterStatus,
@@ -28,6 +34,13 @@ export {
   type MenuDishInput,
   type MenuSection,
 } from "./menu/menu";
+export {
+  distanceKm,
+  formatDistance,
+  isValidCoordinates,
+  sortByDistance,
+  type Coordinates,
+} from "./location/distance";
 export { SLUG_MAX_LENGTH, SLUG_MIN_LENGTH, isValidSlug, slugify } from "./validation/slug";
 export {
   PRICE_MAX_CENTS,
@@ -43,17 +56,20 @@ export {
 export {
   dishAllergensSchema,
   dishSchema,
+  restaurantRequestSchema,
   restaurantSchema,
   type DishData,
   type DishInput,
   type RestaurantData,
   type RestaurantInput,
+  type RestaurantRequestData,
 } from "./validation/schemas";
 export {
   PASSWORD_MAX_LENGTH,
   PASSWORD_MIN_LENGTH,
   emailSchema,
   newPasswordSchema,
+  otpCodeSchema,
   signInSchema,
   signUpSchema,
 } from "./validation/auth";

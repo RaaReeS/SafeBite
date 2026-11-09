@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { expect, type Page } from "@playwright/test";
 
 // Buzón de pruebas de Supabase local: los emails de Auth no salen a internet.
@@ -96,4 +98,29 @@ export async function createRestaurant(page: Page, name = uniqueName()) {
   await expect(page).toHaveURL(/\/panel\/restaurantes\/[0-9a-f-]{36}$/);
   await expect(page.getByRole("heading", { level: 1, name })).toBeVisible();
   return { name, url: page.url() };
+}
+
+/** Variables de apps/web/.env.local (Playwright se ejecuta desde apps/web). */
+export function localEnv(): Record<string, string> {
+  const content = readFileSync(join(process.cwd(), ".env.local"), "utf8");
+  return Object.fromEntries(
+    content
+      .split(/\r?\n/)
+      .filter((line) => line.includes("=") && !line.startsWith("#"))
+      .map((line) => [line.slice(0, line.indexOf("=")), line.slice(line.indexOf("=") + 1)]),
+  );
+}
+
+/** Registra un comensal como lo haría la app (API de Supabase, sin rol de restaurante). */
+export async function signUpDinerViaApi(email: string, password = DEFAULT_PASSWORD) {
+  const env = localEnv();
+  const response = await fetch(`${env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/signup`, {
+    method: "POST",
+    headers: {
+      apikey: env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email, password, data: { accepted_terms: true } }),
+  });
+  expect(response.status).toBe(200);
 }

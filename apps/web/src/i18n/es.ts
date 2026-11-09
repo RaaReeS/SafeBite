@@ -121,6 +121,15 @@ export const es = {
     slugChangeRequired: "Confirma que entiendes que los QR impresos dejarán de funcionar.",
     details: "Datos del establecimiento",
     publication: "Publicación",
+    location: "Ubicación",
+    locationFound:
+      "Hemos ubicado tu dirección en el mapa: los clientes podrán encontrarte con «Cerca de mí» en la app.",
+    locationCheck: "Comprobar en el mapa",
+    locationNotFound:
+      "No hemos podido ubicar esta dirección. Revisa que la dirección y la ciudad estén bien escritas y guarda de nuevo.",
+    locationMissing:
+      "Añade la dirección del establecimiento para que los clientes puedan encontrarte con «Cerca de mí» en la app.",
+    locationAttribution: "Ubicación obtenida de © OpenStreetMap.",
     publishedInfo: "Tu carta está publicada y cualquiera con el enlace o el QR puede verla.",
     draftInfo: "Tu carta es un borrador: nadie más puede verla todavía.",
     publish: "Publicar carta",
@@ -279,6 +288,11 @@ export const es = {
     notice:
       "Así verán tu carta tus clientes al escanear el QR. Los platos ocultos no aparecen. Prueba a seleccionar alergias para comprobar cómo se filtra.",
     notPublished: "Tu carta aún no está publicada: solo tú puedes verla aquí.",
+  },
+  accountConfirmed: {
+    title: "Tu cuenta está confirmada",
+    passwordTitle: "Contraseña actualizada",
+    backToApp: "Ya puedes volver a la app de SafeBite e iniciar sesión.",
   },
   notFound: {
     title: "Página no encontrada",
