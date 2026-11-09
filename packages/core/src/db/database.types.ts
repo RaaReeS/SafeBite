@@ -360,6 +360,7 @@ export type Database = {
       };
     };
     Functions: {
+      delete_own_account: { Args: Record<PropertyKey, never>; Returns: undefined };
       set_dish_allergens: {
         Args: { declarations: Json; target_dish_id: string };
         Returns: undefined;
