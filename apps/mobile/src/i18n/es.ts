@@ -67,7 +67,57 @@ export const es = {
   },
   home: {
     greeting: (email: string) => `Hola, ${email}`,
-    comingSoon: "Aquí podrás configurar tus alergias y buscar restaurantes.",
+    allergiesTitle: "Mis alergias",
+    noConsent: "Aún no has configurado tus alergias.",
+    configure: "Configurar mis alergias",
+    noAllergies: "No has marcado ninguna alergia.",
+    yourAllergies: (list: string) => `Tus alergias: ${list}.`,
+    edit: "Editar mis alergias",
+    account: "Mi cuenta",
+    loadError: "No se ha podido cargar tu perfil.",
+    retry: "Reintentar",
+  },
+  consent: {
+    title: "Tus datos de salud",
+    intro:
+      "Para filtrar las cartas según tus alergias, SafeBite necesita guardar tu perfil de alergias e intolerancias. Es un dato de salud, así que solo lo guardamos con tu consentimiento explícito.",
+    points: [
+      "Lo usamos únicamente para filtrar las cartas y los productos que consultes.",
+      "Solo tú puedes verlo. Nunca se comparte con los restaurantes ni con nadie más.",
+      "Se guarda en servidores de la Unión Europea.",
+      "Puedes retirar tu consentimiento cuando quieras desde «Mi cuenta»: tus alergias se borrarán en ese momento.",
+    ],
+    checkbox:
+      "Doy mi consentimiento explícito para que SafeBite guarde y use mi perfil de alergias e intolerancias con esta finalidad.",
+    accept: "Continuar",
+    privacy: "Leer la política de privacidad",
+  },
+  allergies: {
+    title: "Mis alergias",
+    description:
+      "Marca los alérgenos que debes evitar. Las cartas se filtrarán automáticamente con esta selección.",
+    save: "Guardar",
+    saved: "Tu perfil de alergias se ha guardado.",
+    saveError: "No se ha podido guardar. No se ha cambiado nada: inténtalo de nuevo.",
+  },
+  account: {
+    title: "Mi cuenta",
+    signedInAs: (email: string) => `Has iniciado sesión como ${email}.`,
+    consentGiven: "Has dado tu consentimiento para guardar tu perfil de alergias.",
+    consentNotGiven: "No tienes un perfil de alergias guardado.",
+    withdraw: "Retirar consentimiento y borrar mis alergias",
+    withdrawTitle: "¿Retirar el consentimiento?",
+    withdrawMessage:
+      "Se borrarán tus alergias guardadas. Las cartas dejarán de filtrarse automáticamente hasta que vuelvas a configurarlas.",
+    withdrawConfirm: "Retirar y borrar",
+    withdrawn: "Has retirado tu consentimiento y tus alergias se han borrado.",
+    delete: "Borrar mi cuenta",
+    deleteTitle: "¿Borrar tu cuenta?",
+    deleteMessage:
+      "Se borrarán tu cuenta, tu perfil de alergias y todos tus datos. No se puede deshacer.",
+    deleteConfirm: "Borrar mi cuenta",
+    cancel: "Cancelar",
+    error: "No se ha podido completar la acción. Inténtalo de nuevo.",
   },
 };
 

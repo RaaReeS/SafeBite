@@ -9,6 +9,11 @@ jest.mock(
     require("@/test-utils/supabase-mock").supabaseModule,
 );
 
+// El perfil de salud se prueba en profile.test.tsx; aquí basta con uno vacío.
+jest.mock("@/lib/profile", () => ({
+  getHealthProfile: jest.fn(async () => ({ consentGivenAt: null, allergens: [] })),
+}));
+
 // Navegación real de la app (src/app), con Supabase simulado.
 async function renderApp(initialUrl = "/") {
   await renderRouter("./src/app", { initialUrl });
@@ -34,6 +39,8 @@ describe("acceso a la app", () => {
     await renderApp();
     expect(await screen.findByText("Hola, comensal@safebite.test")).toBeTruthy();
 
+    await press("Mi cuenta");
+    await screen.findByRole("button", { name: "Cerrar sesión" });
     await press("Cerrar sesión");
     await waitFor(() => expect(mockAuth.signOut).toHaveBeenCalled());
     await act(async () => emitSession(null));

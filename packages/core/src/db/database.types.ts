@@ -365,6 +365,10 @@ export type Database = {
         Args: { declarations: Json; target_dish_id: string };
         Returns: undefined;
       };
+      set_my_allergens: {
+        Args: { allergens: Database["public"]["Enums"]["allergen"][] };
+        Returns: undefined;
+      };
     };
     Enums: {
       allergen:
