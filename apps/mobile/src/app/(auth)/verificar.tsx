@@ -1,7 +1,7 @@
 import { otpCodeSchema } from "@safebite/core";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import { Text } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { Button } from "@/components/button";
 import { Notice } from "@/components/notice";
 import { Screen } from "@/components/screen";
@@ -9,10 +9,11 @@ import { TextField } from "@/components/text-field";
 import { getMessages } from "@/i18n";
 import { authErrorMessage, toFieldErrors } from "@/lib/forms";
 import { supabase } from "@/lib/supabase";
-import { colors, fontSize } from "@/theme";
+import { colors, fontSize, spacing } from "@/theme";
 
 export default function VerifyScreen() {
   const t = getMessages();
+  const router = useRouter();
   const { email = "", motivo } = useLocalSearchParams<{ email?: string; motivo?: string }>();
   const [code, setCode] = useState("");
   const [codeError, setCodeError] = useState<string | undefined>();
@@ -77,6 +78,29 @@ export default function VerifyScreen() {
         onPress={() => void resend()}
         loading={resending}
       />
+      {/* Al registrarse con un email que ya tiene cuenta, Supabase responde igual
+          que con uno nuevo (para no revelar qué emails existen) pero no envía
+          código. Se avisa de ello sin decir si es el caso. */}
+      {motivo === "sin-confirmar" ? null : (
+        <View style={styles.existing}>
+          <Text style={styles.muted}>{t.auth.verify.existingAccount}</Text>
+          <Button
+            variant="secondary"
+            label={t.auth.verify.goToLogin}
+            onPress={() => router.replace("/login")}
+          />
+          <Button
+            variant="link"
+            label={t.auth.verify.goToRecovery}
+            onPress={() => router.push("/recuperar")}
+          />
+        </View>
+      )}
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  existing: { gap: spacing.sm, marginTop: spacing.lg },
+  muted: { fontSize: fontSize.sm, color: colors.textMuted },
+});

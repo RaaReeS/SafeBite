@@ -41,6 +41,10 @@ export const es = {
       resent: "Si la cuenta existe y aún no está confirmada, te hemos enviado un código nuevo.",
       notConfirmed:
         "Aún no has confirmado tu email. Escribe el código que te enviamos o pide uno nuevo.",
+      existingAccount:
+        "¿No te llega el código? Si ya tenías una cuenta con este email, no te enviaremos ninguno: inicia sesión o recupera tu contraseña.",
+      goToLogin: "Iniciar sesión",
+      goToRecovery: "Recuperar contraseña",
     },
     login: {
       title: "Iniciar sesión",

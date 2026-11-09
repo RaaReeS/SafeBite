@@ -117,6 +117,27 @@ describe("verificación con código", () => {
     expect(await screen.findByText(/El código no es válido o ha caducado/)).toBeTruthy();
   });
 
+  it("tras registrarse avisa de que, si el email ya tenía cuenta, no llegará código", async () => {
+    await renderApp("/verificar?email=a%40b.es");
+    expect(await screen.findByText(/Si ya tenías una cuenta con este email/)).toBeTruthy();
+    await press("Iniciar sesión");
+    expect(await screen.findByRole("button", { name: "Entrar" })).toBeTruthy();
+    expect(screen).toHavePathname("/login");
+  });
+
+  it("desde el aviso también se puede recuperar la contraseña", async () => {
+    await renderApp("/verificar?email=a%40b.es");
+    await screen.findByText(/Si ya tenías una cuenta con este email/);
+    await press("Recuperar contraseña");
+    expect(await screen.findByRole("button", { name: "Enviar código" })).toBeTruthy();
+  });
+
+  it("si viene del login con la cuenta sin confirmar, no muestra ese aviso", async () => {
+    await renderApp("/verificar?email=a%40b.es&motivo=sin-confirmar");
+    expect(await screen.findByText(/Aún no has confirmado tu email/)).toBeTruthy();
+    expect(screen.queryByText(/Si ya tenías una cuenta con este email/)).toBeNull();
+  });
+
   it("puede pedir que se reenvíe el código", async () => {
     mockAuth.resend.mockResolvedValue({ data: {}, error: null });
     await renderApp("/verificar?email=a%40b.es");
