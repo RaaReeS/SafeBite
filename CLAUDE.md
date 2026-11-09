@@ -35,6 +35,7 @@ Especificación completa en `ESPECIFICACION.md`. Léela antes de empezar cualqui
 - Interfaz y textos en español (preparar i18n desde el inicio).
 - Identificadores en inglés: tablas, columnas, enums, variables y funciones (`name`, `created_at`, `restaurant_owner`). El español es solo para textos visibles al usuario.
   - **Excepción deliberada:** los estados del filtro se mantienen en español (`apto`, `no_apto`, `posibles_trazas`, `sin_datos`), como en la especificación. No traducirlos.
+- Registro con un email que ya tiene cuenta confirmada: Supabase no envía nada y devuelve `user.identities` vacío. Por decisión del usuario, la web y la app muestran en rojo "Esta cuenta ya está registrada" en vez de pedir el email o el código. Se acepta que esto revela qué emails están registrados (lo limita el rate limit de Supabase). Login y recuperación de contraseña siguen sin revelarlo.
 - Perfil de alergias vacío: el filtro devuelve `apto`, pero la interfaz no muestra etiquetas de estado; muestra `FILTER_EMPTY_PROFILE_HINT`.
 - Paquetes con el scope `@safebite/*`. TypeScript fijado en ~6.0 (typescript-eslint aún no soporta la 7).
 - Roles de cuenta en `profiles.role`: `diner`, `restaurant_owner`, `admin`. El usuario nunca puede cambiar su propio rol; `admin` solo se asigna desde el servidor (service role).

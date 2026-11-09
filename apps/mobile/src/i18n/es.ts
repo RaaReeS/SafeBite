@@ -29,6 +29,10 @@ export const es = {
       submit: "Crear cuenta",
       couldNotRegister:
         "No se ha podido crear la cuenta. Si ya tienes una con este email, inicia sesión o recupera tu contraseña.",
+      alreadyRegistered:
+        "Esta cuenta ya está registrada. Inicia sesión o recupera tu contraseña si no la recuerdas.",
+      goToLogin: "Iniciar sesión",
+      goToForgot: "Recuperar contraseña",
     },
     verify: {
       title: "Confirma tu email",
