@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PRICE_MAX_CENTS, formatCents, parsePriceToCents } from "./price";
+import { PRICE_MAX_CENTS, centsToPriceInput, formatCents, parsePriceToCents } from "./price";
 
 describe("parsePriceToCents", () => {
   it.each([
@@ -58,6 +58,23 @@ describe("formatCents", () => {
   it("ida y vuelta: formatear y volver a leer da el mismo valor", () => {
     for (const cents of [0, 1, 99, 100, 950, 1299, 9999999]) {
       expect(parsePriceToCents(formatCents(cents))).toBe(cents);
+    }
+  });
+});
+
+describe("centsToPriceInput", () => {
+  it.each([
+    [950, "9,50"],
+    [5, "0,05"],
+    [0, "0,00"],
+    [123456, "1234,56"],
+  ])("%d -> %j", (cents, expected) => {
+    expect(centsToPriceInput(cents)).toBe(expected);
+  });
+
+  it("ida y vuelta con parsePriceToCents", () => {
+    for (const cents of [0, 1, 29, 113, 950, PRICE_MAX_CENTS]) {
+      expect(parsePriceToCents(centsToPriceInput(cents))).toBe(cents);
     }
   });
 });

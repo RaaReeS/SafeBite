@@ -1,28 +1,5 @@
-import { expect, test, type Page } from "@playwright/test";
-import { registerOwner } from "./helpers";
-
-// Next 16 (Cache Components) conserva ocultas en el DOM las páginas visitadas.
-// Por eso los campos se buscan dentro del formulario visible (getByRole ignora
-// los elementos ocultos).
-function restaurantForm(page: Page) {
-  return page.getByRole("form", { name: "Datos del establecimiento" });
-}
-
-function uniqueName(prefix = "Casa Prueba"): string {
-  return `${prefix} ${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
-}
-
-/** Crea un restaurante y deja la página en su ficha. */
-async function createRestaurant(page: Page, name = uniqueName()) {
-  await page.goto("/panel/restaurantes/nuevo");
-  const form = restaurantForm(page);
-  await form.getByLabel("Nombre del establecimiento").fill(name);
-  await form.getByLabel("Ciudad").fill("Madrid");
-  await form.getByRole("button", { name: "Crear restaurante" }).click();
-  await expect(page).toHaveURL(/\/panel\/restaurantes\/[0-9a-f-]{36}$/);
-  await expect(page.getByRole("heading", { level: 1, name })).toBeVisible();
-  return { name, url: page.url() };
-}
+import { expect, test } from "@playwright/test";
+import { createRestaurant, registerOwner, restaurantForm, uniqueName } from "./helpers";
 
 test.describe("restaurantes", () => {
   test("crear un restaurante genera la dirección a partir del nombre y empieza como borrador", async ({

@@ -29,3 +29,10 @@ const EUR_FORMAT = new Intl.NumberFormat("es-ES", {
 export function formatCents(cents: number): string {
   return EUR_FORMAT.format(cents / 100);
 }
+
+/** Céntimos como texto editable en un campo de formulario: 950 -> "9,50". */
+export function centsToPriceInput(cents: number): string {
+  const euros = Math.floor(cents / 100);
+  const rest = String(cents % 100).padStart(2, "0");
+  return `${euros},${rest}`;
+}

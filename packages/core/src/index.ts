@@ -21,7 +21,12 @@ export {
   type FilterStatusLabel,
 } from "./filter/labels";
 export { SLUG_MAX_LENGTH, SLUG_MIN_LENGTH, isValidSlug, slugify } from "./validation/slug";
-export { PRICE_MAX_CENTS, formatCents, parsePriceToCents } from "./validation/price";
+export {
+  PRICE_MAX_CENTS,
+  centsToPriceInput,
+  formatCents,
+  parsePriceToCents,
+} from "./validation/price";
 export {
   VALIDATION_ERROR_CODES,
   VALIDATION_MESSAGES,

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { PublishedBadge } from "@/components/status-badge";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { env } from "@/env";
 import { getMessages } from "@/i18n";
 import { getMyRestaurant } from "@/lib/data/restaurants";
@@ -24,6 +24,11 @@ export default async function RestaurantPage({ params }: PageProps<"/panel/resta
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="text-2xl font-semibold">{restaurant.name}</h1>
         <PublishedBadge published={restaurant.published} />
+      </div>
+      <div>
+        <ButtonLink href={`/panel/restaurantes/${restaurant.id}/platos`}>
+          {t.dishes.manage}
+        </ButtonLink>
       </div>
 
       <section className="flex flex-col gap-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
