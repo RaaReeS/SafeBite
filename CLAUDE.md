@@ -62,6 +62,15 @@ Especificación completa en `ESPECIFICACION.md`. Léela antes de empezar cualqui
 - En local ningún email sale a internet: los de Auth (confirmación, recuperación) se ven en Mailpit, http://127.0.0.1:54324. La confirmación de email está activada también en local.
 - Cuentas de prueba del seed (contraseña `password123`): `restaurante@safebite.test` y `comensal@safebite.test`.
 
+## Producción
+
+- Web: https://safebitee.vercel.app (Vercel, plan gratuito, raíz `apps/web`, región `fra1`). Se despliega desde `main`.
+- Supabase: proyecto `alccfbdpkpvwajvpjxqb` en eu-central-1 (Frankfurt), enlazado con `supabase link`.
+- Migraciones: `npx supabase db push --remote --dry-run` y, tras confirmarlo con el usuario, sin `--dry-run`.
+- Configuración de Auth: los valores de producción están en `[remotes.production]` de `supabase/config.toml`. Ejecutar SIEMPRE `npx supabase config diff` antes de `config push`: el resto del archivo es para desarrollo local y no debe llegar a producción.
+- SMTP (Brevo): solo en el panel de Supabase. Sus credenciales nunca van en el repositorio.
+- Todo gratis por decisión del usuario hasta que haya dominio propio. Vercel Hobby no permite uso comercial: revisarlo antes del piloto con restaurantes reales.
+
 ## Convenciones de la web (Next.js 16)
 
 - `proxy.ts` (antes `middleware.ts`) solo refresca la sesión y hace una redirección optimista. La autorización real se repite en cada página, cada Server Action y cada Route Handler, y RLS es la última barrera.
