@@ -19,6 +19,7 @@ jest.mock("@/lib/profile", () => ({
   saveMyAllergens: jest.fn(async () => undefined),
 }));
 jest.mock("@/lib/restaurants", () => ({
+  listPublishedRestaurants: jest.fn(async () => []),
   searchRestaurantsByCity: jest.fn(),
   listRestaurantsWithLocation: jest.fn(),
 }));

@@ -16,6 +16,7 @@ jest.mock("@/lib/profile", () => ({
   getHealthProfile: jest.fn(async () => ({ consentGivenAt: null, allergens: [] })),
 }));
 jest.mock("@/lib/restaurants", () => ({
+  listPublishedRestaurants: jest.fn(async () => []),
   searchRestaurantsByCity: jest.fn(),
   listRestaurantsWithLocation: jest.fn(),
   requestRestaurant: jest.fn(async () => undefined),
@@ -88,11 +89,36 @@ describe("búsqueda por ciudad", () => {
     expect(await screen.findByLabelText("Nombre del restaurante")).toBeTruthy();
   });
 
-  it("con la búsqueda vacía no consulta nada", async () => {
+  it("al abrir la búsqueda muestra todos los restaurantes publicados", async () => {
+    mockRestaurants.listPublishedRestaurants.mockResolvedValueOnce([MID, NEAR]);
     await renderSearch();
-    await screen.findByLabelText("Ciudad");
+    expect(await screen.findByText("Todos los restaurantes (2)")).toBeTruthy();
+    expect(resultNames()).toEqual(["Media", "Cerca"]);
+    expect(screen.queryByRole("button", { name: "Ver todos los restaurantes" })).toBeNull();
+  });
+
+  it("si aún no hay restaurantes publicados, lo dice", async () => {
+    await renderSearch();
+    expect(await screen.findByText("Todavía no hay restaurantes publicados.")).toBeTruthy();
+  });
+
+  it("buscar con la ciudad vacía vuelve a mostrar todos, y tras filtrar se puede volver", async () => {
+    mockRestaurants.listPublishedRestaurants.mockResolvedValue([MID, NEAR]);
+    mockRestaurants.searchRestaurantsByCity.mockResolvedValue([NEAR]);
+    await renderSearch();
+    await screen.findByText("Todos los restaurantes (2)");
+
+    await fireEvent.changeText(screen.getByLabelText("Ciudad"), "Madrid");
     await press("Buscar");
-    expect(mockRestaurants.searchRestaurantsByCity).not.toHaveBeenCalled();
+    expect(await screen.findByText("1 restaurante")).toBeTruthy();
+
+    await press("Ver todos los restaurantes");
+    expect(await screen.findByText("Todos los restaurantes (2)")).toBeTruthy();
+    expect(screen.getByLabelText("Ciudad").props.value).toBe("");
+
+    await press("Buscar");
+    expect(mockRestaurants.searchRestaurantsByCity).toHaveBeenCalledTimes(1);
+    expect(await screen.findByText("Todos los restaurantes (2)")).toBeTruthy();
   });
 
   it("privacidad: abrir la búsqueda no pide la ubicación (solo al pulsar «Cerca de mí»)", async () => {

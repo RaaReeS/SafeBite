@@ -5,3 +5,6 @@ dist
 pnpm-lock.yaml
 supabase/.temp
 ESPECIFICACION.md
+# Generado por Expo al arrancar (ignorado también por git)
+expo-env.d.ts
+.expo

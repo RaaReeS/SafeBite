@@ -1,6 +1,6 @@
 import { formatDistance, sortByDistance, type Coordinates } from "@safebite/core";
 import { Stack, useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ActivityIndicator, Linking, Pressable, StyleSheet, Text, View } from "react-native";
 import { Button } from "@/components/button";
 import { Notice } from "@/components/notice";
@@ -9,6 +9,7 @@ import { TextField } from "@/components/text-field";
 import { getMessages } from "@/i18n";
 import { getCurrentCoordinates } from "@/lib/location";
 import {
+  listPublishedRestaurants,
   listRestaurantsWithLocation,
   searchRestaurantsByCity,
   type RestaurantSummary,
@@ -21,9 +22,8 @@ const NEAR_ME_KM = 50;
 type Result = { restaurant: RestaurantSummary; distanceKm: number | null };
 
 type State =
-  | { kind: "idle" }
   | { kind: "loading"; message?: string }
-  | { kind: "results"; results: Result[]; emptyMessage: string }
+  | { kind: "results"; results: Result[]; emptyMessage: string; showingAll: boolean }
   | { kind: "error"; message: string; showSettings?: boolean };
 
 export default function SearchScreen() {
@@ -31,7 +31,7 @@ export default function SearchScreen() {
   const router = useRouter();
   const [city, setCity] = useState("");
   const [origin, setOrigin] = useState<Coordinates | null>(null);
-  const [state, setState] = useState<State>({ kind: "idle" });
+  const [state, setState] = useState<State>({ kind: "loading" });
 
   /** Con ubicación, ordena por distancia (calculada en el dispositivo); sin ella, por nombre. */
   function withDistance(restaurants: RestaurantSummary[], from: Coordinates | null): Result[] {
@@ -47,9 +47,33 @@ export default function SearchScreen() {
     return [...located, ...rest];
   }
 
+  /** Todos los restaurantes publicados: lo que se ve al abrir la pantalla. */
+  async function showAll(from: Coordinates | null = origin) {
+    setState({ kind: "loading" });
+    try {
+      const restaurants = await listPublishedRestaurants();
+      setState({
+        kind: "results",
+        results: withDistance(restaurants, from),
+        emptyMessage: t.search.noRestaurants,
+        showingAll: true,
+      });
+    } catch {
+      setState({ kind: "error", message: t.search.error });
+    }
+  }
+
+  useEffect(() => {
+    void showAll(null);
+    // Solo al abrir la pantalla.
+  }, []);
+
   async function searchByCity() {
     const query = city.trim();
-    if (query === "") return;
+    if (query === "") {
+      await showAll();
+      return;
+    }
     setState({ kind: "loading" });
     try {
       const restaurants = await searchRestaurantsByCity(query);
@@ -57,6 +81,7 @@ export default function SearchScreen() {
         kind: "results",
         results: withDistance(restaurants, origin),
         emptyMessage: t.search.noResultsCity(query),
+        showingAll: false,
       });
     } catch {
       setState({ kind: "error", message: t.search.error });
@@ -84,6 +109,7 @@ export default function SearchScreen() {
         kind: "results",
         results: nearby,
         emptyMessage: t.search.noResultsNear(NEAR_ME_KM),
+        showingAll: false,
       });
     } catch {
       setState({ kind: "error", message: t.search.error });
@@ -127,12 +153,24 @@ export default function SearchScreen() {
 
       {state.kind === "results" ? (
         <View style={styles.results}>
+          {state.showingAll ? null : (
+            <Button
+              label={t.search.showAll}
+              variant="link"
+              onPress={() => {
+                setCity("");
+                void showAll();
+              }}
+            />
+          )}
           {state.results.length === 0 ? (
             <Text style={styles.text}>{state.emptyMessage}</Text>
           ) : (
             <>
               <Text style={styles.muted} accessibilityLiveRegion="polite">
-                {t.search.results(state.results.length)}
+                {state.showingAll
+                  ? t.search.allRestaurants(state.results.length)
+                  : t.search.results(state.results.length)}
               </Text>
               {state.results.map(({ restaurant, distanceKm }) => (
                 <Pressable

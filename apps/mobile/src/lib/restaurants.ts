@@ -23,6 +23,17 @@ export function escapeLikePattern(text: string): string {
   return text.replace(/[\\%_]/g, (char) => `\\${char}`);
 }
 
+/** Todos los restaurantes publicados, por nombre (lo que se ve al abrir la búsqueda). */
+export async function listPublishedRestaurants(): Promise<RestaurantSummary[]> {
+  const { data, error } = await supabase
+    .from("public_restaurants")
+    .select(COLUMNS)
+    .order("name")
+    .limit(500);
+  if (error) throw error;
+  return data;
+}
+
 export async function searchRestaurantsByCity(city: string): Promise<RestaurantSummary[]> {
   const { data, error } = await supabase
     .from("public_restaurants")

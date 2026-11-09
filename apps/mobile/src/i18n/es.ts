@@ -87,6 +87,10 @@ export const es = {
     privacy:
       "Tu ubicación solo se usa en el móvil para ordenar por cercanía: no se guarda ni se envía.",
     results: (n: number) => (n === 1 ? "1 restaurante" : `${n} restaurantes`),
+    allRestaurants: (n: number) =>
+      n === 1 ? "1 restaurante en SafeBite" : `Todos los restaurantes (${n})`,
+    showAll: "Ver todos los restaurantes",
+    noRestaurants: "Todavía no hay restaurantes publicados.",
     noResultsCity: (city: string) => `No hemos encontrado restaurantes en «${city}».`,
     noResultsNear: (km: number) => `No hay restaurantes a menos de ${km} km.`,
     denied:
