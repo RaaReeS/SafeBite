@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { createRestaurant, registerOwner, restaurantForm } from "./helpers";
+import { createRestaurant, registerOwner, restaurantForm, uniqueName } from "./helpers";
 
 // Usa el restaurante publicado del seed (supabase/seed.sql): "La Huerta Demo".
 const SEED_SLUG = "la-huerta-demo";
@@ -58,12 +58,13 @@ test.describe("carta pública por QR", () => {
     page,
   }) => {
     await registerOwner(page);
-    await createRestaurant(page, "Borrador Secreto");
+    const name = uniqueName("Borrador Secreto");
+    await createRestaurant(page, name);
     const slug = await restaurantForm(page).getByLabel("Dirección de la carta").inputValue();
 
     await page.goto(`/r/${slug}`);
     await expect(page.getByRole("heading", { name: "Carta no encontrada" })).toBeVisible();
-    await expect(page.getByText("Borrador Secreto")).toHaveCount(0);
+    await expect(page.getByText(name)).toHaveCount(0);
   });
 
   test("la página no expone quién es el dueño", async ({ page }) => {
