@@ -1,4 +1,5 @@
 import "server-only";
+import { groupDeclarationsByDish } from "@safebite/core";
 import { notFound } from "next/navigation";
 import { getMyRestaurant } from "@/lib/data/restaurants";
 import { isUuid } from "@/lib/ids";
@@ -61,4 +62,38 @@ export async function listMyCategories(restaurantId: string): Promise<string[]> 
     .map((dish) => dish.category)
     .filter((category): category is string => category !== null);
   return [...new Set(categories)].sort((a, b) => a.localeCompare(b, "es"));
+}
+
+/**
+ * Carta tal como la verían los clientes (solo platos activos), para la vista
+ * previa del panel. Se lee con la sesión del dueño (RLS), así que funciona
+ * aunque la carta no esté publicada. Devuelve la misma forma que getPublicMenu.
+ */
+export async function getMyMenuPreview(restaurantId: string) {
+  const restaurant = await getMyRestaurant(restaurantId);
+  const supabase = await createSupabaseServerClient();
+
+  const { data: dishes, error } = await supabase
+    .from("dishes")
+    .select("id, name, description, price_cents, category, ingredients, sort_order")
+    .eq("restaurant_id", restaurant.id)
+    .eq("is_active", true)
+    .order("sort_order");
+  if (error) throw error;
+
+  const dishIds = dishes.map((dish) => dish.id);
+  const { data: declarations, error: declarationsError } =
+    dishIds.length === 0
+      ? { data: [], error: null }
+      : await supabase
+          .from("dish_allergens")
+          .select("dish_id, allergen, level")
+          .in("dish_id", dishIds);
+  if (declarationsError) throw declarationsError;
+
+  const byDish = groupDeclarationsByDish(declarations);
+  return {
+    restaurant,
+    dishes: dishes.map((dish) => ({ ...dish, allergens: byDish.get(dish.id) ?? [] })),
+  };
 }

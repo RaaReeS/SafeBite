@@ -260,6 +260,14 @@ export const es = {
     notFoundText:
       "Esta carta no existe o el establecimiento la ha retirado. Pregunta en el local por su carta.",
   },
+  preview: {
+    manage: "Vista previa",
+    title: "Vista previa de la carta",
+    backToRestaurant: "← Restaurante",
+    notice:
+      "Así verán tu carta tus clientes al escanear el QR. Los platos ocultos no aparecen. Prueba a seleccionar alergias para comprobar cómo se filtra.",
+    notPublished: "Tu carta aún no está publicada: solo tú puedes verla aquí.",
+  },
   notFound: {
     title: "Página no encontrada",
     description: "La página que buscas no existe o no tienes acceso a ella.",

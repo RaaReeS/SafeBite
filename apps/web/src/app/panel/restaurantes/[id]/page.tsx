@@ -32,6 +32,9 @@ export default async function RestaurantPage({ params }: PageProps<"/panel/resta
         <ButtonLink href={`/panel/restaurantes/${restaurant.id}/qr`} variant="secondary">
           {t.qr.manage}
         </ButtonLink>
+        <ButtonLink href={`/panel/restaurantes/${restaurant.id}/vista-previa`} variant="secondary">
+          {t.preview.manage}
+        </ButtonLink>
       </div>
 
       <section className="flex flex-col gap-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
