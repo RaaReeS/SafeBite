@@ -34,6 +34,8 @@ Especificación completa en `ESPECIFICACION.md`. Léela antes de empezar cualqui
 
 - Interfaz y textos en español (preparar i18n desde el inicio).
 - Identificadores en inglés: tablas, columnas, enums, variables y funciones (`name`, `created_at`, `restaurant_owner`). El español es solo para textos visibles al usuario.
+  - **Excepción deliberada:** los estados del filtro se mantienen en español (`apto`, `no_apto`, `posibles_trazas`, `sin_datos`), como en la especificación. No traducirlos.
+- Perfil de alergias vacío: el filtro devuelve `apto`, pero la interfaz no muestra etiquetas de estado; muestra `FILTER_EMPTY_PROFILE_HINT`.
 - Paquetes con el scope `@safebite/*`. TypeScript fijado en ~6.0 (typescript-eslint aún no soporta la 7).
 - Roles de cuenta en `profiles.role`: `diner`, `restaurant_owner`, `admin`. El usuario nunca puede cambiar su propio rol; `admin` solo se asigna desde el servidor (service role).
 - Componentes funcionales, TypeScript estricto, sin `any`.
@@ -46,7 +48,8 @@ Especificación completa en `ESPECIFICACION.md`. Léela antes de empezar cualqui
 - `pnpm install`: instalar dependencias
 - `pnpm dev:web`: arrancar la web
 - `pnpm dev:mobile`: arrancar Expo
-- `pnpm test`: ejecutar tests
+- `pnpm test`: ejecutar tests (en `packages/core` exige cobertura del 100 % en `src/filter` y `src/allergens`)
+- `pnpm test:mutation`: mutation testing con Stryker sobre el filtro (umbral 100 %). Ejecutarlo tras cualquier cambio en `src/filter` o `src/allergens`.
 - `pnpm lint`: revisar código
 - `pnpm db:start` / `pnpm db:stop`: arrancar/parar Supabase local (requiere Docker Desktop abierto)
 - `pnpm db:reset`: recrear la BD local aplicando migraciones y `supabase/seed.sql`

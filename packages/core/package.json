@@ -7,13 +7,19 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "test": "vitest run",
+    "test": "vitest run --coverage",
     "test:watch": "vitest",
     "lint": "eslint .",
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json",
+    "test:mutation": "stryker run"
   },
   "devDependencies": {
+    "@stryker-mutator/core": "10.1.1",
+    "@stryker-mutator/typescript-checker": "10.1.1",
+    "@stryker-mutator/vitest-runner": "10.1.1",
+    "@vitest/coverage-v8": "5.1.0",
     "eslint": "^10.14.0",
+    "fast-check": "^4.10.2",
     "typescript": "~6.0.3",
     "vitest": "^5.1.0"
   }
