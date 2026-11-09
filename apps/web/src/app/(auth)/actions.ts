@@ -10,6 +10,7 @@ import {
 import { redirect } from "next/navigation";
 import { env } from "@/env";
 import { getMessages } from "@/i18n";
+import { destinationAfterEmailLink } from "@/lib/auth-destination";
 import { textField, toFieldErrors, type FormState } from "@/lib/forms";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -157,7 +158,7 @@ export async function updatePassword(_prev: FormState, formData: FormData): Prom
     return { status: "error", message };
   }
 
-  redirect("/panel");
+  redirect(await destinationAfterEmailLink(supabase, "/panel", "contrasena"));
 }
 
 export async function signOut(): Promise<void> {

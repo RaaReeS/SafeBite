@@ -81,6 +81,13 @@ Especificación completa en `ESPECIFICACION.md`. Léela antes de empezar cualqui
 - Los 404 dentro de contenido en streaming responden 200 con la página de "no encontrado" y `noindex` (comportamiento documentado de Next).
 - Next conserva ocultas en el DOM las páginas visitadas: en los tests, buscar elementos por rol o dentro de un formulario con nombre accesible.
 
+## Convenciones de la app móvil (Expo SDK 58)
+
+- Rutas en `apps/mobile/src/app` con Expo Router. Con sesión solo se accede al grupo `(app)`; sin sesión, solo a `(auth)` (`Stack.Protected`). La ruta raíz `index` solo redirige y debe seguir existiendo: sin ella, abrir la app sin sesión da "Unmatched Route".
+- La sesión de Supabase se guarda cifrada (`src/lib/secure-session-storage.ts`): nunca en AsyncStorage en claro.
+- La confirmación de email y la recuperación de contraseña en la app usan el código del email (`verifyOtp`), no el enlace.
+- Tests con jest-expo y React Native Testing Library v14: `renderRouter`, `fireEvent` y `act` son asíncronos y hay que esperarlos (`await`). Los simuladores van en `src/test-utils/` (todo lo que esté en `__tests__/` se ejecuta como test).
+
 ## Fuera del MVP (no implementar todavía)
 
 Traductor con cámara, verificación de protocolos de cocina, dietas médicas con datos nutricionales (diabetes, hipertensión), pagos y suscripciones.

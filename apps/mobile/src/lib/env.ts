@@ -13,4 +13,6 @@ export const env = {
     "EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
     process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
   ),
+  /** Web de SafeBite (términos, privacidad), sin barra final. */
+  siteUrl: required("EXPO_PUBLIC_SITE_URL", process.env.EXPO_PUBLIC_SITE_URL).replace(/\/+$/, ""),
 };

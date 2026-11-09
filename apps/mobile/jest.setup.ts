@@ -21,3 +21,8 @@ jest.mock("expo-secure-store", () => {
     __store: store,
   };
 });
+
+// Variables de entorno de prueba (el cliente de Supabase se simula en cada test).
+process.env.EXPO_PUBLIC_SUPABASE_URL = "http://supabase.test";
+process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_test";
+process.env.EXPO_PUBLIC_SITE_URL = "https://safebite.test";

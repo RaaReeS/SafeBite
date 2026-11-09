@@ -289,6 +289,11 @@ export const es = {
       "Así verán tu carta tus clientes al escanear el QR. Los platos ocultos no aparecen. Prueba a seleccionar alergias para comprobar cómo se filtra.",
     notPublished: "Tu carta aún no está publicada: solo tú puedes verla aquí.",
   },
+  accountConfirmed: {
+    title: "Tu cuenta está confirmada",
+    passwordTitle: "Contraseña actualizada",
+    backToApp: "Ya puedes volver a la app de SafeBite e iniciar sesión.",
+  },
   notFound: {
     title: "Página no encontrada",
     description: "La página que buscas no existe o no tienes acceso a ella.",

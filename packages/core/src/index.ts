@@ -61,6 +61,7 @@ export {
   PASSWORD_MIN_LENGTH,
   emailSchema,
   newPasswordSchema,
+  otpCodeSchema,
   signInSchema,
   signUpSchema,
 } from "./validation/auth";
