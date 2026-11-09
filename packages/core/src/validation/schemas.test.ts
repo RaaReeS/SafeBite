@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { ALLERGENS } from "../allergens/allergens";
 import { VALIDATION_ERROR_CODES, VALIDATION_MESSAGES, type ValidationErrorCode } from "./messages";
-import { dishAllergensSchema, dishSchema, restaurantSchema } from "./schemas";
+import {
+  dishAllergensSchema,
+  dishSchema,
+  restaurantRequestSchema,
+  restaurantSchema,
+} from "./schemas";
 
 type SafeParseResult = {
   success: boolean;
@@ -147,5 +152,26 @@ describe("VALIDATION_MESSAGES", () => {
     for (const code of VALIDATION_ERROR_CODES) {
       expect(VALIDATION_MESSAGES.es[code].trim()).not.toBe("");
     }
+  });
+});
+
+describe("restaurantRequestSchema", () => {
+  it("acepta una solicitud válida y recorta espacios", () => {
+    expect(
+      restaurantRequestSchema.parse({ restaurant_name: "  Bar Pepe ", city: " Madrid " }),
+    ).toEqual({ restaurant_name: "Bar Pepe", city: "Madrid" });
+  });
+
+  it.each<[string, Record<string, unknown>, Record<string, ValidationErrorCode>]>([
+    ["nombre vacío", { restaurant_name: "  ", city: "Madrid" }, { restaurant_name: "required" }],
+    ["ciudad vacía", { restaurant_name: "Bar Pepe", city: "" }, { city: "required" }],
+    [
+      "nombre largo",
+      { restaurant_name: "a".repeat(121), city: "Madrid" },
+      { restaurant_name: "too_long" },
+    ],
+    ["ciudad larga", { restaurant_name: "Bar Pepe", city: "a".repeat(101) }, { city: "too_long" }],
+  ])("rechaza: %s", (_, input, expected) => {
+    expect(errorsOf(restaurantRequestSchema.safeParse(input))).toEqual(expected);
   });
 });

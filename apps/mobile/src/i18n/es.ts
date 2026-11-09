@@ -77,6 +77,36 @@ export const es = {
     loadError: "No se ha podido cargar tu perfil.",
     retry: "Reintentar",
   },
+  search: {
+    title: "Buscar restaurantes",
+    open: "Buscar restaurantes",
+    city: "Ciudad",
+    submit: "Buscar",
+    nearMe: "Cerca de mí",
+    locating: "Buscando tu ubicación…",
+    privacy:
+      "Tu ubicación solo se usa en el móvil para ordenar por cercanía: no se guarda ni se envía.",
+    results: (n: number) => (n === 1 ? "1 restaurante" : `${n} restaurantes`),
+    noResultsCity: (city: string) => `No hemos encontrado restaurantes en «${city}».`,
+    noResultsNear: (km: number) => `No hay restaurantes a menos de ${km} km.`,
+    denied:
+      "Sin permiso de ubicación no podemos ordenar por cercanía. Puedes buscar por ciudad o activarlo en Ajustes.",
+    openSettings: "Abrir Ajustes",
+    unavailable: "No se ha podido obtener tu ubicación. Inténtalo de nuevo o busca por ciudad.",
+    error: "No se ha podido completar la búsqueda. Revisa tu conexión e inténtalo de nuevo.",
+    missing: "¿Echas en falta un restaurante?",
+    request: "Pide que se dé de alta",
+  },
+  request: {
+    title: "Pide un restaurante",
+    description:
+      "Cuéntanos qué restaurante te gustaría encontrar en SafeBite y le invitaremos a publicar su carta con la información de alérgenos.",
+    name: "Nombre del restaurante",
+    city: "Ciudad",
+    submit: "Enviar solicitud",
+    sent: "¡Gracias! Hemos recibido tu solicitud.",
+    error: "No se ha podido enviar la solicitud. Inténtalo de nuevo.",
+  },
   consent: {
     title: "Tus datos de salud",
     intro:

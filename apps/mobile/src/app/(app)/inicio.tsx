@@ -22,6 +22,8 @@ export default function HomeScreen() {
         {t.home.greeting(session?.user.email ?? "")}
       </Text>
 
+      <Button label={t.search.open} onPress={() => router.push("/buscar")} />
+
       <View style={styles.card}>
         <Text style={styles.cardTitle}>{t.home.allergiesTitle}</Text>
         {state.status === "loading" ? (

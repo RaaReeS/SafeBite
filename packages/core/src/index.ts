@@ -50,11 +50,13 @@ export {
 export {
   dishAllergensSchema,
   dishSchema,
+  restaurantRequestSchema,
   restaurantSchema,
   type DishData,
   type DishInput,
   type RestaurantData,
   type RestaurantInput,
+  type RestaurantRequestData,
 } from "./validation/schemas";
 export {
   PASSWORD_MAX_LENGTH,
