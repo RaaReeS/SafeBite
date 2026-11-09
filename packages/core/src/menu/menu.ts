@@ -1,0 +1,103 @@
+import type { Allergen } from "../allergens/allergens";
+import type { AllergenLevel } from "../allergens/levels";
+import {
+  evaluateAllergens,
+  type AllergenDeclaration,
+  type AllergenEvaluation,
+} from "../filter/evaluate";
+import { FILTER_STATUSES, type FilterStatus } from "../filter/status";
+
+/**
+ * Modelo de la carta que comparten la web (carta por QR y vista previa) y la
+ * app móvil: agrupa los platos por categoría y evalúa cada uno con el filtro
+ * de core. Ninguna interfaz debe repetir esta lógica.
+ */
+
+/** Lo mínimo que necesita un plato para mostrarse en la carta. */
+export type MenuDishInput = {
+  category: string | null;
+  sort_order: number;
+  allergens: readonly AllergenDeclaration[];
+};
+
+export type EvaluatedDish<T extends MenuDishInput> = {
+  dish: T;
+  evaluation: AllergenEvaluation;
+};
+
+export type MenuSection<T extends MenuDishInput> = {
+  /** Nombre de la categoría tal como lo escribió el restaurante; null = sin categoría. */
+  category: string | null;
+  dishes: EvaluatedDish<T>[];
+};
+
+/**
+ * Nombre visible (sin espacios sobrantes) y clave para agrupar (sin distinguir
+ * mayúsculas). Una categoría vacía o de solo espacios cuenta como "sin categoría".
+ */
+function categoryOf(category: string | null): { name: string; key: string } | null {
+  const name = category?.trim() ?? "";
+  if (name === "") return null;
+  // Stryker disable next-line MethodExpression: pasar a mayúsculas agruparía igual (equivalente).
+  return { name, key: name.toLocaleLowerCase("es") };
+}
+
+/**
+ * Agrupa los platos por categoría (en el orden en que aparecen según
+ * sort_order; los platos sin categoría, al final) y evalúa cada uno frente al
+ * perfil de alergias.
+ */
+export function buildMenu<T extends MenuDishInput>(
+  dishes: readonly T[],
+  profile: readonly Allergen[],
+): MenuSection<T>[] {
+  const ordered = [...dishes].sort((a, b) => a.sort_order - b.sort_order);
+  const sections = new Map<string | null, MenuSection<T>>();
+
+  for (const dish of ordered) {
+    const category = categoryOf(dish.category);
+    const key = category?.key ?? null;
+    let section = sections.get(key);
+    if (section === undefined) {
+      section = { category: category?.name ?? null, dishes: [] };
+      sections.set(key, section);
+    }
+    section.dishes.push({ dish, evaluation: evaluateAllergens(profile, dish.allergens) });
+  }
+
+  const uncategorized = sections.get(null);
+  sections.delete(null);
+  return uncategorized === undefined
+    ? [...sections.values()]
+    : [...sections.values(), uncategorized];
+}
+
+/** Número de platos en cada estado. */
+export function countByStatus<T extends MenuDishInput>(
+  sections: readonly MenuSection<T>[],
+): Record<FilterStatus, number> {
+  const counts = Object.fromEntries(FILTER_STATUSES.map((status) => [status, 0])) as Record<
+    FilterStatus,
+    number
+  >;
+  for (const section of sections) {
+    for (const { evaluation } of section.dishes) counts[evaluation.status] += 1;
+  }
+  return counts;
+}
+
+/**
+ * Agrupa filas de dish_allergens (o de la vista public_dish_allergens) por
+ * plato. Un plato sin filas no aparece: sus alérgenos quedarán "sin datos".
+ */
+export function groupDeclarationsByDish(
+  rows: readonly { dish_id: string; allergen: Allergen; level: AllergenLevel }[],
+): Map<string, AllergenDeclaration[]> {
+  const grouped = new Map<string, AllergenDeclaration[]>();
+  for (const { dish_id, allergen, level } of rows) {
+    const list = grouped.get(dish_id) ?? [];
+    list.push({ allergen, level });
+    grouped.set(dish_id, list);
+  }
+  return grouped;
+}

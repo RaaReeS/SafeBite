@@ -11,6 +11,7 @@ export default defineConfig({
         // Lógica crítica (regla 2 de CLAUDE.md): cobertura total obligatoria.
         "src/filter/**": { statements: 100, branches: 100, functions: 100, lines: 100 },
         "src/allergens/**": { statements: 100, branches: 100, functions: 100, lines: 100 },
+        "src/menu/**": { statements: 100, branches: 100, functions: 100, lines: 100 },
       },
     },
   },
