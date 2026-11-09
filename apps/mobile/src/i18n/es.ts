@@ -97,6 +97,35 @@ export const es = {
     missing: "¿Echas en falta un restaurante?",
     request: "Pide que se dé de alta",
   },
+  menu: {
+    title: "Carta",
+    notFound: "Esta carta no existe o el establecimiento la ha retirado.",
+    loadError: "No se ha podido cargar la carta. Revisa tu conexión e inténtalo de nuevo.",
+    call: (phone: string) => `Llamar al ${phone}`,
+    empty: "Esta carta aún no tiene platos.",
+    uncategorized: "Otros platos",
+    usingProfile: "Filtrada con tu perfil de alergias.",
+    adjusted: "Ajustada solo para esta carta: tu perfil guardado no cambia.",
+    adjust: "Ajustar alergias para esta carta",
+    hideAdjust: "Ocultar ajustes",
+    resetToProfile: "Volver a mi perfil",
+    configureProfile: "Configurar mis alergias",
+    hideNotSuitable: "Ocultar platos no aptos",
+    summary: (c: { apto: number; posibles_trazas: number; sin_datos: number; no_apto: number }) =>
+      `${c.apto} ${c.apto === 1 ? "apto" : "aptos"} · ${c.posibles_trazas} con posibles trazas · ${c.sin_datos} sin datos suficientes · ${c.no_apto} no ${c.no_apto === 1 ? "apto" : "aptos"}`,
+    hiddenCount: (n: number) =>
+      n === 1 ? "1 plato no apto oculto." : `${n} platos no aptos ocultos.`,
+    reasonContains: "Contiene:",
+    reasonTraces: "Puede contener trazas de:",
+    reasonMissing: "Sin datos sobre:",
+    otherDeclared: "Otros alérgenos declarados:",
+    declaredContains: "Contiene:",
+    declaredTraces: "Puede contener trazas de:",
+    noDeclarations: "El establecimiento no ha declarado los alérgenos de este plato.",
+    undeclared: (n: number) =>
+      n === 1 ? "1 alérgeno sin declarar" : `${n} alérgenos sin declarar`,
+    ingredients: "Ingredientes:",
+  },
   request: {
     title: "Pide un restaurante",
     description:

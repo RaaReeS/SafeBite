@@ -2,6 +2,12 @@ export { ALLERGENS, isAllergen, type Allergen } from "./allergens/allergens";
 export { ALLERGEN_LEVELS, isAllergenLevel, type AllergenLevel } from "./allergens/levels";
 export { ALLERGEN_LABELS, type Locale } from "./allergens/labels";
 export {
+  ALLERGEN_ICONS,
+  ALLERGEN_ICON_STROKE_WIDTH,
+  ALLERGEN_ICON_VIEWBOX,
+  type IconShape,
+} from "./allergens/icons";
+export {
   FILTER_STATUSES,
   compareStatus,
   isFilterStatus,

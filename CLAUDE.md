@@ -49,7 +49,7 @@ Especificación completa en `ESPECIFICACION.md`. Léela antes de empezar cualqui
 - `pnpm dev:web`: arrancar la web
 - `pnpm dev:mobile`: arrancar Expo
 - `pnpm test`: ejecutar tests (en `packages/core` exige cobertura del 100 % en `src/filter` y `src/allergens`)
-- `pnpm test:mutation`: mutation testing con Stryker sobre el filtro (umbral 100 %). Ejecutarlo tras cualquier cambio en `src/filter` o `src/allergens`.
+- `pnpm test:mutation`: mutation testing con Stryker sobre `src/filter`, `src/allergens` y `src/menu` (umbral 100 %). Ejecutarlo tras cualquier cambio en esas carpetas. `src/allergens/icons.ts` se excluye: son datos de dibujo decorativos, no lógica.
 - `pnpm lint`: revisar código
 - `pnpm db:start` / `pnpm db:stop`: arrancar/parar Supabase local (requiere Docker Desktop abierto)
 - `pnpm db:reset`: recrear la BD local aplicando migraciones y `supabase/seed.sql`

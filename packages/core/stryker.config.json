@@ -9,7 +9,8 @@
     "src/filter/**/*.ts",
     "src/allergens/**/*.ts",
     "src/menu/**/*.ts",
-    "!src/**/*.test.ts"
+    "!src/**/*.test.ts",
+    "!src/allergens/icons.ts"
   ],
   "reporters": ["clear-text", "progress", "html"],
   "htmlReporter": {

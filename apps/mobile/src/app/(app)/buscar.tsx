@@ -1,7 +1,7 @@
 import { formatDistance, sortByDistance, type Coordinates } from "@safebite/core";
 import { Stack, useRouter } from "expo-router";
 import { useState } from "react";
-import { ActivityIndicator, Linking, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Linking, Pressable, StyleSheet, Text, View } from "react-native";
 import { Button } from "@/components/button";
 import { Notice } from "@/components/notice";
 import { Screen } from "@/components/screen";
@@ -135,10 +135,16 @@ export default function SearchScreen() {
                 {t.search.results(state.results.length)}
               </Text>
               {state.results.map(({ restaurant, distanceKm }) => (
-                <View
+                <Pressable
                   key={restaurant.id}
-                  style={styles.card}
-                  accessible
+                  style={({ pressed }) => [styles.card, pressed ? styles.cardPressed : null]}
+                  accessibilityRole="button"
+                  onPress={() =>
+                    router.push({
+                      pathname: "/restaurante/[slug]",
+                      params: { slug: restaurant.slug },
+                    })
+                  }
                   accessibilityLabel={[
                     restaurant.name,
                     restaurant.address,
@@ -155,7 +161,7 @@ export default function SearchScreen() {
                   {distanceKm === null ? null : (
                     <Text style={styles.distance}>{formatDistance(distanceKm)}</Text>
                   )}
-                </View>
+                </Pressable>
               ))}
             </>
           )}
@@ -182,6 +188,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
+  cardPressed: { backgroundColor: colors.surface },
   name: { fontSize: fontSize.lg, fontWeight: "700", color: colors.text },
   text: { fontSize: fontSize.md, color: colors.text },
   muted: { fontSize: fontSize.sm, color: colors.textMuted },
