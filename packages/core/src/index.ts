@@ -20,6 +20,14 @@ export {
   FILTER_STATUS_LABELS,
   type FilterStatusLabel,
 } from "./filter/labels";
+export {
+  buildMenu,
+  countByStatus,
+  groupDeclarationsByDish,
+  type EvaluatedDish,
+  type MenuDishInput,
+  type MenuSection,
+} from "./menu/menu";
 export { SLUG_MAX_LENGTH, SLUG_MIN_LENGTH, isValidSlug, slugify } from "./validation/slug";
 export {
   PRICE_MAX_CENTS,

@@ -5,7 +5,12 @@
   "testRunner": "vitest",
   "checkers": ["typescript"],
   "tsconfigFile": "tsconfig.json",
-  "mutate": ["src/filter/**/*.ts", "src/allergens/**/*.ts", "!src/**/*.test.ts"],
+  "mutate": [
+    "src/filter/**/*.ts",
+    "src/allergens/**/*.ts",
+    "src/menu/**/*.ts",
+    "!src/**/*.test.ts"
+  ],
   "reporters": ["clear-text", "progress", "html"],
   "htmlReporter": {
     "fileName": "reports/mutation/index.html"

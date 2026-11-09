@@ -219,6 +219,67 @@ export const es = {
     pdfInstructions:
       "Escanea el código con la cámara de tu móvil para ver la carta y filtrarla según tus alergias.",
   },
+  menu: {
+    metaTitle: (name: string) => `Carta de ${name} · SafeBite`,
+    metaDescription: (name: string) =>
+      `Carta de ${name} con información de alérgenos declarada por el establecimiento.`,
+    call: "Llamar",
+    empty: "Esta carta aún no tiene platos.",
+    uncategorized: "Otros platos",
+    ingredients: "Ingredientes:",
+    declaredContains: "Contiene:",
+    declaredTraces: "Puede contener trazas de:",
+    noDeclarations: "El establecimiento no ha declarado los alérgenos de este plato.",
+    undeclared: (n: number) =>
+      n === 1 ? "1 alérgeno sin declarar" : `${n} alérgenos sin declarar`,
+    poweredBy: "Carta digital con SafeBite",
+    filterTitle: "¿Qué alérgenos quieres evitar?",
+    filterHint: "Tu selección no se guarda ni se envía: solo se usa en esta pantalla.",
+    clear: "Borrar selección",
+    hideNotSuitable: "Ocultar platos no aptos",
+    summary: (counts: {
+      apto: number;
+      posibles_trazas: number;
+      sin_datos: number;
+      no_apto: number;
+    }) =>
+      [
+        `${counts.apto} ${counts.apto === 1 ? "apto" : "aptos"}`,
+        `${counts.posibles_trazas} con posibles trazas`,
+        `${counts.sin_datos} sin datos suficientes`,
+        `${counts.no_apto} no ${counts.no_apto === 1 ? "apto" : "aptos"}`,
+      ].join(" · "),
+    otherDeclared: "Otros alérgenos declarados:",
+    reasonContains: "Contiene:",
+    reasonTraces: "Puede contener trazas de:",
+    reasonMissing: "Sin datos sobre:",
+    hiddenCount: (n: number) =>
+      n === 1 ? "1 plato no apto oculto." : `${n} platos no aptos ocultos.`,
+    allHidden: "Ningún plato de esta carta es apto según tu selección.",
+    notFoundTitle: "Carta no encontrada",
+    notFoundText:
+      "Esta carta no existe o el establecimiento la ha retirado. Pregunta en el local por su carta.",
+  },
+  appPromo: {
+    button: "Guarda tu perfil: descarga SafeBite",
+    text: "Con la app guardas tus alergias una sola vez y las cartas se filtran automáticamente.",
+    pageTitle: "SafeBite para tu móvil",
+    pageMetaTitle: "App de SafeBite · Próximamente",
+    soon: "Próximamente en Android e iOS.",
+    pageText:
+      "Configura tu perfil de alergias e intolerancias una vez y consulta las cartas de los restaurantes filtradas automáticamente. También podrás escanear el código de barras de productos envasados.",
+    privacy:
+      "Tu perfil de alergias es un dato de salud: solo lo guardaremos con tu consentimiento y nunca lo compartiremos con los restaurantes.",
+    back: "Volver",
+  },
+  preview: {
+    manage: "Vista previa",
+    title: "Vista previa de la carta",
+    backToRestaurant: "← Restaurante",
+    notice:
+      "Así verán tu carta tus clientes al escanear el QR. Los platos ocultos no aparecen. Prueba a seleccionar alergias para comprobar cómo se filtra.",
+    notPublished: "Tu carta aún no está publicada: solo tú puedes verla aquí.",
+  },
   notFound: {
     title: "Página no encontrada",
     description: "La página que buscas no existe o no tienes acceso a ella.",

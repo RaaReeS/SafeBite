@@ -44,6 +44,9 @@ test.describe("registro", () => {
     await expect.poll(() => countEmails(email, subject)).toBe(1);
 
     await login(page, email, DEFAULT_PASSWORD);
+    // Supabase limita los reenvíos (max_frequency = 1s en local, 60 s por defecto
+    // en producción); antes de ese plazo la web muestra «Demasiados intentos».
+    await page.waitForTimeout(1_500);
     await page.getByRole("button", { name: "Reenviar el email de confirmación" }).click();
     await expect(page.getByRole("status")).toContainText("te hemos enviado un email nuevo");
     await expect.poll(() => countEmails(email, subject)).toBe(2);
