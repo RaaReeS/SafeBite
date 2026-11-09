@@ -1,9 +1,10 @@
 "use server";
 
-import { dishSchema } from "@safebite/core";
+import { ALLERGENS, dishAllergensSchema, dishSchema, type Allergen } from "@safebite/core";
 import { refresh } from "next/cache";
 import { notFound, redirect } from "next/navigation";
 import { getMessages } from "@/i18n";
+import { UNDECLARED, allergenFieldName } from "@/lib/allergen-form";
 import { requireRestaurantOwner } from "@/lib/auth";
 import { textField, toFieldErrors, type FormState } from "@/lib/forms";
 import { isUuid } from "@/lib/ids";
@@ -189,4 +190,54 @@ export async function moveDish(
   }
 
   refresh();
+}
+
+/**
+ * Guarda las declaraciones de alérgenos de un plato de una sola vez
+ * (set_dish_allergens es atómica: o se guarda todo o nada).
+ *
+ * Un alérgeno que no llega en el formulario, o que llega como "undeclared",
+ * NO se guarda: queda sin datos. Nunca se convierte en "no contiene".
+ */
+export async function saveDishAllergens(
+  restaurantId: string,
+  dishId: string,
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const t = getMessages();
+  const user = await requireRestaurantOwner();
+  const supabase = await createSupabaseServerClient();
+  await assertOwnRestaurant(supabase, restaurantId, user.id);
+  if (!isUuid(dishId)) notFound();
+
+  const declarations: { allergen: Allergen; level: string }[] = [];
+  for (const allergen of ALLERGENS) {
+    const value = textField(formData, allergenFieldName(allergen));
+    if (value === undefined || value === UNDECLARED) continue;
+    declarations.push({ allergen, level: value });
+  }
+  const parsed = dishAllergensSchema.safeParse(declarations);
+  if (!parsed.success) {
+    return { status: "error", message: t.allergens.invalid };
+  }
+
+  const { data: dish } = await supabase
+    .from("dishes")
+    .select("id")
+    .eq("id", dishId)
+    .eq("restaurant_id", restaurantId)
+    .maybeSingle();
+  if (dish === null) notFound();
+
+  const { error } = await supabase.rpc("set_dish_allergens", {
+    target_dish_id: dish.id,
+    declarations: parsed.data,
+  });
+  if (error) {
+    return { status: "error", message: t.common.genericError };
+  }
+
+  refresh();
+  return { status: "success", message: t.allergens.saved };
 }

@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import {
   DEFAULT_PASSWORD,
+  countEmails,
   formAlert,
   SEED_DINER,
   getAuthLinkFromEmail,
@@ -27,6 +28,36 @@ test.describe("registro", () => {
 
     await login(page, email, DEFAULT_PASSWORD);
     await expect(formAlert(page)).toContainText("Aún no has confirmado tu email");
+  });
+
+  test("quien no ha confirmado puede pedir que se reenvíe el email y entrar con él", async ({
+    page,
+  }) => {
+    const email = uniqueEmail();
+    const subject = "Confirma tu cuenta de SafeBite";
+    await page.goto("/registro");
+    await page.getByLabel("Email").fill(email);
+    await page.getByLabel("Contraseña").fill(DEFAULT_PASSWORD);
+    await page.getByLabel(/He leído y acepto/).check();
+    await page.getByRole("button", { name: "Crear cuenta" }).click();
+    await expect(page.getByRole("status")).toContainText("Te hemos enviado un email");
+    await expect.poll(() => countEmails(email, subject)).toBe(1);
+
+    await login(page, email, DEFAULT_PASSWORD);
+    await page.getByRole("button", { name: "Reenviar el email de confirmación" }).click();
+    await expect(page.getByRole("status")).toContainText("te hemos enviado un email nuevo");
+    await expect.poll(() => countEmails(email, subject)).toBe(2);
+
+    await page.goto(await getAuthLinkFromEmail(email, subject));
+    await expect(page).toHaveURL(/\/panel$/);
+  });
+
+  test("con una contraseña incorrecta no se ofrece reenviar la confirmación", async ({ page }) => {
+    await login(page, SEED_DINER.email, "no-es-la-contraseña");
+    await expect(formAlert(page)).toHaveText("Email o contraseña incorrectos.");
+    await expect(
+      page.getByRole("button", { name: "Reenviar el email de confirmación" }),
+    ).toHaveCount(0);
   });
 
   test("el servidor exige aceptar los términos aunque se salte la validación del navegador", async ({

@@ -3,9 +3,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { getMessages } from "@/i18n";
-import { getMyDish, listMyCategories } from "@/lib/data/dishes";
-import { deleteDish, updateDish } from "../actions";
+import { getMyDish, listMyCategories, listMyDishAllergens } from "@/lib/data/dishes";
+import { deleteDish, saveDishAllergens, updateDish } from "../actions";
 import { DishForm } from "../dish-form";
+import { AllergenEditor } from "./allergen-editor";
 
 export const metadata: Metadata = { title: "Plato · SafeBite" };
 
@@ -15,7 +16,10 @@ export default async function DishPage({
   const t = getMessages();
   const { id, dishId } = await params;
   const { restaurant, dish } = await getMyDish(id, dishId);
-  const categories = await listMyCategories(restaurant.id);
+  const [categories, declarations] = await Promise.all([
+    listMyCategories(restaurant.id),
+    listMyDishAllergens(restaurant.id, dish.id),
+  ]);
 
   return (
     <>
@@ -26,6 +30,17 @@ export default async function DishPage({
         <h1 className="text-2xl font-semibold">{dish.name}</h1>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">{restaurant.name}</p>
       </div>
+
+      <section className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-lg font-semibold">{t.allergens.title}</h2>
+          <p className="text-sm text-zinc-700 dark:text-zinc-300">{t.allergens.description}</p>
+        </div>
+        <AllergenEditor
+          action={saveDishAllergens.bind(null, restaurant.id, dish.id)}
+          declarations={declarations}
+        />
+      </section>
 
       <section className="flex flex-col gap-4">
         <h2 className="text-lg font-semibold">{t.dishes.details}</h2>

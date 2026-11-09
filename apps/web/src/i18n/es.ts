@@ -41,6 +41,10 @@ export const es = {
         "Aún no has confirmado tu email. Revisa tu bandeja de entrada (y la carpeta de spam).",
       invalidLink: "El enlace no es válido o ha caducado. Inicia sesión o pide uno nuevo.",
       passwordUpdated: "Contraseña actualizada.",
+      resend: "Reenviar el email de confirmación",
+      resending: "Enviando…",
+      resent:
+        "Si la cuenta existe y aún no está confirmada, te hemos enviado un email nuevo. Revisa también la carpeta de spam.",
     },
     register: {
       title: "Crear cuenta de restaurante",
@@ -163,6 +167,39 @@ export const es = {
     deleteConfirmTitle: "¿Eliminar este plato?",
     deleteDescription: "Se borrarán el plato y sus alérgenos declarados. No se puede deshacer.",
     deleteConfirm: "Sí, eliminar",
+  },
+  allergens: {
+    title: "Alérgenos",
+    description:
+      "Indica para cada alérgeno si el plato lo contiene, puede contener trazas o no lo contiene. Si no lo sabes con seguridad, déjalo en «Sin declarar»: tus clientes verán que no hay datos suficientes.",
+    responsibility:
+      "Eres responsable de la exactitud de esta información (Reglamento UE 1169/2011). Revisa también salsas, aceites de fritura y la posible contaminación cruzada en cocina.",
+    levels: {
+      contains: "Contiene",
+      may_contain: "Trazas",
+      free_from: "No contiene",
+      undeclared: "Sin declarar",
+    },
+    progress: (declared: number, total: number) => `${declared} de ${total} alérgenos declarados`,
+    missing: (n: number) =>
+      n === 1 ? "Falta 1 alérgeno por declarar" : `Faltan ${n} alérgenos por declarar`,
+    complete: "Alérgenos completos",
+    save: "Guardar alérgenos",
+    saving: "Guardando…",
+    saved: "Alérgenos guardados.",
+    unsaved: "Tienes cambios sin guardar.",
+    invalid: "Hay un valor no válido. Recarga la página e inténtalo de nuevo.",
+    bulkButton: "Marcar los no declarados como «No contiene»",
+    bulkTitle: "¿Marcar como «No contiene»?",
+    bulkIntro: "Vas a declarar que este plato NO contiene:",
+    bulkWarning:
+      "Hazlo solo si lo has comprobado en la receta y en la cocina. Ante la duda, deja el alérgeno en «Sin declarar».",
+    bulkConfirm: "Sí, no contiene ninguno",
+    bulkNote: "Después revisa la lista y pulsa «Guardar alérgenos».",
+    incompleteSummary: (n: number) =>
+      n === 1
+        ? "1 plato tiene alérgenos sin declarar."
+        : `${n} platos tienen alérgenos sin declarar.`,
   },
   notFound: {
     title: "Página no encontrada",

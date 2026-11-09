@@ -13,7 +13,7 @@ export async function listMyDishes(restaurantId: string) {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("dishes")
-    .select(DISH_COLUMNS)
+    .select(`${DISH_COLUMNS}, dish_allergens(count)`)
     .eq("restaurant_id", restaurant.id)
     .order("sort_order")
     .order("created_at");
@@ -35,6 +35,23 @@ export async function getMyDish(restaurantId: string, dishId: string) {
   if (error) throw error;
   if (data === null) notFound();
   return { restaurant, dish: data };
+}
+
+/** Alérgenos declarados de un plato del dueño con sesión. */
+export async function listMyDishAllergens(restaurantId: string, dishId: string) {
+  const { dish } = await getMyDish(restaurantId, dishId);
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("dish_allergens")
+    .select("allergen, level")
+    .eq("dish_id", dish.id);
+  if (error) throw error;
+  return data;
+}
+
+/** Número de alérgenos declarados a partir del count embebido de PostgREST. */
+export function declaredCount(dish: { dish_allergens: { count: number }[] }): number {
+  return dish.dish_allergens[0]?.count ?? 0;
 }
 
 /** Categorías ya usadas en la carta, para sugerirlas al escribir. */

@@ -14,6 +14,8 @@ export type FormState = {
   fieldErrors?: Record<string, string>;
   /** Valores a conservar en el formulario tras un error (React lo resetea). */
   values?: Record<string, string>;
+  /** Código de error para que la interfaz ofrezca una acción concreta. */
+  code?: "email_not_confirmed";
 };
 
 export const initialFormState: FormState = { status: "idle" };

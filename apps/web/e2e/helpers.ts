@@ -45,6 +45,15 @@ export async function getAuthLinkFromEmail(to: string, subject: string): Promise
   return link as string;
 }
 
+/** Número de emails recibidos por `to` con ese asunto. */
+export async function countEmails(to: string, subject: string): Promise<number> {
+  const search = await fetch(
+    `${MAILPIT_URL}/api/v1/search?query=${encodeURIComponent(`to:"${to}"`)}`,
+  );
+  const { messages } = (await search.json()) as { messages: MailpitSummary[] };
+  return messages.filter((m) => m.Subject === subject).length;
+}
+
 /** Registra un dueño de restaurante y confirma su email. Deja la sesión abierta en /panel. */
 export async function registerOwner(page: Page, email = uniqueEmail()): Promise<string> {
   await page.goto("/registro");

@@ -70,15 +70,45 @@ export async function signIn(_prev: FormState, formData: FormData): Promise<Form
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error) {
-    let message = t.auth.login.invalidCredentials;
-    if (error.code === "email_not_confirmed") message = t.auth.login.emailNotConfirmed;
-    else if (error.code !== undefined && RATE_LIMIT_CODES.has(error.code)) {
-      message = t.common.tooManyAttempts;
+    // Supabase solo responde email_not_confirmed si la contraseña es correcta,
+    // así que ofrecer el reenvío no revela nada a quien no la conoce.
+    if (error.code === "email_not_confirmed") {
+      return {
+        status: "error",
+        message: t.auth.login.emailNotConfirmed,
+        values: { email },
+        code: "email_not_confirmed",
+      };
     }
+    const message =
+      error.code !== undefined && RATE_LIMIT_CODES.has(error.code)
+        ? t.common.tooManyAttempts
+        : t.auth.login.invalidCredentials;
     return { status: "error", message, values: { email } };
   }
 
   redirect(safeRedirectPath(textField(formData, "next")));
+}
+
+export async function resendConfirmation(_prev: FormState, formData: FormData): Promise<FormState> {
+  const t = getMessages();
+  const parsed = emailSchema.safeParse({ email: textField(formData, "email") ?? "" });
+  if (!parsed.success) {
+    return { status: "error", fieldErrors: toFieldErrors(parsed.error.issues) };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email: parsed.data.email,
+    options: { emailRedirectTo: `${env.siteUrl}/auth/confirmar?next=/panel` },
+  });
+  if (error?.code !== undefined && RATE_LIMIT_CODES.has(error.code)) {
+    return { status: "error", message: t.common.tooManyAttempts };
+  }
+
+  // Misma respuesta en todos los casos: no se revela si la cuenta existe.
+  return { status: "success", message: t.auth.login.resent };
 }
 
 export async function requestPasswordReset(

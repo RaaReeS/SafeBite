@@ -1,9 +1,10 @@
-import { formatCents } from "@safebite/core";
+import { ALLERGENS, formatCents } from "@safebite/core";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Alert } from "@/components/ui/alert";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { getMessages } from "@/i18n";
-import { listMyDishes } from "@/lib/data/dishes";
+import { declaredCount, listMyDishes } from "@/lib/data/dishes";
 import { moveDish } from "./actions";
 
 export const metadata: Metadata = { title: "Platos · SafeBite" };
@@ -13,6 +14,7 @@ export default async function DishesPage({ params }: PageProps<"/panel/restauran
   const { id } = await params;
   const { restaurant, dishes } = await listMyDishes(id);
   const base = `/panel/restaurantes/${restaurant.id}`;
+  const incomplete = dishes.filter((dish) => declaredCount(dish) < ALLERGENS.length).length;
 
   return (
     <>
@@ -28,6 +30,10 @@ export default async function DishesPage({ params }: PageProps<"/panel/restauran
         </div>
         <ButtonLink href={`${base}/platos/nuevo`}>{t.dishes.newDish}</ButtonLink>
       </div>
+
+      {incomplete > 0 ? (
+        <Alert tone="warning">{t.allergens.incompleteSummary(incomplete)}</Alert>
+      ) : null}
 
       {dishes.length === 0 ? (
         <p className="text-zinc-700 dark:text-zinc-300">{t.dishes.empty}</p>
@@ -72,7 +78,8 @@ export default async function DishesPage({ params }: PageProps<"/panel/restauran
                     {dish.category ?? t.dishes.noCategory}
                   </span>
                 </span>
-                <span className="flex items-center gap-2 text-sm">
+                <span className="flex flex-wrap items-center gap-2 text-sm">
+                  <AllergenStatusBadge missing={ALLERGENS.length - declaredCount(dish)} />
                   {dish.is_active ? null : (
                     <span className="rounded-full bg-zinc-200 px-2.5 py-0.5 text-xs font-medium text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200">
                       {t.dishes.inactive}
@@ -86,5 +93,20 @@ export default async function DishesPage({ params }: PageProps<"/panel/restauran
         </ol>
       )}
     </>
+  );
+}
+
+function AllergenStatusBadge({ missing }: { missing: number }) {
+  const t = getMessages();
+  return (
+    <span
+      className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+        missing === 0
+          ? "bg-emerald-100 text-emerald-900 dark:bg-emerald-900 dark:text-emerald-100"
+          : "bg-amber-100 text-amber-900 dark:bg-amber-900 dark:text-amber-100"
+      }`}
+    >
+      {missing === 0 ? t.allergens.complete : t.allergens.missing(missing)}
+    </span>
   );
 }
