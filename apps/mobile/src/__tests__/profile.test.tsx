@@ -101,6 +101,8 @@ describe("perfil de alergias", () => {
     await waitFor(() =>
       expect(mockProfile.saveMyAllergens).toHaveBeenCalledWith(["nuts", "sesame"]),
     );
+    // Abierta sin pantalla anterior, al guardar vuelve al inicio.
+    await waitFor(() => expect(screen).toHavePathname("/inicio"));
   });
 
   it("si el guardado falla, avisa de que no se ha cambiado nada", async () => {

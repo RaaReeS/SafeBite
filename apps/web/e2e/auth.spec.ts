@@ -18,6 +18,16 @@ test.describe("registro", () => {
     await expect(page.getByText(email)).toBeVisible();
   });
 
+  test("con un email que ya tiene cuenta avisa de que está registrada", async ({ page }) => {
+    await page.goto("/registro");
+    await page.getByLabel("Email").fill(SEED_DINER.email);
+    await page.getByLabel("Contraseña").fill(DEFAULT_PASSWORD);
+    await page.getByLabel(/He leído y acepto/).check();
+    await page.getByRole("button", { name: "Crear cuenta" }).click();
+    await expect(formAlert(page)).toContainText("Esta cuenta ya está registrada");
+    await expect(page.getByLabel("Email")).toHaveValue(SEED_DINER.email);
+  });
+
   test("sin confirmar el email no se puede entrar", async ({ page }) => {
     const email = uniqueEmail();
     await page.goto("/registro");

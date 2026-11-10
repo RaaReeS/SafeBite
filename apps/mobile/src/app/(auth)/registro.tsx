@@ -21,9 +21,11 @@ export default function RegisterScreen() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [alreadyRegistered, setAlreadyRegistered] = useState(false);
 
   async function submit() {
     setMessage(null);
+    setAlreadyRegistered(false);
     const parsed = signUpSchema.safeParse({
       email,
       password,
@@ -42,11 +44,17 @@ export default function RegisterScreen() {
       options: { data: { accepted_terms: true } },
     });
     setLoading(false);
+    // Email con cuenta confirmada: según la configuración, Supabase responde
+    // user_already_exists o un usuario sin identidades (y no envía ningún código).
+    // Decisión del producto: avisar en rojo.
+    if (error?.code === "user_already_exists" || data.user?.identities?.length === 0) {
+      setAlreadyRegistered(true);
+      return;
+    }
     if (error) {
       setMessage(authErrorMessage(error, t.auth.register.couldNotRegister));
       return;
     }
-    // Si el email ya existía, Supabase responde igual: no se revela qué cuentas existen.
     if (data.session === null) {
       router.push({ pathname: "/verificar", params: { email: parsed.data.email } });
     }
@@ -56,6 +64,21 @@ export default function RegisterScreen() {
     <Screen>
       <Stack.Screen options={{ title: t.auth.register.title }} />
       {message ? <Notice tone="error" text={message} /> : null}
+      {alreadyRegistered ? (
+        <View>
+          <Notice tone="error" text={t.auth.register.alreadyRegistered} />
+          <Button
+            variant="link"
+            label={t.auth.register.goToLogin}
+            onPress={() => router.push("/login")}
+          />
+          <Button
+            variant="link"
+            label={t.auth.register.goToForgot}
+            onPress={() => router.push("/recuperar")}
+          />
+        </View>
+      ) : null}
       <TextField
         label={t.auth.email}
         value={email}

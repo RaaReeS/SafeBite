@@ -64,7 +64,10 @@ describe("registro", () => {
   });
 
   it("crea una cuenta de comensal (sin rol de restaurante) y pide el código", async () => {
-    mockAuth.signUp.mockResolvedValue({ data: { session: null, user: {} }, error: null });
+    mockAuth.signUp.mockResolvedValue({
+      data: { session: null, user: { identities: [{}] } },
+      error: null,
+    });
     await renderApp("/registro");
     await fireEvent.changeText(await screen.findByLabelText("Email"), "  Nueva@Correo.ES ");
     await fireEvent.changeText(screen.getByLabelText("Contraseña"), "contraseña-larga");
@@ -80,6 +83,31 @@ describe("registro", () => {
     );
     expect(await screen.findByLabelText("Código")).toBeTruthy();
     expect(screen).toHavePathnameWithParams("/verificar?email=nueva%40correo.es");
+  });
+
+  it.each([
+    [
+      "un usuario sin identidades",
+      { data: { session: null, user: { identities: [] } }, error: null },
+    ],
+    [
+      "user_already_exists",
+      { data: { session: null, user: null }, error: { code: "user_already_exists" } },
+    ],
+  ])("si el email ya tiene cuenta (%s), avisa en rojo y no pide el código", async (_, response) => {
+    mockAuth.signUp.mockResolvedValue(response);
+    await renderApp("/registro");
+    await fireEvent.changeText(await screen.findByLabelText("Email"), "ya@existe.es");
+    await fireEvent.changeText(screen.getByLabelText("Contraseña"), "contraseña-larga");
+    await fireEvent.press(screen.getByRole("checkbox"));
+    await press("Crear cuenta");
+
+    expect(await screen.findByText(/Esta cuenta ya está registrada/)).toBeTruthy();
+    expect(screen).toHavePathname("/registro");
+
+    await press("Recuperar contraseña");
+    expect(await screen.findByRole("button", { name: "Enviar código" })).toBeTruthy();
+    expect(screen).toHavePathname("/recuperar");
   });
 });
 

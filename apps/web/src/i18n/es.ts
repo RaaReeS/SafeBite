@@ -64,6 +64,8 @@ export const es = {
         "Te hemos enviado un email para confirmar tu cuenta. Abre el enlace del mensaje para empezar.",
       couldNotRegister:
         "No se ha podido crear la cuenta. Si ya tienes una con este email, entra o recupera tu contraseña.",
+      alreadyRegistered:
+        "Esta cuenta ya está registrada. Entra con tu contraseña o recupérala si no la recuerdas.",
     },
     forgot: {
       title: "Recuperar contraseña",

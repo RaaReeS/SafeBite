@@ -44,6 +44,14 @@ export async function signUp(_prev: FormState, formData: FormData): Promise<Form
     },
   });
 
+  // Email con cuenta confirmada: según la configuración, Supabase responde
+  // user_already_exists o un usuario sin identidades (y no envía nada).
+  // Decisión del producto: avisar de que la cuenta ya existe en vez de pedir
+  // que se revise un email que no llegará.
+  if (error?.code === "user_already_exists" || data.user?.identities?.length === 0) {
+    return { status: "error", message: t.auth.register.alreadyRegistered, values: { email } };
+  }
+
   if (error) {
     const message =
       error.code !== undefined && RATE_LIMIT_CODES.has(error.code)
@@ -53,7 +61,6 @@ export async function signUp(_prev: FormState, formData: FormData): Promise<Form
   }
 
   // Con confirmación de email activada no hay sesión hasta abrir el enlace.
-  // Si el email ya existía, Supabase responde igual (no revela qué emails existen).
   if (data.session === null) {
     return { status: "success", message: t.auth.register.checkEmail };
   }
