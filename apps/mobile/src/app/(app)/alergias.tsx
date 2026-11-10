@@ -107,7 +107,9 @@ function AllergenSelector({ initial }: { initial: Allergen[] }) {
     setLoading(true);
     try {
       await saveMyAllergens(selected);
-      router.back();
+      // Sin pantalla anterior (p. ej. abierta con un enlace), se vuelve al inicio.
+      if (router.canGoBack()) router.back();
+      else router.replace("/inicio");
     } catch {
       // El guardado es atómico: si falla, el perfil anterior sigue intacto.
       setError(true);
