@@ -11,7 +11,13 @@ export function Screen({ children }: { children: ReactNode }) {
         style={styles.flex}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        {/* En iOS la cabecera es translúcida y el contenido pasa por debajo: "automatic"
+            deja su hueco (y el de la barra de estado) para que nada quede tapado. */}
+        <ScrollView
+          contentContainerStyle={styles.content}
+          contentInsetAdjustmentBehavior="automatic"
+          keyboardShouldPersistTaps="handled"
+        >
           {children}
         </ScrollView>
       </KeyboardAvoidingView>
