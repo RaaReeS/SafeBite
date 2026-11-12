@@ -36,6 +36,7 @@ Especificación completa en `ESPECIFICACION.md`. Léela antes de empezar cualqui
 - Identificadores en inglés: tablas, columnas, enums, variables y funciones (`name`, `created_at`, `restaurant_owner`). El español es solo para textos visibles al usuario.
   - **Excepción deliberada:** los estados del filtro se mantienen en español (`apto`, `no_apto`, `posibles_trazas`, `sin_datos`), como en la especificación. No traducirlos.
 - Registro con un email que ya tiene cuenta confirmada: Supabase no envía nada y devuelve `user.identities` vacío. Por decisión del usuario, la web y la app muestran en rojo "Esta cuenta ya está registrada" en vez de pedir el email o el código. Se acepta que esto revela qué emails están registrados (lo limita el rate limit de Supabase). Login y recuperación de contraseña siguen sin revelarlo.
+- Productos (Open Food Facts): `src/products` traduce las etiquetas de OFF al filtro de core. OFF nunca declara "no contiene": solo se emite `free_from` si OFF marca los ingredientes como completos (`en:ingredients-completed`) y todas las etiquetas son reconocibles (decisión del usuario). Si no, `sin_datos`.
 - Perfil de alergias vacío: el filtro devuelve `apto`, pero la interfaz no muestra etiquetas de estado; muestra `FILTER_EMPTY_PROFILE_HINT`.
 - Paquetes con el scope `@safebite/*`. TypeScript fijado en ~6.0 (typescript-eslint aún no soporta la 7).
 - Roles de cuenta en `profiles.role`: `diner`, `restaurant_owner`, `admin`. El usuario nunca puede cambiar su propio rol; `admin` solo se asigna desde el servidor (service role).
@@ -50,8 +51,8 @@ Especificación completa en `ESPECIFICACION.md`. Léela antes de empezar cualqui
 - `pnpm install`: instalar dependencias
 - `pnpm dev:web`: arrancar la web
 - `pnpm dev:mobile`: arrancar Expo
-- `pnpm test`: ejecutar tests (en `packages/core` exige cobertura del 100 % en `src/filter` y `src/allergens`)
-- `pnpm test:mutation`: mutation testing con Stryker sobre `src/filter`, `src/allergens` y `src/menu` (umbral 100 %). Ejecutarlo tras cualquier cambio en esas carpetas. `src/allergens/icons.ts` se excluye: son datos de dibujo decorativos, no lógica.
+- `pnpm test`: ejecutar tests (en `packages/core` exige cobertura del 100 % en `src/filter`, `src/allergens`, `src/menu` y `src/products`)
+- `pnpm test:mutation`: mutation testing con Stryker sobre `src/filter`, `src/allergens`, `src/menu` y `src/products` (umbral 100 %). Ejecutarlo tras cualquier cambio en esas carpetas. `src/allergens/icons.ts` se excluye: son datos de dibujo decorativos, no lógica.
 - `pnpm lint`: revisar código
 - `pnpm db:start` / `pnpm db:stop`: arrancar/parar Supabase local (requiere Docker Desktop abierto)
 - `pnpm db:reset`: recrear la BD local aplicando migraciones y `supabase/seed.sql`
