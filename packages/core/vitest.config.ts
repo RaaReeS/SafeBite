@@ -12,6 +12,7 @@ export default defineConfig({
         "src/filter/**": { statements: 100, branches: 100, functions: 100, lines: 100 },
         "src/allergens/**": { statements: 100, branches: 100, functions: 100, lines: 100 },
         "src/menu/**": { statements: 100, branches: 100, functions: 100, lines: 100 },
+        "src/products/**": { statements: 100, branches: 100, functions: 100, lines: 100 },
       },
     },
   },

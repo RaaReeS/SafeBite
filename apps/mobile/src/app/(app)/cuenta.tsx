@@ -5,6 +5,7 @@ import { Button } from "@/components/button";
 import { Notice } from "@/components/notice";
 import { Screen } from "@/components/screen";
 import { getMessages } from "@/i18n";
+import { clearHistory } from "@/lib/product-history";
 import { deleteMyAccount, withdrawHealthConsent } from "@/lib/profile";
 import { useSession } from "@/lib/session";
 import { supabase } from "@/lib/supabase";
@@ -47,6 +48,8 @@ export default function AccountScreen() {
     setBusy("delete");
     try {
       await deleteMyAccount(); // Al cerrarse la sesión, la app vuelve sola a la bienvenida.
+      // El historial de productos solo vive en el móvil: también se borra.
+      if (userId !== undefined) await clearHistory(userId).catch(() => undefined);
     } catch {
       setNotice({ tone: "error", text: t.account.error });
       setBusy(null);

@@ -75,3 +75,14 @@ export {
 } from "./validation/auth";
 export { safeRedirectPath } from "./validation/redirect";
 export { Constants as DbConstants, type Database, type Json } from "./db/database.types";
+export { isValidBarcode, normalizeBarcode } from "./products/barcode";
+export {
+  OFF_ALLERGEN_TAGS,
+  OFF_INGREDIENTS_COMPLETED,
+  OFF_PRODUCT_FIELDS,
+  offAddProductUrl,
+  parseOffResponse,
+  productDeclarations,
+  type OffLookup,
+  type OffProduct,
+} from "./products/open-food-facts";

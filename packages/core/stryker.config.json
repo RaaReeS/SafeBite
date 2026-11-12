@@ -9,6 +9,7 @@
     "src/filter/**/*.ts",
     "src/allergens/**/*.ts",
     "src/menu/**/*.ts",
+    "src/products/**/*.ts",
     "!src/**/*.test.ts",
     "!src/allergens/icons.ts"
   ],

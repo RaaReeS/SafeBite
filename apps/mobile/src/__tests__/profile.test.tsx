@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { act, fireEvent, screen, waitFor } from "@testing-library/react-native";
 import { renderRouter } from "expo-router/testing-library";
 import { Alert } from "react-native";
@@ -137,9 +138,14 @@ describe("mi cuenta", () => {
     await renderSignedIn("/cuenta");
     await screen.findByRole("button", { name: "Borrar mi cuenta" });
 
+    await AsyncStorage.setItem(`safebite.product-history.${USER_ID}`, "[]");
     confirmNextAlert();
     await press("Borrar mi cuenta");
     await waitFor(() => expect(mockProfile.deleteMyAccount).toHaveBeenCalled());
+    // También se borra el historial de productos guardado en el móvil.
+    await waitFor(() =>
+      expect(AsyncStorage.removeItem).toHaveBeenCalledWith(`safebite.product-history.${USER_ID}`),
+    );
     await act(async () => emitSession(null));
     expect(await screen.findByRole("button", { name: "Crear cuenta" })).toBeTruthy();
   });

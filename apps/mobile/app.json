@@ -31,6 +31,14 @@
         {
           "locationWhenInUsePermission": "SafeBite usa tu ubicación solo mientras usas la app, para ordenar los restaurantes por cercanía. No se guarda ni se envía a ningún servidor."
         }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "SafeBite usa la cámara solo para leer el código de barras de los productos. No se guarda ninguna imagen.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
       ]
     ],
     "experiments": {
