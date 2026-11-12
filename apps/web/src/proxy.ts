@@ -9,7 +9,8 @@ import { updateSession } from "@/lib/supabase/proxy";
 export async function proxy(request: NextRequest) {
   const { response, userId } = await updateSession(request);
 
-  if (userId === null && request.nextUrl.pathname.startsWith("/panel")) {
+  const { pathname } = request.nextUrl;
+  if (userId === null && (pathname.startsWith("/panel") || pathname.startsWith("/admin"))) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
     loginUrl.search = "";
@@ -28,6 +29,7 @@ export async function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     "/panel/:path*",
+    "/admin/:path*",
     "/login",
     "/registro",
     "/recuperar",

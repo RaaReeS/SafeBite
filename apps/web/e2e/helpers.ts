@@ -124,3 +124,32 @@ export async function signUpDinerViaApi(email: string, password = DEFAULT_PASSWO
   });
   expect(response.status).toBe(200);
 }
+
+export const SEED_OWNER = { email: "restaurante@safebite.test", password: "password123" };
+export const SEED_ADMIN = { email: "admin@safebite.test", password: "password123" };
+
+/** Crea una solicitud «Pide este restaurante» como el comensal del seed, igual que la app. */
+export async function requestRestaurantAsSeedDiner(restaurantName: string, city: string) {
+  const env = localEnv();
+  const url = env.NEXT_PUBLIC_SUPABASE_URL;
+  const apikey = env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "";
+  const login = await fetch(`${url}/auth/v1/token?grant_type=password`, {
+    method: "POST",
+    headers: { apikey, "Content-Type": "application/json" },
+    body: JSON.stringify({ email: SEED_DINER.email, password: SEED_DINER.password }),
+  });
+  expect(login.status).toBe(200);
+  const { access_token } = (await login.json()) as { access_token: string };
+
+  const insert = await fetch(`${url}/rest/v1/restaurant_requests`, {
+    method: "POST",
+    headers: {
+      apikey,
+      Authorization: `Bearer ${access_token}`,
+      "Content-Type": "application/json",
+      Prefer: "return=minimal",
+    },
+    body: JSON.stringify({ restaurant_name: restaurantName, city }),
+  });
+  expect(insert.status).toBe(201);
+}
