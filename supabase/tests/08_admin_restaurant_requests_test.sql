@@ -95,7 +95,7 @@ select throws_ok(
 -- --- Administrador ----------------------------------------------------------------
 reset role;
 set local role authenticated;
-set local request.jwt.claims = '{"sub": "dddddddd-8888-0000-0000-000000000000", "role": "authenticated"}';
+set local request.jwt.claims = '{"sub": "dddddddd-8888-0000-0000-000000000000", "role": "authenticated", "aal": "aal2"}';
 
 select is(
   (select count(*)::int from public.restaurant_requests),
@@ -136,7 +136,7 @@ select throws_ok(
 -- Si alguien vuelve a pedirlo, el grupo vuelve a estar pendiente.
 set local request.jwt.claims = '{"sub": "aaaaaaaa-8888-0000-0000-000000000000", "role": "authenticated"}';
 insert into public.restaurant_requests (restaurant_name, city) values ('Bar Pepe', 'Madrid');
-set local request.jwt.claims = '{"sub": "dddddddd-8888-0000-0000-000000000000", "role": "authenticated"}';
+set local request.jwt.claims = '{"sub": "dddddddd-8888-0000-0000-000000000000", "role": "authenticated", "aal": "aal2"}';
 select results_eq(
   $$ select request_count, pending_count, status::text
      from public.admin_request_summary() where name_key = 'bar pepe' $$,

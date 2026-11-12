@@ -71,7 +71,7 @@ select throws_ok(
   '42501', null, 'Un comensal no puede verificar restaurantes');
 
 -- --- Administrador -------------------------------------------------------------------
-set local request.jwt.claims = '{"sub": "eeeeeeee-1010-0000-0000-000000000000", "role": "authenticated"}';
+set local request.jwt.claims = '{"sub": "eeeeeeee-1010-0000-0000-000000000000", "role": "authenticated", "aal": "aal2"}';
 
 select results_eq(
   $$ select name, owner_email, verification_status::text from public.admin_list_restaurants()
@@ -101,7 +101,7 @@ select results_eq(
   $$ values ('rejected'::text, 'No hemos podido confirmar que seas el dueño.'::text) $$,
   'El dueño ve el rechazo y el motivo');
 
-set local request.jwt.claims = '{"sub": "eeeeeeee-1010-0000-0000-000000000000", "role": "authenticated"}';
+set local request.jwt.claims = '{"sub": "eeeeeeee-1010-0000-0000-000000000000", "role": "authenticated", "aal": "aal2"}';
 select lives_ok(
   $$ select public.admin_set_restaurant_verification(
        'cccccccc-1010-1111-0000-000000000000', 'verified', 'nota que no se guarda') $$,

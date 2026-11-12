@@ -10,6 +10,8 @@ export type CurrentUser = {
   id: string;
   email: string | null;
   role: UserRole;
+  /** Nivel de autenticación de la sesión: "aal2" si se ha hecho la verificación en dos pasos. */
+  aal: "aal1" | "aal2";
 };
 
 /** Usuario de la petición actual, verificado en el servidor. Se calcula una vez por petición. */
@@ -30,6 +32,7 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
     id: claims.sub,
     email: typeof claims.email === "string" ? claims.email : null,
     role: profile.role,
+    aal: claims.aal === "aal2" ? "aal2" : "aal1",
   };
 });
 
@@ -47,13 +50,24 @@ export async function requireRestaurantOwner(): Promise<CurrentUser> {
 }
 
 /**
- * Exige una sesión de administrador. Usar al principio de cada página de /admin
- * y de cada Server Action; las funciones de la base de datos vuelven a comprobarlo.
+ * Exige una cuenta de administrador, aunque aún no haya hecho la verificación en
+ * dos pasos. Solo para la pantalla y las acciones de esa verificación.
  */
-export async function requireAdmin(): Promise<CurrentUser> {
+export async function requireAdminAccount(): Promise<CurrentUser> {
   const user = await getCurrentUser();
   if (user === null) redirect("/login?next=/admin");
   if (user.role === "restaurant_owner") redirect("/panel");
   if (user.role !== "admin") redirect("/sin-acceso");
+  return user;
+}
+
+/**
+ * Exige una sesión de administrador CON la verificación en dos pasos hecha.
+ * Usar al principio de cada página de /admin y de cada Server Action; las
+ * funciones de la base de datos vuelven a comprobarlo (aal2).
+ */
+export async function requireAdmin(): Promise<CurrentUser> {
+  const user = await requireAdminAccount();
+  if (user.aal !== "aal2") redirect("/admin/dos-pasos");
   return user;
 }

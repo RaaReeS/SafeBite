@@ -1,3 +1,4 @@
+import { createHmac } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, type Page } from "@playwright/test";
@@ -127,6 +128,40 @@ export async function signUpDinerViaApi(email: string, password = DEFAULT_PASSWO
 
 export const SEED_OWNER = { email: "restaurante@safebite.test", password: "password123" };
 export const SEED_ADMIN = { email: "admin@safebite.test", password: "password123" };
+/** Clave TOTP del autenticador del admin del seed (solo local). */
+export const SEED_ADMIN_TOTP_SECRET = "JBSWY3DPEHPK3PXP";
+/** Admin del seed sin verificación en dos pasos configurada. */
+export const SEED_NEW_ADMIN = { email: "admin-nuevo@safebite.test", password: "password123" };
+
+function base32Decode(value: string): Buffer {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  let bits = "";
+  for (const char of value.replace(/=+$/, "").toUpperCase()) {
+    bits += alphabet.indexOf(char).toString(2).padStart(5, "0");
+  }
+  const bytes: number[] = [];
+  for (let i = 0; i + 8 <= bits.length; i += 8) bytes.push(parseInt(bits.slice(i, i + 8), 2));
+  return Buffer.from(bytes);
+}
+
+/** Código TOTP actual (RFC 6238: SHA-1, 6 cifras, 30 s), como el de una app de autenticación. */
+export function totpCode(secret: string, now = Date.now()): string {
+  const counter = Buffer.alloc(8);
+  counter.writeBigUInt64BE(BigInt(Math.floor(now / 30_000)));
+  const hmac = createHmac("sha1", base32Decode(secret)).update(counter).digest();
+  const offset = (hmac[hmac.length - 1] ?? 0) & 15;
+  return String((hmac.readUInt32BE(offset) & 0x7fffffff) % 1_000_000).padStart(6, "0");
+}
+
+/** Entra como el admin del seed y completa la verificación en dos pasos. */
+export async function loginAsAdmin(page: Page) {
+  await login(page, SEED_ADMIN.email, SEED_ADMIN.password);
+  await expect(page).toHaveURL(/\/admin\/dos-pasos$/);
+  const form = page.getByRole("form", { name: "Código de verificación" });
+  await form.getByLabel("Código de 6 cifras").fill(totpCode(SEED_ADMIN_TOTP_SECRET));
+  await form.getByRole("button", { name: "Verificar" }).click();
+  await expect(page).toHaveURL(/\/admin\/restaurantes$/);
+}
 
 /** Crea una solicitud «Pide este restaurante» como el comensal del seed, igual que la app. */
 export async function requestRestaurantAsSeedDiner(restaurantName: string, city: string) {
@@ -173,6 +208,41 @@ async function apiToken(email: string, password: string): Promise<string> {
 }
 
 /**
+ * Sesión del admin del seed con la verificación en dos pasos hecha (aal2).
+ * La obtiene global-setup.ts una sola vez: Supabase no admite dos
+ * verificaciones simultáneas del mismo autenticador.
+ */
+export async function createAdminApiToken(): Promise<string> {
+  const env = localEnv();
+  const url = env.NEXT_PUBLIC_SUPABASE_URL;
+  const headers = (token: string) => ({
+    apikey: env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "",
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  });
+  const token = await apiToken(SEED_ADMIN.email, SEED_ADMIN.password);
+  const user = (await (await fetch(`${url}/auth/v1/user`, { headers: headers(token) })).json()) as {
+    factors?: { id: string; factor_type: string; status: string }[];
+  };
+  const factor = user.factors?.find((f) => f.factor_type === "totp" && f.status === "verified");
+  expect(factor, "autenticador del admin del seed").toBeDefined();
+  const challenge = (await (
+    await fetch(`${url}/auth/v1/factors/${factor?.id}/challenge`, {
+      method: "POST",
+      headers: headers(token),
+      body: "{}",
+    })
+  ).json()) as { id: string };
+  const verified = await fetch(`${url}/auth/v1/factors/${factor?.id}/verify`, {
+    method: "POST",
+    headers: headers(token),
+    body: JSON.stringify({ challenge_id: challenge.id, code: totpCode(SEED_ADMIN_TOTP_SECRET) }),
+  });
+  expect(verified.status).toBe(200);
+  return ((await verified.json()) as { access_token: string }).access_token;
+}
+
+/**
  * Cambia la verificación de un restaurante como administrador (lo que hace
  * /admin/restaurantes), a partir de la URL de su ficha en el panel.
  */
@@ -184,7 +254,7 @@ export async function setVerificationAsAdmin(
   const id = /\/panel\/restaurantes\/([0-9a-f-]{36})/.exec(restaurantPanelUrl)?.[1];
   expect(id, "URL de la ficha del restaurante").toBeDefined();
   const env = localEnv();
-  const token = await apiToken(SEED_ADMIN.email, SEED_ADMIN.password);
+  const token = process.env.E2E_ADMIN_TOKEN ?? (await createAdminApiToken());
   const response = await fetch(
     `${env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/rpc/admin_set_restaurant_verification`,
     {

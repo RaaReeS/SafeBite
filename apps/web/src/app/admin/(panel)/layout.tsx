@@ -3,7 +3,7 @@ import { Suspense, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { getMessages } from "@/i18n";
 import { requireAdmin } from "@/lib/auth";
-import { signOut } from "../(auth)/actions";
+import { signOut } from "@/app/(auth)/actions";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const t = getMessages();

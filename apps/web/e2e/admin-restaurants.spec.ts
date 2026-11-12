@@ -1,11 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
 import {
-  SEED_ADMIN,
   SEED_DINER,
   SEED_OWNER,
   createRestaurant,
   formAlert,
   login,
+  loginAsAdmin,
   registerOwner,
 } from "./helpers";
 
@@ -22,8 +22,7 @@ test.describe("verificación de restaurantes (administración)", () => {
     const { name, url } = await createRestaurant(owner);
 
     const admin = await browser.newPage();
-    await login(admin, SEED_ADMIN.email, SEED_ADMIN.password);
-    await expect(admin).toHaveURL(/\/admin\/restaurantes$/);
+    await loginAsAdmin(admin);
     await expect(card(admin, name)).toContainText("Pendiente de verificación");
     await expect(card(admin, name)).toContainText(ownerEmail);
     await expect(card(admin, name)).toContainText("Madrid");

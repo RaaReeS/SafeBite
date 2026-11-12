@@ -4,7 +4,9 @@
 -- Cuentas (contraseña: password123):
 --   restaurante@safebite.test  -> restaurant_owner, dueño de "La Huerta Demo"
 --   comensal@safebite.test     -> diner, celíaco y alérgico a frutos de cáscara
---   admin@safebite.test        -> admin (gestiona las solicitudes de restaurantes)
+--   admin@safebite.test        -> admin, con verificación en dos pasos (TOTP) ya activada.
+--                                 Clave TOTP de pruebas: JBSWY3DPEHPK3PXP (solo local).
+--   admin-nuevo@safebite.test  -> admin SIN verificación en dos pasos (para probar el alta)
 
 -- ---------------------------------------------------------------------------
 -- Usuarios
@@ -31,6 +33,12 @@ insert into auth.users (
    extensions.crypt('password123', extensions.gen_salt('bf')), now(),
    '{"provider": "email", "providers": ["email"]}',
    '{"display_name": "Administración"}',
+   now(), now(), '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000000', '40000000-0000-0000-0000-000000000002',
+   'authenticated', 'authenticated', 'admin-nuevo@safebite.test',
+   extensions.crypt('password123', extensions.gen_salt('bf')), now(),
+   '{"provider": "email", "providers": ["email"]}',
+   '{"display_name": "Administración nueva"}',
    now(), now(), '', '', '', '');
 
 insert into auth.identities (
@@ -40,12 +48,23 @@ select gen_random_uuid(), u.id, u.id::text, 'email',
   jsonb_build_object('sub', u.id::text, 'email', u.email, 'email_verified', true),
   now(), now(), now()
 from auth.users u
-where u.email in ('restaurante@safebite.test', 'comensal@safebite.test', 'admin@safebite.test');
+where u.email in (
+  'restaurante@safebite.test', 'comensal@safebite.test', 'admin@safebite.test',
+  'admin-nuevo@safebite.test'
+);
 
 -- El rol admin nunca se asigna desde el cliente: aquí (y en producción, con SQL
 -- desde el panel de Supabase) se cambia directamente en la base de datos.
 update public.profiles set role = 'admin'
-  where id = '40000000-0000-0000-0000-000000000001';
+  where id in ('40000000-0000-0000-0000-000000000001', '40000000-0000-0000-0000-000000000002');
+
+-- Factor TOTP ya verificado del admin del seed, con una clave conocida para
+-- poder generar los códigos en los tests. SOLO desarrollo local.
+insert into auth.mfa_factors (id, user_id, friendly_name, factor_type, status, secret, created_at, updated_at)
+values (
+  '40000000-0000-0000-0000-0000000000f1', '40000000-0000-0000-0000-000000000001',
+  'Autenticador de pruebas', 'totp', 'verified', 'JBSWY3DPEHPK3PXP', now(), now()
+);
 
 -- Perfil de alergias del comensal (con consentimiento).
 update public.profiles set health_data_consent_at = now()

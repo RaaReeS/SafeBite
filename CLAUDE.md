@@ -40,7 +40,9 @@ Especificación completa en `ESPECIFICACION.md`. Léela antes de empezar cualqui
 - Perfil de alergias vacío: el filtro devuelve `apto`, pero la interfaz no muestra etiquetas de estado; muestra `FILTER_EMPTY_PROFILE_HINT`.
 - Paquetes con el scope `@safebite/*`. TypeScript fijado en ~6.0 (typescript-eslint aún no soporta la 7).
 - Roles de cuenta en `profiles.role`: `diner`, `restaurant_owner`, `admin`. El usuario nunca puede cambiar su propio rol; `admin` solo se asigna desde el servidor (service role).
-- Solicitudes «Pide este restaurante»: el admin las gestiona con `admin_request_summary()` y `admin_set_request_status()`, que agrupan por restaurante y ciudad y nunca devuelven quién las pidió. Estados: `pending` y `added`.
+- Solicitudes «Pide este restaurante»: el admin las gestiona con `admin_request_summary()` y `admin_set_request_status()`, que agrupan por restaurante y ciudad y nunca devuelven quién las pidió. Estados: `pending` y `added`. Límite: 20 por usuario en 24 h (error propio `SB429`).
+- Verificación de restaurantes: un restaurante solo es público (vistas `public_*`, app y QR) si está publicado Y `verification_status = 'verified'`. Solo el admin lo cambia (`admin_set_restaurant_verification()`, rechazo con motivo obligatorio). Cambiar nombre, ciudad o dirección lo devuelve a `pending`.
+- El admin necesita verificación en dos pasos (TOTP): la web lo exige (`requireAdmin`) y la base de datos también (`private.require_admin()` comprueba `aal2`). Si pierde el móvil, se borra su factor desde el panel de Supabase (Authentication → Users) y vuelve a darlo de alta en `/admin/dos-pasos`.
 - Componentes funcionales, TypeScript estricto, sin `any`.
 - Commits pequeños y descriptivos, uno por paso que funcione.
 - En tareas grandes: planificar primero, esperar confirmación y programar después.
@@ -58,12 +60,12 @@ Especificación completa en `ESPECIFICACION.md`. Léela antes de empezar cualqui
 - `pnpm db:reset`: recrear la BD local aplicando migraciones y `supabase/seed.sql`
 - `pnpm db:test`: tests pgTAP de permisos RLS (`supabase/tests/`)
 - `pnpm db:types`: regenerar `packages/core/src/db/database.types.ts` tras cambiar una migración
-- `pnpm test:e2e`: tests de extremo a extremo con Playwright (`apps/web/e2e/`). Requiere Docker abierto, `pnpm db:start` y `apps/web/.env.local` (ver `.env.example`). Usa el puerto 3000 (debe coincidir con `site_url` de `supabase/config.toml`) y lee los emails de Auth en Mailpit.
+- `pnpm test:e2e`: tests de extremo a extremo con Playwright (`apps/web/e2e/`). Los `admin*.spec.ts` van en un proyecto aparte con un solo worker (Supabase no admite dos verificaciones TOTP simultáneas del mismo factor); `e2e/global-setup.ts` obtiene una vez la sesión de admin para la API. Requiere Docker abierto, `pnpm db:start` y `apps/web/.env.local` (ver `.env.example`). Usa el puerto 3000 (debe coincidir con `site_url` de `supabase/config.toml`) y lee los emails de Auth en Mailpit.
 
 ## Desarrollo local
 
 - En local ningún email sale a internet: los de Auth (confirmación, recuperación) se ven en Mailpit, http://127.0.0.1:54324. La confirmación de email está activada también en local.
-- Cuentas de prueba del seed (contraseña `password123`): `restaurante@safebite.test`, `comensal@safebite.test` y `admin@safebite.test` (rol `admin`).
+- Cuentas de prueba del seed (contraseña `password123`): `restaurante@safebite.test`, `comensal@safebite.test`, `admin@safebite.test` (rol `admin`, con verificación en dos pasos; clave TOTP de pruebas `JBSWY3DPEHPK3PXP`, solo local) y `admin-nuevo@safebite.test` (admin sin autenticador, para probar el alta).
 - App móvil en un dispositivo real (Expo Go): `apps/mobile/.env.local` debe apuntar a la IP del PC en la wifi (`http://<IP>:54321`), no a `127.0.0.1`. Móvil y PC en la misma red.
 - La app declara `@babel/core@7` como dependencia de desarrollo: Stryker (en core) trae Babel 8 al monorepo y Expo necesita la 7.
 

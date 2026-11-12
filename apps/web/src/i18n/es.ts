@@ -94,6 +94,29 @@ export const es = {
   admin: {
     label: "Administración",
     nav: { requests: "Solicitudes", restaurants: "Verificación de restaurantes" },
+    twoFactor: {
+      title: "Verificación en dos pasos",
+      why: "La cuenta de administración decide qué cartas ven las personas con alergias, así que además de la contraseña pide un código de tu móvil.",
+      enrollIntro:
+        "Necesitas una app de autenticación en el móvil (Google Authenticator, Microsoft Authenticator, 1Password…). Solo se configura una vez.",
+      startEnroll: "Configurar la verificación en dos pasos",
+      step1: "Abre tu app de autenticación y añade una cuenta nueva.",
+      step2: "Escanea este código QR (o escribe la clave a mano).",
+      step3: "Escribe el código de 6 cifras que te muestre la app.",
+      qrAlt: "Código QR para añadir SafeBite a tu app de autenticación",
+      manualKey: "Clave para escribirla a mano:",
+      codeFormLabel: "Código de verificación",
+      codeLabel: "Código de 6 cifras",
+      codeHint: "El que muestra ahora tu app de autenticación. Cambia cada 30 segundos.",
+      verify: "Verificar",
+      invalidFormat: "Escribe el código de 6 cifras de tu app de autenticación.",
+      wrongCode: "El código no es correcto o ha caducado. Prueba con el código actual.",
+      enrollError: "No se ha podido configurar la verificación en dos pasos. Inténtalo de nuevo.",
+      noFactor: "No hay ninguna app de autenticación configurada. Recarga la página.",
+      loadError: "No se ha podido comprobar tu verificación en dos pasos. Recarga la página.",
+      lostDevice:
+        "¿Has perdido el móvil? El responsable técnico puede borrar tu autenticador desde el panel de Supabase (Authentication → Users) para que vuelvas a configurarlo.",
+    },
     navLabel: "Secciones de administración",
     restaurants: {
       title: "Verificación de restaurantes",
