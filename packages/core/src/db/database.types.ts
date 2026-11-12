@@ -372,6 +372,7 @@ export type Database = {
       };
     };
     Functions: {
+      admin_has_second_factor: { Args: Record<PropertyKey, never>; Returns: boolean };
       admin_list_restaurants: {
         Args: Record<PropertyKey, never>;
         Returns: {
@@ -390,6 +391,7 @@ export type Database = {
           verified_at: string;
         }[];
       };
+      admin_request_email_code: { Args: Record<PropertyKey, never>; Returns: undefined };
       admin_request_summary: {
         Args: Record<PropertyKey, never>;
         Returns: {
@@ -420,6 +422,7 @@ export type Database = {
         };
         Returns: undefined;
       };
+      admin_verify_email_code: { Args: { code: string }; Returns: string };
       delete_own_account: { Args: Record<PropertyKey, never>; Returns: undefined };
       set_dish_allergens: {
         Args: { declarations: Json; target_dish_id: string };
