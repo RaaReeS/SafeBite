@@ -1,5 +1,14 @@
 import { expect, test, type Page } from "@playwright/test";
-import { SEED_ADMIN, SEED_NEW_ADMIN, localEnv, login, totpCode } from "./helpers";
+import {
+  ADMIN_EMAIL_CODE_SUBJECT,
+  SEED_ADMIN,
+  SEED_NEW_ADMIN,
+  countEmails,
+  getAdminEmailCode,
+  localEnv,
+  login,
+  totpCode,
+} from "./helpers";
 
 function codeForm(page: Page) {
   return page.getByRole("form", { name: "Código de verificación" });
@@ -49,6 +58,30 @@ async function removeNewAdminFactor(secret: string) {
 }
 
 test.describe("verificación en dos pasos del administrador", () => {
+  test("puede elegir un código por email en vez de la app", async ({ page }) => {
+    // Supabase limita a 5 códigos por hora y admin: este test pide uno por ejecución.
+    const before = await countEmails(SEED_NEW_ADMIN.email, ADMIN_EMAIL_CODE_SUBJECT);
+    await login(page, SEED_NEW_ADMIN.email, SEED_NEW_ADMIN.password);
+    await expect(page).toHaveURL(/\/admin\/dos-pasos$/);
+    await page.getByRole("link", { name: "Código por email" }).click();
+    await expect(page.getByText(/menos seguro que la app de autenticación/)).toBeVisible();
+    await page.getByRole("button", { name: "Enviarme un código" }).click();
+    await expect(
+      page.getByText(/Te hemos enviado un código a admin-nuevo@safebite.test/),
+    ).toBeVisible();
+
+    const code = await getAdminEmailCode(SEED_NEW_ADMIN.email, before);
+    const wrong = code === "000000" ? "111111" : "000000";
+    await codeForm(page).getByLabel("Código de 6 cifras").fill(wrong);
+    await codeForm(page).getByRole("button", { name: "Verificar" }).click();
+    await expect(codeForm(page).getByRole("alert")).toContainText("no es correcto");
+
+    await codeForm(page).getByLabel("Código de 6 cifras").fill(code);
+    await codeForm(page).getByRole("button", { name: "Verificar" }).click();
+    await expect(page).toHaveURL(/\/admin\/restaurantes$/);
+    await expect(page.getByRole("heading", { name: "Verificación de restaurantes" })).toBeVisible();
+  });
+
   test("con solo la contraseña no se entra en la administración", async ({ page }) => {
     await login(page, SEED_ADMIN.email, SEED_ADMIN.password);
     await expect(page).toHaveURL(/\/admin\/dos-pasos$/);
@@ -75,6 +108,8 @@ test.describe("verificación en dos pasos del administrador", () => {
     try {
       await login(page, SEED_NEW_ADMIN.email, SEED_NEW_ADMIN.password);
       await expect(page).toHaveURL(/\/admin\/dos-pasos$/);
+      await expect(page.getByText(/Elige cómo quieres verificar tu identidad/)).toBeVisible();
+      await page.getByRole("link", { name: "App de autenticación" }).click();
       await page.getByRole("button", { name: "Configurar la verificación en dos pasos" }).click();
 
       await expect(page.getByRole("img", { name: /Código QR/ })).toBeVisible();

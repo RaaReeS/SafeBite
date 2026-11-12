@@ -4,7 +4,15 @@ export type TwoFactorState = {
   message?: string;
   /** Alta en curso: el QR y la clave para añadir SafeBite a la app de autenticación. */
   enrollment?: { factorId: string; qrCode: string; secret: string };
+  /** Código por email: ya se ha enviado y se espera que el admin lo escriba. */
+  emailSent?: boolean;
 };
+
+export type TwoFactorMethod = "app" | "email";
+
+export function parseTwoFactorMethod(value: unknown): TwoFactorMethod | null {
+  return value === "app" || value === "email" ? value : null;
+}
 
 export const initialTwoFactorState: TwoFactorState = { status: "idle" };
 

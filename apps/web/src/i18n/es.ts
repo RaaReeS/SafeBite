@@ -114,6 +114,26 @@ export const es = {
       enrollError: "No se ha podido configurar la verificación en dos pasos. Inténtalo de nuevo.",
       noFactor: "No hay ninguna app de autenticación configurada. Recarga la página.",
       loadError: "No se ha podido comprobar tu verificación en dos pasos. Recarga la página.",
+      methodLabel: "Método de verificación",
+      methods: { app: "App de autenticación", email: "Código por email" },
+      chooseMethod:
+        "Elige cómo quieres verificar tu identidad: con una app de autenticación (Google Authenticator…) o con un código que te enviamos por email.",
+      emailIntro: (email: string) =>
+        `Te enviaremos un código de 6 cifras a ${email}. Caduca a los 10 minutos.`,
+      sendEmail: "Enviarme un código",
+      resendEmail: "Enviar otro código",
+      emailSent: (email: string) =>
+        `Te hemos enviado un código a ${email}. Si no lo ves en unos minutos, revisa la carpeta de spam.`,
+      emailCodeHint: "El código de 6 cifras del email.",
+      wrongEmailCode: "El código no es correcto. Revisa el último email que te hemos enviado.",
+      emailCodeExpired: "El código ha caducado o ya se ha usado. Pide uno nuevo.",
+      tooManyAttempts: "Demasiados intentos con ese código. Pide uno nuevo.",
+      tooManyEmails:
+        "Has pedido demasiados códigos. Espera una hora o usa la app de autenticación.",
+      emailError:
+        "No se ha podido enviar o comprobar el código. Inténtalo de nuevo en unos minutos.",
+      emailWarning:
+        "El código por email es menos seguro que la app de autenticación: quien entre en tu correo podría recuperar tu contraseña y también recibir el código.",
       lostDevice:
         "¿Has perdido el móvil? El responsable técnico puede borrar tu autenticador desde el panel de Supabase (Authentication → Users) para que vuelvas a configurarlo.",
     },

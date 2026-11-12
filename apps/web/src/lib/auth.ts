@@ -62,12 +62,26 @@ export async function requireAdminAccount(): Promise<CurrentUser> {
 }
 
 /**
- * Exige una sesión de administrador CON la verificación en dos pasos hecha.
- * Usar al principio de cada página de /admin y de cada Server Action; las
- * funciones de la base de datos vuelven a comprobarlo (aal2).
+ * ¿Ha hecho el administrador el segundo paso en esta sesión? Con la app de
+ * autenticación la sesión es aal2; con el código por email, lo sabe la base de
+ * datos (admin_has_second_factor). Se calcula una vez por petición.
+ */
+export const hasAdminSecondFactor = cache(async (): Promise<boolean> => {
+  const user = await getCurrentUser();
+  if (user?.role !== "admin") return false;
+  if (user.aal === "aal2") return true;
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.rpc("admin_has_second_factor");
+  return error === null && data === true;
+});
+
+/**
+ * Exige una sesión de administrador CON la verificación en dos pasos hecha
+ * (app de autenticación o código por email). Usar al principio de cada página
+ * de /admin y de cada Server Action; la base de datos vuelve a comprobarlo.
  */
 export async function requireAdmin(): Promise<CurrentUser> {
   const user = await requireAdminAccount();
-  if (user.aal !== "aal2") redirect("/admin/dos-pasos");
+  if (!(await hasAdminSecondFactor())) redirect("/admin/dos-pasos");
   return user;
 }

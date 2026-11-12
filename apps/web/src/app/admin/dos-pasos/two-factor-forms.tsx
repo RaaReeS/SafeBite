@@ -13,9 +13,11 @@ type Action = (prev: TwoFactorState, formData: FormData) => Promise<TwoFactorSta
 export function CodeForm({
   action,
   initialState = initialTwoFactorState,
+  hint,
 }: {
   action: Action;
   initialState?: TwoFactorState;
+  hint?: string;
 }) {
   const t = getMessages();
   const [state, formAction, pending] = useActionState(action, initialState);
@@ -32,7 +34,7 @@ export function CodeForm({
       <TextField
         name="code"
         label={t.admin.twoFactor.codeLabel}
-        hint={t.admin.twoFactor.codeHint}
+        hint={hint ?? t.admin.twoFactor.codeHint}
         inputMode="numeric"
         autoComplete="one-time-code"
         maxLength={7}
@@ -91,6 +93,45 @@ export function EnrollFlow({ start, confirm }: { start: Action; confirm: Action 
         </code>
       </p>
       <CodeForm action={confirm} initialState={state} />
+    </div>
+  );
+}
+
+/** Código por email: se pide el envío y luego se escribe el código recibido. */
+export function EmailCodeFlow({
+  email,
+  request,
+  verify,
+}: {
+  email: string;
+  request: Action;
+  verify: Action;
+}) {
+  const t = getMessages();
+  const [state, formAction, pending] = useActionState(request, initialTwoFactorState);
+
+  return (
+    <div className="flex flex-col gap-4">
+      {state.status === "error" && state.message ? (
+        <Alert tone="error">{state.message}</Alert>
+      ) : null}
+      {state.emailSent ? (
+        <>
+          <Alert tone="success">{t.admin.twoFactor.emailSent(email)}</Alert>
+          <CodeForm action={verify} initialState={state} hint={t.admin.twoFactor.emailCodeHint} />
+        </>
+      ) : (
+        <p className="text-zinc-700 dark:text-zinc-300">{t.admin.twoFactor.emailIntro(email)}</p>
+      )}
+      <form action={formAction}>
+        <Button
+          type="submit"
+          variant={state.emailSent ? "secondary" : "primary"}
+          disabled={pending}
+        >
+          {state.emailSent ? t.admin.twoFactor.resendEmail : t.admin.twoFactor.sendEmail}
+        </Button>
+      </form>
     </div>
   );
 }
