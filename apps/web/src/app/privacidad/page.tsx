@@ -28,6 +28,36 @@ export default function PrivacyPage() {
       </p>
       <p>La carta pública por QR no guarda ningún dato personal: el filtro es temporal.</p>
 
+      <h2>Ubicación</h2>
+      <p>
+        Si lo permites, la app usa tu ubicación para ordenar los restaurantes por cercanía. Se usa
+        solo en tu móvil: no se guarda ni se envía a ningún servidor.
+      </p>
+
+      <h2>Escáner de productos</h2>
+      <ul>
+        <li>
+          La app usa la cámara solo para leer el código de barras. No se guarda ni se envía ninguna
+          imagen.
+        </li>
+        <li>
+          Para mostrar el producto, la app envía únicamente el número del código de barras a Open
+          Food Facts, una base de datos libre y colaborativa con sede en Francia. No se envía tu
+          perfil de alergias ni ningún otro dato tuyo. El semáforo se calcula en tu móvil.
+        </li>
+        <li>
+          El historial de productos escaneados se guarda solo en tu móvil y se borra al borrar tu
+          cuenta.
+        </li>
+      </ul>
+
+      <h2>Solicitudes de restaurantes</h2>
+      <p>
+        Si pides que un restaurante se dé de alta, guardamos el nombre del restaurante y la ciudad
+        asociados a tu cuenta. El equipo de SafeBite solo ve cuántas personas lo han pedido, no
+        quién.
+      </p>
+
       <h2>Dónde se guardan</h2>
       <p>En servidores de la Unión Europea.</p>
 
