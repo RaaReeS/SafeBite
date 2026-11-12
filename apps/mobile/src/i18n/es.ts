@@ -153,8 +153,21 @@ export const es = {
     manualHint: "Los números que aparecen debajo de las barras (8, 12, 13 o 14 cifras).",
     manualSubmit: "Buscar producto",
     invalidCode: "Revisa el número: no es un código de barras válido.",
-    historyTitle: "Escaneados recientemente",
+    history: "Historial de productos",
     unnamed: "Producto sin nombre",
+  },
+  history: {
+    title: "Historial",
+    empty: "Aún no has escaneado ningún producto.",
+    noProfile: "Configura tus alergias para ver aquí si puedes tomar cada producto.",
+    note: "El historial se guarda solo en este móvil. El resultado se calcula con tus alergias actuales y los datos de Open Food Facts del momento en que lo escaneaste: abre el producto para actualizarlo.",
+    clear: "Borrar historial",
+    clearTitle: "¿Borrar el historial?",
+    clearMessage:
+      "Se borrará la lista de productos escaneados de este móvil. No se puede deshacer.",
+    clearConfirm: "Borrar",
+    cancel: "Cancelar",
+    cleared: "Historial borrado.",
   },
   product: {
     title: "Producto",

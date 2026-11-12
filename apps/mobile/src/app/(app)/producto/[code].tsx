@@ -39,8 +39,7 @@ export default function ProductScreen() {
     const result = await lookupProduct(code);
     setLoad(result);
     if (result.status === "found" && userId !== undefined) {
-      const { name, brands } = result.product;
-      await addToHistory(userId, { code, name, brands });
+      await addToHistory(userId, result.product);
     }
   }, [code, validCode, userId]);
 

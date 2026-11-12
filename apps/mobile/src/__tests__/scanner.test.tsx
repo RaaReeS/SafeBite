@@ -3,7 +3,7 @@ import { OFF_INGREDIENTS_COMPLETED, type OffProduct } from "@safebite/core";
 import { act, fireEvent, screen, waitFor } from "@testing-library/react-native";
 import * as Camera from "expo-camera";
 import { renderRouter } from "expo-router/testing-library";
-import { Linking } from "react-native";
+import { Alert, Linking } from "react-native";
 import * as profile from "@/lib/profile";
 import { addToHistory, getHistory } from "@/lib/product-history";
 import * as products from "@/lib/products";
@@ -154,13 +154,92 @@ describe("escáner", () => {
     expect(mockProducts.lookupProduct).toHaveBeenCalledWith(CODE);
   });
 
-  it("muestra los escaneados recientemente y permite volver a abrirlos", async () => {
-    await addToHistory(USER_ID, { code: CODE, name: "Galletas María", brands: "Marca" });
-    setLookup({ status: "found", product: offProduct() });
+  it("tiene un botón para ir al historial", async () => {
     await renderSignedIn("/escanear");
-    expect(await screen.findByText("Escaneados recientemente")).toBeTruthy();
-    await press("Galletas María · Marca");
-    expect(screen).toHavePathname(`/producto/${CODE}`);
+    await press("Historial de productos");
+    expect(await screen.findByText("Aún no has escaneado ningún producto.")).toBeTruthy();
+    expect(screen).toHavePathname("/historial");
+  });
+});
+
+describe("historial", () => {
+  const GLUTEN = "96385074";
+  const MILK = "036000291452";
+
+  async function fillHistory() {
+    await addToHistory(
+      USER_ID,
+      offProduct({ code: MILK, name: "Leche", brands: null, allergensTags: ["en:milk"] }),
+    );
+    await addToHistory(
+      USER_ID,
+      offProduct({
+        code: GLUTEN,
+        name: "Pan de molde",
+        imageUrl: "https://images.openfoodfacts.org/pan.jpg",
+        allergensTags: ["en:gluten"],
+      }),
+    );
+  }
+
+  it("muestra foto, nombre y si es apto o no sin abrir el producto", async () => {
+    await fillHistory();
+    await renderSignedIn("/historial");
+
+    expect(
+      await screen.findByRole("button", { name: "Pan de molde, Marca, No apto" }),
+    ).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Leche, Apto según lo declarado" })).toBeTruthy();
+    expect(screen.getByTestId(`history-image-${GLUTEN}`).props.source).toEqual({
+      uri: "https://images.openfoodfacts.org/pan.jpg",
+    });
+    // El historial no consulta Open Food Facts.
+    expect(mockProducts.lookupProduct).not.toHaveBeenCalled();
+  });
+
+  it("el semáforo se calcula con el perfil actual", async () => {
+    setProfile("2026-11-12T10:00:00Z", ["milk"]);
+    await fillHistory();
+    await renderSignedIn("/historial");
+    expect(await screen.findByRole("button", { name: "Leche, No apto" })).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Pan de molde, Marca, Apto según lo declarado" }),
+    ).toBeTruthy();
+  });
+
+  it("sin perfil no muestra semáforo", async () => {
+    setProfile(null, []);
+    await fillHistory();
+    await renderSignedIn("/historial");
+    expect(await screen.findByRole("button", { name: "Pan de molde, Marca" })).toBeTruthy();
+    expect(screen.getByText(/Configura tus alergias para ver aquí/)).toBeTruthy();
+  });
+
+  it("al tocar un producto abre su ficha", async () => {
+    await fillHistory();
+    setLookup({ status: "found", product: offProduct({ code: GLUTEN, name: "Pan de molde" }) });
+    await renderSignedIn("/historial");
+    await press(/^Pan de molde/);
+    expect(screen).toHavePathname(`/producto/${GLUTEN}`);
+    expect(mockProducts.lookupProduct).toHaveBeenCalledWith(GLUTEN);
+  });
+
+  it("borrar el historial pide confirmación", async () => {
+    await fillHistory();
+    await renderSignedIn("/historial");
+    await screen.findByRole("button", { name: /^Leche/ });
+
+    jest.spyOn(Alert, "alert").mockImplementationOnce(() => undefined); // Cancelar.
+    await press("Borrar historial");
+    expect(await getHistory(USER_ID)).toHaveLength(2);
+
+    jest.spyOn(Alert, "alert").mockImplementationOnce((_title, _message, buttons) => {
+      buttons?.find((button) => button.style === "destructive")?.onPress?.();
+    });
+    await press("Borrar historial");
+    expect(await screen.findByText("Historial borrado.")).toBeTruthy();
+    expect(screen.getByText("Aún no has escaneado ningún producto.")).toBeTruthy();
+    expect(await getHistory(USER_ID)).toEqual([]);
   });
 });
 
