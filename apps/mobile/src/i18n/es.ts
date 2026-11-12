@@ -136,6 +136,57 @@ export const es = {
       n === 1 ? "1 alérgeno sin declarar" : `${n} alérgenos sin declarar`,
     ingredients: "Ingredientes:",
   },
+  scanner: {
+    open: "Escanear producto",
+    title: "Escanear producto",
+    instructions: "Apunta al código de barras del envase.",
+    cameraLabel: "Cámara para leer el código de barras",
+    permissionTitle: "Permiso de cámara",
+    permissionText:
+      "SafeBite usa la cámara solo para leer códigos de barras. No se guarda ninguna imagen.",
+    allowCamera: "Permitir la cámara",
+    permissionDenied:
+      "Sin permiso de cámara no podemos leer el código. Puedes escribirlo a mano o activarlo en Ajustes.",
+    openSettings: "Abrir Ajustes",
+    manualTitle: "O escribe el número",
+    manualLabel: "Código de barras",
+    manualHint: "Los números que aparecen debajo de las barras (8, 12, 13 o 14 cifras).",
+    manualSubmit: "Buscar producto",
+    invalidCode: "Revisa el número: no es un código de barras válido.",
+    historyTitle: "Escaneados recientemente",
+    unnamed: "Producto sin nombre",
+  },
+  product: {
+    title: "Producto",
+    loading: "Buscando el producto…",
+    notFound:
+      "No hemos encontrado este producto en Open Food Facts. Revisa la etiqueta del envase.",
+    addToOff: "Añadir este producto a Open Food Facts",
+    addToOffHint:
+      "Open Food Facts es una base de datos libre y colaborativa: cualquiera puede añadir productos.",
+    unavailable: "Open Food Facts no responde ahora mismo. Inténtalo de nuevo en unos minutos.",
+    networkError: "No hay conexión. Revisa tu conexión a internet e inténtalo de nuevo.",
+    invalid: "No hemos podido leer los datos de este producto. Revisa la etiqueta del envase.",
+    retry: "Reintentar",
+    scanAnother: "Escanear otro producto",
+    code: (code: string) => `Código: ${code}`,
+    unnamed: "Producto sin nombre",
+    statusDescription: {
+      no_apto: "Según Open Food Facts, contiene alérgenos de tu perfil.",
+      posibles_trazas: "Según Open Food Facts, puede contener trazas de alérgenos de tu perfil.",
+      sin_datos:
+        "Open Food Facts no tiene información suficiente sobre alguno de los alérgenos de tu perfil.",
+      apto: "Según Open Food Facts, la lista de ingredientes está completa y no contiene ninguno de los alérgenos de tu perfil.",
+    },
+    reasonContains: "Contiene:",
+    reasonTraces: "Puede contener trazas de:",
+    reasonMissing: "Sin datos sobre:",
+    noProfile: "Configura tus alergias para ver si este producto es apto para ti.",
+    configureProfile: "Configurar mis alergias",
+    ingredients: "Ingredientes:",
+    source:
+      "Información de Open Food Facts, una base de datos colaborativa. Puede estar incompleta o desactualizada: revisa siempre la etiqueta física.",
+  },
   request: {
     title: "Pide un restaurante",
     description:

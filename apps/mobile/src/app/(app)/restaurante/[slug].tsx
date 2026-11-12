@@ -4,13 +4,11 @@ import {
   FILTER_DISCLAIMER,
   FILTER_EMPTY_PROFILE_HINT,
   FILTER_SOURCE_NOTICE,
-  FILTER_STATUS_LABELS,
   buildMenu,
   countByStatus,
   formatCents,
   type Allergen,
   type EvaluatedDish,
-  type FilterStatus,
 } from "@safebite/core";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -27,6 +25,7 @@ import { AllergenIcon } from "@/components/allergen-icon";
 import { Button } from "@/components/button";
 import { Notice } from "@/components/notice";
 import { Screen } from "@/components/screen";
+import { StatusBadge } from "@/components/status-badge";
 import { getMessages } from "@/i18n";
 import { getMenu, type Menu, type MenuDish } from "@/lib/menu";
 import { useHealthProfile } from "@/lib/use-health-profile";
@@ -210,14 +209,6 @@ export default function RestaurantMenuScreen() {
   );
 }
 
-// El estado se indica con texto y símbolo, no solo con color (daltonismo).
-const STATUS: Record<FilterStatus, { symbol: string; background: string; text: string }> = {
-  no_apto: { symbol: "✕", background: "#b91c1c", text: "#ffffff" },
-  posibles_trazas: { symbol: "!", background: "#fbbf24", text: "#18181b" },
-  sin_datos: { symbol: "?", background: "#52525b", text: "#ffffff" },
-  apto: { symbol: "✓", background: "#047857", text: "#ffffff" },
-};
-
 function AllergenList({ label, allergens }: { label: string; allergens: readonly Allergen[] }) {
   if (allergens.length === 0) return null;
   const names = allergens.map((a) => ALLERGEN_LABELS.es[a]).join(", ");
@@ -239,7 +230,6 @@ function DishCard({ item, profile }: { item: EvaluatedDish<MenuDish>; profile: A
   const { dish, evaluation } = item;
   const filtering = profile.length > 0;
   const notSuitable = filtering && evaluation.status === "no_apto";
-  const status = STATUS[evaluation.status];
 
   // Lo declarado por el restaurante; con filtro, solo lo que no es motivo del estado.
   const levelOf = new Map(dish.allergens.map((d) => [d.allergen, d.level]));
@@ -258,15 +248,7 @@ function DishCard({ item, profile }: { item: EvaluatedDish<MenuDish>; profile: A
 
       {filtering ? (
         <>
-          <View
-            style={[styles.badge, { backgroundColor: status.background }]}
-            accessible
-            accessibilityLabel={FILTER_STATUS_LABELS.es[evaluation.status].short}
-          >
-            <Text style={[styles.badgeText, { color: status.text }]}>
-              {`${status.symbol}  ${FILTER_STATUS_LABELS.es[evaluation.status].short}`}
-            </Text>
-          </View>
+          <StatusBadge status={evaluation.status} />
           <AllergenList label={t.menu.reasonContains} allergens={evaluation.contains} />
           <AllergenList label={t.menu.reasonTraces} allergens={evaluation.mayContain} />
           <AllergenList label={t.menu.reasonMissing} allergens={evaluation.missing} />
@@ -339,13 +321,6 @@ const styles = StyleSheet.create({
   dishName: { flex: 1, fontSize: fontSize.lg, fontWeight: "600", color: colors.text },
   strike: { textDecorationLine: "line-through" },
   price: { fontSize: fontSize.lg, fontWeight: "600", color: colors.text },
-  badge: {
-    alignSelf: "flex-start",
-    borderRadius: radius.full,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-  },
-  badgeText: { fontSize: fontSize.sm, fontWeight: "700" },
   listRow: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: spacing.sm },
   listLabel: { fontSize: fontSize.sm, fontWeight: "700", color: colors.text },
   listItem: { flexDirection: "row", alignItems: "center", gap: spacing.xs },

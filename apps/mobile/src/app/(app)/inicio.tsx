@@ -23,6 +23,7 @@ export default function HomeScreen() {
       </Text>
 
       <Button label={t.search.open} onPress={() => router.push("/buscar")} />
+      <Button label={t.scanner.open} variant="secondary" onPress={() => router.push("/escanear")} />
 
       <View style={styles.card}>
         <Text style={styles.cardTitle}>{t.home.allergiesTitle}</Text>
