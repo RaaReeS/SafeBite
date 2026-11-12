@@ -209,6 +209,7 @@ export const es = {
     submit: "Enviar solicitud",
     sent: "¡Gracias! Hemos recibido tu solicitud.",
     error: "No se ha podido enviar la solicitud. Inténtalo de nuevo.",
+    tooMany: "Has enviado muchas solicitudes hoy. Vuelve a intentarlo mañana.",
   },
   consent: {
     title: "Tus datos de salud",

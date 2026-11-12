@@ -8,7 +8,7 @@ import { Screen } from "@/components/screen";
 import { TextField } from "@/components/text-field";
 import { getMessages } from "@/i18n";
 import { toFieldErrors } from "@/lib/forms";
-import { requestRestaurant } from "@/lib/restaurants";
+import { isTooManyRequestsError, requestRestaurant } from "@/lib/restaurants";
 import { colors, fontSize } from "@/theme";
 
 export default function RequestRestaurantScreen() {
@@ -33,8 +33,11 @@ export default function RequestRestaurantScreen() {
       setNotice({ tone: "success", text: t.request.sent });
       setName("");
       setCity("");
-    } catch {
-      setNotice({ tone: "error", text: t.request.error });
+    } catch (error) {
+      setNotice({
+        tone: "error",
+        text: isTooManyRequestsError(error) ? t.request.tooMany : t.request.error,
+      });
     } finally {
       setLoading(false);
     }
