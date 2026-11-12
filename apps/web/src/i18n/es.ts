@@ -126,6 +126,20 @@ export const es = {
     published: "Publicado",
     draft: "Borrador",
   },
+  verification: {
+    badge: { pending: "Pendiente de verificación", verified: "Verificado", rejected: "Rechazado" },
+    pendingTitle: "Pendiente de verificación",
+    pending:
+      "Para proteger a las personas con alergias, el equipo de SafeBite comprueba que cada restaurante lo gestiona su dueño. Tu carta no será visible para los clientes hasta entonces. Te contactaremos en el teléfono del establecimiento o en el email de tu cuenta.",
+    rejectedTitle: "No hemos podido verificar este restaurante",
+    rejectedReason: "Motivo:",
+    rejectedHelp:
+      "Si crees que es un error, corrige los datos del establecimiento (al cambiar el nombre, la ciudad o la dirección se revisará de nuevo) o escríbenos.",
+    identityChangeWarning:
+      "Si cambias el nombre, la ciudad o la dirección, tendremos que verificar el restaurante de nuevo y la carta dejará de verse mientras tanto.",
+    notVisibleYet:
+      "Tu carta aún no es visible para los clientes: está pendiente de verificación por el equipo de SafeBite.",
+  },
   restaurant: {
     newTitle: "Nuevo restaurante",
     name: "Nombre del establecimiento",

@@ -173,10 +173,14 @@ async function apiToken(email: string, password: string): Promise<string> {
 }
 
 /**
- * Verifica un restaurante como administrador (lo que hace /admin/restaurantes),
- * a partir de la URL de su ficha en el panel.
+ * Cambia la verificación de un restaurante como administrador (lo que hace
+ * /admin/restaurantes), a partir de la URL de su ficha en el panel.
  */
-export async function verifyRestaurantAsAdmin(restaurantPanelUrl: string) {
+export async function setVerificationAsAdmin(
+  restaurantPanelUrl: string,
+  status: "verified" | "rejected" | "pending",
+  note?: string,
+) {
   const id = /\/panel\/restaurantes\/([0-9a-f-]{36})/.exec(restaurantPanelUrl)?.[1];
   expect(id, "URL de la ficha del restaurante").toBeDefined();
   const env = localEnv();
@@ -190,8 +194,12 @@ export async function verifyRestaurantAsAdmin(restaurantPanelUrl: string) {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ target_restaurant_id: id, new_status: "verified" }),
+      body: JSON.stringify({ target_restaurant_id: id, new_status: status, note }),
     },
   );
   expect(response.status).toBe(204);
+}
+
+export async function verifyRestaurantAsAdmin(restaurantPanelUrl: string) {
+  await setVerificationAsAdmin(restaurantPanelUrl, "verified");
 }

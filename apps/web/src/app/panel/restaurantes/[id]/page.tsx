@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Alert } from "@/components/ui/alert";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { PublishedBadge } from "@/components/status-badge";
+import { VerificationBadge, VerificationNotice } from "@/components/verification-status";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { env } from "@/env";
 import { isValidCoordinates } from "@safebite/core";
@@ -28,7 +29,12 @@ export default async function RestaurantPage({ params }: PageProps<"/panel/resta
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="text-2xl font-semibold">{restaurant.name}</h1>
         <PublishedBadge published={restaurant.published} />
+        <VerificationBadge status={restaurant.verification_status} />
       </div>
+      <VerificationNotice
+        status={restaurant.verification_status}
+        note={restaurant.verification_note}
+      />
       <div className="flex flex-wrap gap-3">
         <ButtonLink href={`/panel/restaurantes/${restaurant.id}/platos`}>
           {t.dishes.manage}
@@ -65,6 +71,7 @@ export default async function RestaurantPage({ params }: PageProps<"/panel/resta
           siteUrl={env.siteUrl}
           initial={restaurant}
           published={restaurant.published}
+          verified={restaurant.verification_status === "verified"}
         />
       </section>
 
