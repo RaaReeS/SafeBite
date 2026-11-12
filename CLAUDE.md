@@ -39,6 +39,7 @@ Especificación completa en `ESPECIFICACION.md`. Léela antes de empezar cualqui
 - Perfil de alergias vacío: el filtro devuelve `apto`, pero la interfaz no muestra etiquetas de estado; muestra `FILTER_EMPTY_PROFILE_HINT`.
 - Paquetes con el scope `@safebite/*`. TypeScript fijado en ~6.0 (typescript-eslint aún no soporta la 7).
 - Roles de cuenta en `profiles.role`: `diner`, `restaurant_owner`, `admin`. El usuario nunca puede cambiar su propio rol; `admin` solo se asigna desde el servidor (service role).
+- Solicitudes «Pide este restaurante»: el admin las gestiona con `admin_request_summary()` y `admin_set_request_status()`, que agrupan por restaurante y ciudad y nunca devuelven quién las pidió. Estados: `pending` y `added`.
 - Componentes funcionales, TypeScript estricto, sin `any`.
 - Commits pequeños y descriptivos, uno por paso que funcione.
 - En tareas grandes: planificar primero, esperar confirmación y programar después.
@@ -61,7 +62,7 @@ Especificación completa en `ESPECIFICACION.md`. Léela antes de empezar cualqui
 ## Desarrollo local
 
 - En local ningún email sale a internet: los de Auth (confirmación, recuperación) se ven en Mailpit, http://127.0.0.1:54324. La confirmación de email está activada también en local.
-- Cuentas de prueba del seed (contraseña `password123`): `restaurante@safebite.test` y `comensal@safebite.test`.
+- Cuentas de prueba del seed (contraseña `password123`): `restaurante@safebite.test`, `comensal@safebite.test` y `admin@safebite.test` (rol `admin`).
 - App móvil en un dispositivo real (Expo Go): `apps/mobile/.env.local` debe apuntar a la IP del PC en la wifi (`http://<IP>:54321`), no a `127.0.0.1`. Móvil y PC en la misma red.
 - La app declara `@babel/core@7` como dependencia de desarrollo: Stryker (en core) trae Babel 8 al monorepo y Expo necesita la 7.
 

@@ -155,6 +155,7 @@ export type Database = {
           created_at: string;
           id: string;
           restaurant_name: string;
+          status: Database["public"]["Enums"]["restaurant_request_status"];
           user_id: string;
         };
         ComputedFields: never;
@@ -163,6 +164,7 @@ export type Database = {
           created_at?: string;
           id?: string;
           restaurant_name: string;
+          status?: Database["public"]["Enums"]["restaurant_request_status"];
           user_id?: string;
         };
         Update: {
@@ -170,6 +172,7 @@ export type Database = {
           created_at?: string;
           id?: string;
           restaurant_name?: string;
+          status?: Database["public"]["Enums"]["restaurant_request_status"];
           user_id?: string;
         };
         Relationships: [
@@ -360,6 +363,28 @@ export type Database = {
       };
     };
     Functions: {
+      admin_request_summary: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          city: string;
+          city_key: string;
+          first_requested_at: string;
+          last_requested_at: string;
+          name_key: string;
+          pending_count: number;
+          request_count: number;
+          restaurant_name: string;
+          status: Database["public"]["Enums"]["restaurant_request_status"];
+        }[];
+      };
+      admin_set_request_status: {
+        Args: {
+          new_status: Database["public"]["Enums"]["restaurant_request_status"];
+          target_city_key: string;
+          target_name_key: string;
+        };
+        Returns: number;
+      };
       delete_own_account: { Args: Record<PropertyKey, never>; Returns: undefined };
       set_dish_allergens: {
         Args: { declarations: Json; target_dish_id: string };
@@ -387,6 +412,7 @@ export type Database = {
         | "lupin"
         | "molluscs";
       allergen_level: "contains" | "may_contain" | "free_from";
+      restaurant_request_status: "pending" | "added";
       user_role: "diner" | "restaurant_owner" | "admin";
     };
     CompositeTypes: {
@@ -519,6 +545,7 @@ export const Constants = {
         "molluscs",
       ],
       allergen_level: ["contains", "may_contain", "free_from"],
+      restaurant_request_status: ["pending", "added"],
       user_role: ["diner", "restaurant_owner", "admin"],
     },
   },
