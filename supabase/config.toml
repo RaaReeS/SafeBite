@@ -229,7 +229,9 @@ double_confirm_changes = true
 # llegan a Mailpit: http://127.0.0.1:54324).
 enable_confirmations = true
 # If enabled, users will need to reauthenticate or have logged in recently to change their password.
-secure_password_change = false
+# Activado (revisión de seguridad): sin un inicio de sesión reciente, cambiar la
+# contraseña exige volver a identificarse. La recuperación por email cuenta como reciente.
+secure_password_change = true
 # Controls the minimum amount of time that must pass before sending another signup confirmation or password reset email.
 max_frequency = "1s"
 # Number of characters used in the email OTP.
