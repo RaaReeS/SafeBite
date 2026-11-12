@@ -48,6 +48,32 @@ export async function getAuthLinkFromEmail(to: string, subject: string): Promise
   return link as string;
 }
 
+export const ADMIN_EMAIL_CODE_SUBJECT = "Tu código de acceso a la administración de SafeBite";
+
+/** Espera un email de código de administrador posterior a `afterCount` y devuelve el código. */
+export async function getAdminEmailCode(to: string, afterCount: number): Promise<string> {
+  let code: string | undefined;
+  await expect
+    .poll(
+      async () => {
+        const search = await fetch(
+          `${MAILPIT_URL}/api/v1/search?query=${encodeURIComponent(`to:"${to}"`)}`,
+        );
+        const { messages } = (await search.json()) as { messages: MailpitSummary[] };
+        const codes = messages.filter((m) => m.Subject === ADMIN_EMAIL_CODE_SUBJECT);
+        if (codes.length <= afterCount) return undefined;
+        // Mailpit devuelve primero el más reciente.
+        const detail = await fetch(`${MAILPIT_URL}/api/v1/message/${codes[0]?.ID}`);
+        const { Text } = (await detail.json()) as { Text: string };
+        code = /\b(\d{6})\b/.exec(Text)?.[1];
+        return code;
+      },
+      { message: `No ha llegado el código de administrador a ${to}`, timeout: 15_000 },
+    )
+    .toBeDefined();
+  return code as string;
+}
+
 /** Número de emails recibidos por `to` con ese asunto. */
 export async function countEmails(to: string, subject: string): Promise<number> {
   const search = await fetch(

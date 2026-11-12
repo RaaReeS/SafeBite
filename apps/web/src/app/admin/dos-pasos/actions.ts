@@ -73,3 +73,36 @@ export async function verifyCode(
   if (factor === undefined) return { status: "error", message: t.admin.twoFactor.noFactor };
   return verify(factor.id, formData.get("code"), prev);
 }
+
+/** Código por email: la base de datos lo genera y lo envía; aquí nunca se ve. */
+export async function requestEmailCode(): Promise<TwoFactorState> {
+  const t = getMessages();
+  await requireAdminAccount();
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.rpc("admin_request_email_code");
+  if (error?.code === "SB429") return { status: "error", message: t.admin.twoFactor.tooManyEmails };
+  if (error) return { status: "error", message: t.admin.twoFactor.emailError };
+  return { status: "idle", emailSent: true };
+}
+
+export async function verifyEmailCode(
+  prev: TwoFactorState,
+  formData: FormData,
+): Promise<TwoFactorState> {
+  const t = getMessages();
+  await requireAdminAccount();
+  const code = parseTotpCode(formData.get("code"));
+  if (code === null) return { ...prev, status: "error", message: t.admin.twoFactor.invalidFormat };
+
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.rpc("admin_verify_email_code", { code });
+  if (error) return { ...prev, status: "error", message: t.admin.twoFactor.emailError };
+  if (data === "ok") redirect(AFTER_VERIFICATION);
+  const message =
+    data === "invalid"
+      ? t.admin.twoFactor.wrongEmailCode
+      : data === "too_many"
+        ? t.admin.twoFactor.tooManyAttempts
+        : t.admin.twoFactor.emailCodeExpired;
+  return { ...prev, status: "error", message };
+}

@@ -42,7 +42,7 @@ Especificación completa en `ESPECIFICACION.md`. Léela antes de empezar cualqui
 - Roles de cuenta en `profiles.role`: `diner`, `restaurant_owner`, `admin`. El usuario nunca puede cambiar su propio rol; `admin` solo se asigna desde el servidor (service role).
 - Solicitudes «Pide este restaurante»: el admin las gestiona con `admin_request_summary()` y `admin_set_request_status()`, que agrupan por restaurante y ciudad y nunca devuelven quién las pidió. Estados: `pending` y `added`. Límite: 20 por usuario en 24 h (error propio `SB429`).
 - Verificación de restaurantes: un restaurante solo es público (vistas `public_*`, app y QR) si está publicado Y `verification_status = 'verified'`. Solo el admin lo cambia (`admin_set_restaurant_verification()`, rechazo con motivo obligatorio). Cambiar nombre, ciudad o dirección lo devuelve a `pending`.
-- El admin necesita verificación en dos pasos (TOTP): la web lo exige (`requireAdmin`) y la base de datos también (`private.require_admin()` comprueba `aal2`). Si pierde el móvil, se borra su factor desde el panel de Supabase (Authentication → Users) y vuelve a darlo de alta en `/admin/dos-pasos`.
+- El admin necesita verificación en dos pasos, a elegir en `/admin/dos-pasos`: app de autenticación (TOTP de Supabase, sesión `aal2`) o código por email. La web lo exige (`requireAdmin`) y la base de datos también (`private.require_admin()`: `aal2` o sesión verificada por email en `private.admin_email_sessions`, 12 h). El código por email lo genera y envía la propia base de datos (pg_net → Brevo; Mailpit en local), nunca pasa por el cliente; 10 min, 5 intentos, 5 envíos/hora. **Decisión del usuario:** se acepta que el email es menos seguro (quien entre en el correo puede recuperar la contraseña y recibir el código). Si pierde el móvil del autenticador, se borra el factor desde el panel de Supabase (Authentication → Users).
 - Componentes funcionales, TypeScript estricto, sin `any`.
 - Commits pequeños y descriptivos, uno por paso que funcione.
 - En tareas grandes: planificar primero, esperar confirmación y programar después.
@@ -76,6 +76,7 @@ Especificación completa en `ESPECIFICACION.md`. Léela antes de empezar cualqui
 - Migraciones: `npx supabase db push --remote --dry-run` y, tras confirmarlo con el usuario, sin `--dry-run`.
 - Configuración de Auth: los valores de producción están en `[remotes.production]` de `supabase/config.toml`. Ejecutar SIEMPRE `npx supabase config diff` antes de `config push`: el resto del archivo es para desarrollo local y no debe llegar a producción.
 - SMTP (Brevo): solo en el panel de Supabase. Sus credenciales nunca van en el repositorio.
+- Código por email del admin: en Vault de producción (SQL Editor, nunca en el repo) `admin_email_provider` = `brevo`, `admin_email_sender` y `admin_email_api_key` (clave de la API de Brevo). Sin ellos, pedir el código falla con `SB503` y queda la app de autenticación.
 - Todo gratis por decisión del usuario hasta que haya dominio propio. Vercel Hobby no permite uso comercial: revisarlo antes del piloto con restaurantes reales.
 
 ## Convenciones de la web (Next.js 16)

@@ -140,3 +140,11 @@ insert into public.restaurant_requests (user_id, restaurant_name, city, status, 
   ('20000000-0000-0000-0000-000000000001', 'Bar Pepe', 'Madrid', 'pending', now() - interval '3 days'),
   ('20000000-0000-0000-0000-000000000001', 'bar pépe ', 'madrid', 'pending', now() - interval '1 day'),
   ('20000000-0000-0000-0000-000000000001', 'Casa Lola', 'Zaragoza', 'added', now() - interval '10 days');
+
+-- ---------------------------------------------------------------------------
+-- Segundo paso del admin por email: en local los códigos van a Mailpit.
+-- (En producción, estos valores se guardan a mano en Vault con Brevo.)
+-- ---------------------------------------------------------------------------
+select vault.create_secret('mailpit', 'admin_email_provider');
+select vault.create_secret('no-reply@safebite.test', 'admin_email_sender');
+select vault.create_secret('http://supabase_inbucket_safebite:8025/api/v1/send', 'admin_email_api_url');
