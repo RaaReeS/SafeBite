@@ -62,6 +62,17 @@ export async function listRestaurantsWithLocation(): Promise<RestaurantSummary[]
   return data;
 }
 
+/** Código de error de la base de datos al superar el límite de solicitudes en 24 horas. */
+export const TOO_MANY_REQUESTS_CODE = "SB429";
+
+export function isTooManyRequestsError(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    (error as { code?: unknown }).code === TOO_MANY_REQUESTS_CODE
+  );
+}
+
 /** "Pide este restaurante": la solicitud queda asociada al usuario (RLS). */
 export async function requestRestaurant(request: RestaurantRequestData): Promise<void> {
   const { error } = await supabase.from("restaurant_requests").insert(request);

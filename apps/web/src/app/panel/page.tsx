@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PublishedBadge } from "@/components/status-badge";
+import { VerificationBadge } from "@/components/verification-status";
 import { ButtonLink } from "@/components/ui/button";
 import { getMessages } from "@/i18n";
 import { listMyRestaurants } from "@/lib/data/restaurants";
@@ -33,7 +34,10 @@ export default async function PanelPage() {
                     {restaurant.city}
                   </span>
                 </span>
-                <PublishedBadge published={restaurant.published} />
+                <span className="flex flex-wrap justify-end gap-2">
+                  <PublishedBadge published={restaurant.published} />
+                  <VerificationBadge status={restaurant.verification_status} />
+                </span>
               </Link>
             </li>
           ))}

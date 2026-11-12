@@ -25,6 +25,8 @@ type RestaurantFormProps = {
   initial?: RestaurantFormValues;
   /** Si la carta está publicada, cambiar la dirección exige confirmación. */
   published?: boolean;
+  /** Si está verificado, se avisa de que cambiar nombre, ciudad o dirección exige verificarlo de nuevo. */
+  verified?: boolean;
 };
 
 export function RestaurantForm({
@@ -32,6 +34,7 @@ export function RestaurantForm({
   siteUrl,
   initial,
   published = false,
+  verified = false,
 }: RestaurantFormProps) {
   const t = getMessages();
   const isEdit = initial !== undefined;
@@ -49,6 +52,11 @@ export function RestaurantForm({
 
   return (
     <form action={formAction} aria-label={t.restaurant.details} className="flex flex-col gap-4">
+      {isEdit && verified ? (
+        <p className="text-sm text-zinc-700 dark:text-zinc-300">
+          {t.verification.identityChangeWarning}
+        </p>
+      ) : null}
       <FormStatus state={state} />
       <TextField
         label={t.restaurant.name}

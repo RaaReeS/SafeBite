@@ -20,7 +20,24 @@ export default defineConfig({
     locale: "es-ES",
     trace: "retain-on-failure",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  // Obtiene una sola vez la sesión de administrador (con la verificación en dos
+  // pasos) que usan los tests para verificar restaurantes por la API.
+  globalSetup: "./e2e/global-setup.ts",
+  projects: [
+    {
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
+      testIgnore: /admin.*\.spec\.ts/,
+    },
+    {
+      // Supabase no admite dos verificaciones simultáneas del mismo autenticador:
+      // los tests que entran como administrador en la web van de uno en uno.
+      name: "admin",
+      use: { ...devices["Desktop Chrome"] },
+      testMatch: /admin.*\.spec\.ts/,
+      workers: 1,
+    },
+  ],
   webServer: {
     command: `pnpm build && pnpm start -p ${PORT}`,
     url: `http://localhost:${PORT}`,

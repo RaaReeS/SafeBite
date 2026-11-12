@@ -1,5 +1,11 @@
 import { expect, test } from "@playwright/test";
-import { SEED_ADMIN, SEED_DINER, SEED_OWNER, login, requestRestaurantAsSeedDiner } from "./helpers";
+import {
+  SEED_DINER,
+  SEED_OWNER,
+  login,
+  loginAsAdmin,
+  requestRestaurantAsSeedDiner,
+} from "./helpers";
 
 /** Nombre único (sin tildes) para que los tests no dependan de ejecuciones anteriores. */
 function uniqueRestaurant(): string {
@@ -15,7 +21,12 @@ test.describe("solicitudes de restaurantes (administración)", () => {
     await requestRestaurantAsSeedDiner(name, "Zaragoza");
     await requestRestaurantAsSeedDiner(`  ${name.toUpperCase()} `, "zaragoza");
 
-    await login(page, SEED_ADMIN.email, SEED_ADMIN.password);
+    // Al entrar (con la verificación en dos pasos), el admin llega a la verificación de restaurantes.
+    await loginAsAdmin(page);
+    await page
+      .getByRole("navigation", { name: "Secciones de administración" })
+      .getByRole("link", { name: "Solicitudes" })
+      .click();
     await expect(page).toHaveURL(/\/admin\/solicitudes$/);
     await expect(page.getByRole("heading", { name: "Solicitudes de restaurantes" })).toBeVisible();
 

@@ -24,6 +24,9 @@ export default async function MenuPreviewPage({
       <h1 className="sr-only">{t.preview.title}</h1>
       <Alert tone="info">{t.preview.notice}</Alert>
       {restaurant.published ? null : <Alert tone="warning">{t.preview.notPublished}</Alert>}
+      {restaurant.published && restaurant.verification_status !== "verified" ? (
+        <Alert tone="warning">{t.verification.notVisibleYet}</Alert>
+      ) : null}
       <div className="rounded-lg border border-dashed border-zinc-300 dark:border-zinc-700">
         <MenuView restaurant={restaurant} dishes={dishes} />
       </div>

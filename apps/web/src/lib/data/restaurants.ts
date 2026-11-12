@@ -5,7 +5,7 @@ import { isUuid } from "@/lib/ids";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const RESTAURANT_COLUMNS =
-  "id, name, slug, city, address, phone, contact_email, published, latitude, longitude, updated_at";
+  "id, name, slug, city, address, phone, contact_email, published, latitude, longitude, updated_at, verification_status, verification_note";
 
 /** Restaurantes del dueño con sesión. RLS ya lo limita; el filtro por owner_id es defensa adicional. */
 export async function listMyRestaurants() {

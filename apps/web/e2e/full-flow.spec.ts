@@ -3,7 +3,13 @@ import { join } from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 import jsQR from "jsqr";
 import { PNG } from "pngjs";
-import { createRestaurant, registerOwner, restaurantForm, uniqueName } from "./helpers";
+import {
+  createRestaurant,
+  registerOwner,
+  restaurantForm,
+  uniqueName,
+  verifyRestaurantAsAdmin,
+} from "./helpers";
 
 // Recorrido completo de un restaurante, comprobando al final lo que vería un
 // visitante anónimo a través de la API pública (las vistas public_*), que es lo
@@ -77,6 +83,12 @@ test("recorrido completo: registro, carta, alérgenos, publicación y QR", async
   await page.goto(restaurantUrl);
   await page.getByRole("button", { name: "Publicar carta" }).click();
   await expect(page.getByText("Publicado", { exact: true })).toBeVisible();
+
+  // 4b. Publicada pero sin verificar no la ve nadie; el administrador la verifica.
+  expect(
+    await anonymousSelect<unknown[]>(`public_restaurants?slug=eq.${encodedSlug}&select=id`),
+  ).toEqual([]);
+  await verifyRestaurantAsAdmin(restaurantUrl);
 
   // 5. El QR apunta a la carta pública.
   const qr = await page.request.get(`${restaurantUrl}/qr/png`);

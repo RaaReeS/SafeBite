@@ -7,11 +7,12 @@ select plan(12);
 insert into auth.users (id, raw_user_meta_data) values
   ('11111111-0000-0000-0000-000000000000', '{"role": "restaurant_owner"}');
 
-insert into public.restaurants (id, owner_id, name, slug, city, published) values
+-- Ambos verificados: aquí se prueba solo "publicado" (la verificación, en el test 10).
+insert into public.restaurants (id, owner_id, name, slug, city, published, verification_status) values
   ('aaaa0000-0000-0000-0000-000000000000', '11111111-0000-0000-0000-000000000000',
-   'Publicado', 'publicado', 'Madrid', true),
+   'Publicado', 'publicado', 'Madrid', true, 'verified'),
   ('bbbb0000-0000-0000-0000-000000000000', '11111111-0000-0000-0000-000000000000',
-   'Borrador', 'borrador', 'Madrid', false);
+   'Borrador', 'borrador', 'Madrid', false, 'verified');
 
 insert into public.dishes (id, restaurant_id, name, is_active) values
   ('aaaa0000-1111-0000-0000-000000000000', 'aaaa0000-0000-0000-0000-000000000000', 'Activo', true),

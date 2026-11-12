@@ -26,6 +26,9 @@ export default async function QrPage({ params }: PageProps<"/panel/restaurantes/
       </div>
       <p className="text-zinc-700 dark:text-zinc-300">{t.qr.description}</p>
       {restaurant.published ? null : <Alert tone="warning">{t.qr.notPublished}</Alert>}
+      {restaurant.published && restaurant.verification_status !== "verified" ? (
+        <Alert tone="warning">{t.verification.notVisibleYet}</Alert>
+      ) : null}
 
       <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
         {/* eslint-disable-next-line @next/next/no-img-element -- PNG generado por un Route Handler privado. */}

@@ -93,6 +93,64 @@ export const es = {
   },
   admin: {
     label: "Administración",
+    nav: { requests: "Solicitudes", restaurants: "Verificación de restaurantes" },
+    twoFactor: {
+      title: "Verificación en dos pasos",
+      why: "La cuenta de administración decide qué cartas ven las personas con alergias, así que además de la contraseña pide un código de tu móvil.",
+      enrollIntro:
+        "Necesitas una app de autenticación en el móvil (Google Authenticator, Microsoft Authenticator, 1Password…). Solo se configura una vez.",
+      startEnroll: "Configurar la verificación en dos pasos",
+      step1: "Abre tu app de autenticación y añade una cuenta nueva.",
+      step2: "Escanea este código QR (o escribe la clave a mano).",
+      step3: "Escribe el código de 6 cifras que te muestre la app.",
+      qrAlt: "Código QR para añadir SafeBite a tu app de autenticación",
+      manualKey: "Clave para escribirla a mano:",
+      codeFormLabel: "Código de verificación",
+      codeLabel: "Código de 6 cifras",
+      codeHint: "El que muestra ahora tu app de autenticación. Cambia cada 30 segundos.",
+      verify: "Verificar",
+      invalidFormat: "Escribe el código de 6 cifras de tu app de autenticación.",
+      wrongCode: "El código no es correcto o ha caducado. Prueba con el código actual.",
+      enrollError: "No se ha podido configurar la verificación en dos pasos. Inténtalo de nuevo.",
+      noFactor: "No hay ninguna app de autenticación configurada. Recarga la página.",
+      loadError: "No se ha podido comprobar tu verificación en dos pasos. Recarga la página.",
+      lostDevice:
+        "¿Has perdido el móvil? El responsable técnico puede borrar tu autenticador desde el panel de Supabase (Authentication → Users) para que vuelvas a configurarlo.",
+    },
+    navLabel: "Secciones de administración",
+    restaurants: {
+      title: "Verificación de restaurantes",
+      description:
+        "Comprueba que cada restaurante lo ha registrado su dueño antes de que su carta sea visible. Por ejemplo: llama al teléfono público del local (el de Google Maps, no el de la ficha) y confirma que han creado la cuenta.",
+      filterLabel: "Filtrar por estado",
+      filters: {
+        pendientes: "Pendientes",
+        rechazados: "Rechazados",
+        verificados: "Verificados",
+        todos: "Todos",
+      },
+      empty: {
+        pendientes: "No hay restaurantes pendientes de verificar.",
+        rechazados: "No hay restaurantes rechazados.",
+        verificados: "Aún no has verificado ningún restaurante.",
+        todos: "Todavía no hay restaurantes.",
+      },
+      city: "Ciudad",
+      address: "Dirección",
+      phone: "Teléfono",
+      contactEmail: "Email de contacto",
+      ownerEmail: "Email de la cuenta",
+      createdAt: "Registrado el",
+      rejectedReason: "Motivo del rechazo:",
+      verify: "Verificar",
+      reject: "Rechazar",
+      backToPending: "Volver a pendiente",
+      rejectFormLabel: (name: string) => `Rechazar ${name}`,
+      noteLabel: "Motivo del rechazo",
+      noteHint: "El dueño lo verá en su panel.",
+      noteRequired: "Escribe el motivo: el dueño lo verá en su panel.",
+      noteTooLong: (max: number) => `El motivo puede tener como mucho ${max} caracteres.`,
+    },
     requests: {
       title: "Solicitudes de restaurantes",
       description:
@@ -125,6 +183,20 @@ export const es = {
     backToList: "← Mis restaurantes",
     published: "Publicado",
     draft: "Borrador",
+  },
+  verification: {
+    badge: { pending: "Pendiente de verificación", verified: "Verificado", rejected: "Rechazado" },
+    pendingTitle: "Pendiente de verificación",
+    pending:
+      "Para proteger a las personas con alergias, el equipo de SafeBite comprueba que cada restaurante lo gestiona su dueño. Tu carta no será visible para los clientes hasta entonces. Te contactaremos en el teléfono del establecimiento o en el email de tu cuenta.",
+    rejectedTitle: "No hemos podido verificar este restaurante",
+    rejectedReason: "Motivo:",
+    rejectedHelp:
+      "Si crees que es un error, corrige los datos del establecimiento (al cambiar el nombre, la ciudad o la dirección se revisará de nuevo) o escríbenos.",
+    identityChangeWarning:
+      "Si cambias el nombre, la ciudad o la dirección, tendremos que verificar el restaurante de nuevo y la carta dejará de verse mientras tanto.",
+    notVisibleYet:
+      "Tu carta aún no es visible para los clientes: está pendiente de verificación por el equipo de SafeBite.",
   },
   restaurant: {
     newTitle: "Nuevo restaurante",

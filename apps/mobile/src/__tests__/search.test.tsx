@@ -16,6 +16,8 @@ jest.mock("@/lib/profile", () => ({
   getHealthProfile: jest.fn(async () => ({ consentGivenAt: null, allergens: [] })),
 }));
 jest.mock("@/lib/restaurants", () => ({
+  // La detección del error de límite es la real.
+  isTooManyRequestsError: jest.requireActual("@/lib/restaurants").isTooManyRequestsError,
   listPublishedRestaurants: jest.fn(async () => []),
   searchRestaurantsByCity: jest.fn(),
   listRestaurantsWithLocation: jest.fn(),
@@ -254,5 +256,19 @@ describe("pide un restaurante", () => {
       }),
     );
     expect(await screen.findByText("¡Gracias! Hemos recibido tu solicitud.")).toBeTruthy();
+  });
+
+  it.each([
+    [{ code: "SB429" }, "Has enviado muchas solicitudes hoy. Vuelve a intentarlo mañana."],
+    [{ code: "42501" }, "No se ha podido enviar la solicitud. Inténtalo de nuevo."],
+    [new Error("sin red"), "No se ha podido enviar la solicitud. Inténtalo de nuevo."],
+  ])("si falla (%o), lo explica", async (error, message) => {
+    mockRestaurants.requestRestaurant.mockRejectedValueOnce(error);
+    mockAuth.getSession.mockResolvedValue({ data: { session: fakeSession() }, error: null });
+    await renderRouter("./src/app", { initialUrl: "/pedir-restaurante" });
+    await fireEvent.changeText(await screen.findByLabelText("Nombre del restaurante"), "Bar");
+    await fireEvent.changeText(screen.getByLabelText("Ciudad"), "Madrid");
+    await press("Enviar solicitud");
+    expect(await screen.findByText(message)).toBeTruthy();
   });
 });
