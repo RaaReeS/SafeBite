@@ -1,5 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
-import { createRestaurant, registerOwner, restaurantForm, uniqueName } from "./helpers";
+import {
+  createRestaurant,
+  registerOwner,
+  restaurantForm,
+  uniqueName,
+  verifyRestaurantAsAdmin,
+} from "./helpers";
 
 async function addDish(page: Page, restaurantUrl: string, name: string, active = true) {
   await page.goto(`${restaurantUrl}/platos/nuevo`);
@@ -54,6 +60,7 @@ test.describe("vista previa de la carta", () => {
     await page.goto(url);
     await page.getByRole("button", { name: "Publicar carta" }).click();
     await expect(page.getByText("Publicado", { exact: true })).toBeVisible();
+    await verifyRestaurantAsAdmin(url);
 
     await page.goto(`${url}/vista-previa`);
     await expect(page.getByText("Tu carta aún no está publicada")).toHaveCount(0);

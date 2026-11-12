@@ -59,11 +59,12 @@ insert into public.user_allergens (user_id, allergen) values
 -- Restaurante publicado con platos que cubren todos los resultados del filtro
 -- ---------------------------------------------------------------------------
 insert into public.restaurants (
-  id, owner_id, name, slug, city, address, phone, latitude, longitude, published
+  id, owner_id, name, slug, city, address, phone, latitude, longitude, published,
+  verification_status, verified_at
 ) values (
   '30000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001',
   'La Huerta Demo', 'la-huerta-demo', 'Madrid', 'Calle Ejemplo 1', '+34 600 000 000',
-  40.4168, -3.7038, true
+  40.4168, -3.7038, true, 'verified', now()
 );
 
 -- Platos:

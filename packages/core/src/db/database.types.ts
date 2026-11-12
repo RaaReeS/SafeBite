@@ -200,6 +200,9 @@ export type Database = {
           published: boolean;
           slug: string;
           updated_at: string;
+          verification_note: string | null;
+          verification_status: Database["public"]["Enums"]["restaurant_verification_status"];
+          verified_at: string | null;
         };
         ComputedFields: never;
         Insert: {
@@ -216,6 +219,9 @@ export type Database = {
           published?: boolean;
           slug: string;
           updated_at?: string;
+          verification_note?: string | null;
+          verification_status?: Database["public"]["Enums"]["restaurant_verification_status"];
+          verified_at?: string | null;
         };
         Update: {
           address?: string | null;
@@ -231,6 +237,9 @@ export type Database = {
           published?: boolean;
           slug?: string;
           updated_at?: string;
+          verification_note?: string | null;
+          verification_status?: Database["public"]["Enums"]["restaurant_verification_status"];
+          verified_at?: string | null;
         };
         Relationships: [
           {
@@ -363,6 +372,24 @@ export type Database = {
       };
     };
     Functions: {
+      admin_list_restaurants: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          address: string;
+          city: string;
+          contact_email: string;
+          created_at: string;
+          id: string;
+          name: string;
+          owner_email: string;
+          phone: string;
+          published: boolean;
+          slug: string;
+          verification_note: string;
+          verification_status: Database["public"]["Enums"]["restaurant_verification_status"];
+          verified_at: string;
+        }[];
+      };
       admin_request_summary: {
         Args: Record<PropertyKey, never>;
         Returns: {
@@ -384,6 +411,14 @@ export type Database = {
           target_name_key: string;
         };
         Returns: number;
+      };
+      admin_set_restaurant_verification: {
+        Args: {
+          new_status: Database["public"]["Enums"]["restaurant_verification_status"];
+          note?: string;
+          target_restaurant_id: string;
+        };
+        Returns: undefined;
       };
       delete_own_account: { Args: Record<PropertyKey, never>; Returns: undefined };
       set_dish_allergens: {
@@ -413,6 +448,7 @@ export type Database = {
         | "molluscs";
       allergen_level: "contains" | "may_contain" | "free_from";
       restaurant_request_status: "pending" | "added";
+      restaurant_verification_status: "pending" | "verified" | "rejected";
       user_role: "diner" | "restaurant_owner" | "admin";
     };
     CompositeTypes: {
@@ -546,6 +582,7 @@ export const Constants = {
       ],
       allergen_level: ["contains", "may_contain", "free_from"],
       restaurant_request_status: ["pending", "added"],
+      restaurant_verification_status: ["pending", "verified", "rejected"],
       user_role: ["diner", "restaurant_owner", "admin"],
     },
   },

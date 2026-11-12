@@ -153,3 +153,45 @@ export async function requestRestaurantAsSeedDiner(restaurantName: string, city:
   });
   expect(insert.status).toBe(201);
 }
+
+/** Sesión de la API de Supabase con una cuenta del seed (como lo haría un cliente). */
+async function apiToken(email: string, password: string): Promise<string> {
+  const env = localEnv();
+  const response = await fetch(
+    `${env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/token?grant_type=password`,
+    {
+      method: "POST",
+      headers: {
+        apikey: env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    },
+  );
+  expect(response.status).toBe(200);
+  return ((await response.json()) as { access_token: string }).access_token;
+}
+
+/**
+ * Verifica un restaurante como administrador (lo que hace /admin/restaurantes),
+ * a partir de la URL de su ficha en el panel.
+ */
+export async function verifyRestaurantAsAdmin(restaurantPanelUrl: string) {
+  const id = /\/panel\/restaurantes\/([0-9a-f-]{36})/.exec(restaurantPanelUrl)?.[1];
+  expect(id, "URL de la ficha del restaurante").toBeDefined();
+  const env = localEnv();
+  const token = await apiToken(SEED_ADMIN.email, SEED_ADMIN.password);
+  const response = await fetch(
+    `${env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/rpc/admin_set_restaurant_verification`,
+    {
+      method: "POST",
+      headers: {
+        apikey: env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "",
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ target_restaurant_id: id, new_status: "verified" }),
+    },
+  );
+  expect(response.status).toBe(204);
+}
