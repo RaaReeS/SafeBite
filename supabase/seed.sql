@@ -4,6 +4,7 @@
 -- Cuentas (contraseña: password123):
 --   restaurante@safebite.test  -> restaurant_owner, dueño de "La Huerta Demo"
 --   comensal@safebite.test     -> diner, celíaco y alérgico a frutos de cáscara
+--   admin@safebite.test        -> admin (gestiona las solicitudes de restaurantes)
 
 -- ---------------------------------------------------------------------------
 -- Usuarios
@@ -24,6 +25,12 @@ insert into auth.users (
    extensions.crypt('password123', extensions.gen_salt('bf')), now(),
    '{"provider": "email", "providers": ["email"]}',
    '{"display_name": "Comensal Demo"}',
+   now(), now(), '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000000', '40000000-0000-0000-0000-000000000001',
+   'authenticated', 'authenticated', 'admin@safebite.test',
+   extensions.crypt('password123', extensions.gen_salt('bf')), now(),
+   '{"provider": "email", "providers": ["email"]}',
+   '{"display_name": "Administración"}',
    now(), now(), '', '', '', '');
 
 insert into auth.identities (
@@ -33,7 +40,12 @@ select gen_random_uuid(), u.id, u.id::text, 'email',
   jsonb_build_object('sub', u.id::text, 'email', u.email, 'email_verified', true),
   now(), now(), now()
 from auth.users u
-where u.email in ('restaurante@safebite.test', 'comensal@safebite.test');
+where u.email in ('restaurante@safebite.test', 'comensal@safebite.test', 'admin@safebite.test');
+
+-- El rol admin nunca se asigna desde el cliente: aquí (y en producción, con SQL
+-- desde el panel de Supabase) se cambia directamente en la base de datos.
+update public.profiles set role = 'admin'
+  where id = '40000000-0000-0000-0000-000000000001';
 
 -- Perfil de alergias del comensal (con consentimiento).
 update public.profiles set health_data_consent_at = now()
@@ -102,6 +114,9 @@ from unnest(enum_range(null::public.allergen)) as a;
 
 -- Croquetas: sin ningún registro en dish_allergens (= sin datos).
 
--- Solicitud de alta de ejemplo.
-insert into public.restaurant_requests (user_id, restaurant_name, city) values
-  ('20000000-0000-0000-0000-000000000001', 'Bar Pepe', 'Madrid');
+-- Solicitudes de alta de ejemplo: «Bar Pepe» pedido dos veces (escrito distinto)
+-- y otro restaurante ya añadido.
+insert into public.restaurant_requests (user_id, restaurant_name, city, status, created_at) values
+  ('20000000-0000-0000-0000-000000000001', 'Bar Pepe', 'Madrid', 'pending', now() - interval '3 days'),
+  ('20000000-0000-0000-0000-000000000001', 'bar pépe ', 'madrid', 'pending', now() - interval '1 day'),
+  ('20000000-0000-0000-0000-000000000001', 'Casa Lola', 'Zaragoza', 'added', now() - interval '10 days');

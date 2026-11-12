@@ -91,6 +91,33 @@ export const es = {
       "Borrador pendiente de revisión legal. Este texto se sustituirá por la versión definitiva antes del lanzamiento.",
     back: "Volver",
   },
+  admin: {
+    label: "Administración",
+    requests: {
+      title: "Solicitudes de restaurantes",
+      description:
+        "Restaurantes que los comensales han pedido desde la app, agrupados por nombre y ciudad. No se muestra quién los pidió.",
+      filterLabel: "Filtrar por estado",
+      filters: { pendientes: "Pendientes", anadidos: "Añadidos", todas: "Todas" },
+      empty: {
+        pendientes: "No hay solicitudes pendientes.",
+        anadidos: "Aún no has marcado ningún restaurante como añadido.",
+        todas: "Todavía no hay solicitudes.",
+      },
+      columns: {
+        restaurant: "Restaurante",
+        city: "Ciudad",
+        count: "Peticiones",
+        last: "Última petición",
+        status: "Estado",
+        action: "Acción",
+      },
+      statuses: { pending: "Pendiente", added: "Añadido" },
+      newSinceAdded: (n: number) => (n === 1 ? "1 nueva" : `${n} nuevas`),
+      markAdded: "Marcar como añadido",
+      markPending: "Volver a pendiente",
+    },
+  },
   panel: {
     title: "Mis restaurantes",
     empty: "Aún no tienes ningún restaurante.",

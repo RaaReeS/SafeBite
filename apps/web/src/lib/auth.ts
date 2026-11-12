@@ -40,6 +40,20 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
 export async function requireRestaurantOwner(): Promise<CurrentUser> {
   const user = await getCurrentUser();
   if (user === null) redirect("/login");
+  // El administrador no tiene restaurantes: su sitio es la gestión de solicitudes.
+  if (user.role === "admin") redirect("/admin/solicitudes");
   if (user.role !== "restaurant_owner") redirect("/sin-acceso");
+  return user;
+}
+
+/**
+ * Exige una sesión de administrador. Usar al principio de cada página de /admin
+ * y de cada Server Action; las funciones de la base de datos vuelven a comprobarlo.
+ */
+export async function requireAdmin(): Promise<CurrentUser> {
+  const user = await getCurrentUser();
+  if (user === null) redirect("/login?next=/admin/solicitudes");
+  if (user.role === "restaurant_owner") redirect("/panel");
+  if (user.role !== "admin") redirect("/sin-acceso");
   return user;
 }
