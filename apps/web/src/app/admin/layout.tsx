@@ -43,6 +43,17 @@ async function AdminShell({ children }: { children: ReactNode }) {
             </form>
           </div>
         </div>
+        <nav
+          aria-label={t.admin.navLabel}
+          className="mx-auto flex w-full max-w-5xl gap-4 px-4 pb-3 text-sm"
+        >
+          <Link href="/admin/restaurantes" className="underline">
+            {t.admin.nav.restaurants}
+          </Link>
+          <Link href="/admin/solicitudes" className="underline">
+            {t.admin.nav.requests}
+          </Link>
+        </nav>
       </header>
       <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-4 py-8">
         <Suspense fallback={<p>{t.common.loading}</p>}>{children}</Suspense>

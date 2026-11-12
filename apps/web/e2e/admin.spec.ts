@@ -16,6 +16,12 @@ test.describe("solicitudes de restaurantes (administración)", () => {
     await requestRestaurantAsSeedDiner(`  ${name.toUpperCase()} `, "zaragoza");
 
     await login(page, SEED_ADMIN.email, SEED_ADMIN.password);
+    // Al entrar, el admin llega a la verificación de restaurantes.
+    await expect(page).toHaveURL(/\/admin\/restaurantes$/);
+    await page
+      .getByRole("navigation", { name: "Secciones de administración" })
+      .getByRole("link", { name: "Solicitudes" })
+      .click();
     await expect(page).toHaveURL(/\/admin\/solicitudes$/);
     await expect(page.getByRole("heading", { name: "Solicitudes de restaurantes" })).toBeVisible();
 

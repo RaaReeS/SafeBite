@@ -93,6 +93,41 @@ export const es = {
   },
   admin: {
     label: "Administración",
+    nav: { requests: "Solicitudes", restaurants: "Verificación de restaurantes" },
+    navLabel: "Secciones de administración",
+    restaurants: {
+      title: "Verificación de restaurantes",
+      description:
+        "Comprueba que cada restaurante lo ha registrado su dueño antes de que su carta sea visible. Por ejemplo: llama al teléfono público del local (el de Google Maps, no el de la ficha) y confirma que han creado la cuenta.",
+      filterLabel: "Filtrar por estado",
+      filters: {
+        pendientes: "Pendientes",
+        rechazados: "Rechazados",
+        verificados: "Verificados",
+        todos: "Todos",
+      },
+      empty: {
+        pendientes: "No hay restaurantes pendientes de verificar.",
+        rechazados: "No hay restaurantes rechazados.",
+        verificados: "Aún no has verificado ningún restaurante.",
+        todos: "Todavía no hay restaurantes.",
+      },
+      city: "Ciudad",
+      address: "Dirección",
+      phone: "Teléfono",
+      contactEmail: "Email de contacto",
+      ownerEmail: "Email de la cuenta",
+      createdAt: "Registrado el",
+      rejectedReason: "Motivo del rechazo:",
+      verify: "Verificar",
+      reject: "Rechazar",
+      backToPending: "Volver a pendiente",
+      rejectFormLabel: (name: string) => `Rechazar ${name}`,
+      noteLabel: "Motivo del rechazo",
+      noteHint: "El dueño lo verá en su panel.",
+      noteRequired: "Escribe el motivo: el dueño lo verá en su panel.",
+      noteTooLong: (max: number) => `El motivo puede tener como mucho ${max} caracteres.`,
+    },
     requests: {
       title: "Solicitudes de restaurantes",
       description:

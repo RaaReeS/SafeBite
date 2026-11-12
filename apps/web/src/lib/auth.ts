@@ -40,8 +40,8 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
 export async function requireRestaurantOwner(): Promise<CurrentUser> {
   const user = await getCurrentUser();
   if (user === null) redirect("/login");
-  // El administrador no tiene restaurantes: su sitio es la gestión de solicitudes.
-  if (user.role === "admin") redirect("/admin/solicitudes");
+  // El administrador no tiene restaurantes: su sitio es la administración.
+  if (user.role === "admin") redirect("/admin/restaurantes");
   if (user.role !== "restaurant_owner") redirect("/sin-acceso");
   return user;
 }
@@ -52,7 +52,7 @@ export async function requireRestaurantOwner(): Promise<CurrentUser> {
  */
 export async function requireAdmin(): Promise<CurrentUser> {
   const user = await getCurrentUser();
-  if (user === null) redirect("/login?next=/admin/solicitudes");
+  if (user === null) redirect("/login?next=/admin");
   if (user.role === "restaurant_owner") redirect("/panel");
   if (user.role !== "admin") redirect("/sin-acceso");
   return user;
