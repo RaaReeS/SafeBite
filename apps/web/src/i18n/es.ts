@@ -336,13 +336,17 @@ export const es = {
     publication: "Publicación",
     location: "Ubicación",
     locationFound:
-      "Hemos ubicado tu dirección en el mapa: los clientes podrán encontrarte con «Cerca de mí» en la app.",
+      "Hemos ubicado tu dirección en el mapa: los clientes podrán encontrarte en el mapa y con «Cerca de mí».",
     locationCheck: "Comprobar en el mapa",
     locationNotFound:
-      "No hemos podido ubicar esta dirección. Revisa que la dirección y la ciudad estén bien escritas y guarda de nuevo.",
+      "Esta dirección no está ubicada en el mapa, así que tu restaurante no aparecerá en la búsqueda. Revisa la calle, el número y la ciudad y guarda de nuevo.",
     locationMissing:
-      "Añade la dirección del establecimiento para que los clientes puedan encontrarte con «Cerca de mí» en la app.",
+      "Añade la dirección del establecimiento para que los clientes puedan encontrarte en el mapa y con «Cerca de mí».",
     locationAttribution: "Ubicación obtenida de © OpenStreetMap.",
+    addressNotFound: (city: string) =>
+      `No encontramos esta dirección en ${city}. Revisa el nombre de la calle y el número (por ejemplo, «Calle de Alfonso I, 5») y que la ciudad sea la del establecimiento.`,
+    geocoderUnavailable:
+      "No hemos podido comprobar la dirección ahora mismo. No se ha guardado nada: inténtalo de nuevo en unos minutos.",
     publishedInfo: "Tu carta está publicada y cualquiera con el enlace o el QR puede verla.",
     draftInfo: "Tu carta es un borrador: nadie más puede verla todavía.",
     publish: "Publicar carta",

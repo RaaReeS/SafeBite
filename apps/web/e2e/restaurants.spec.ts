@@ -177,13 +177,50 @@ test.describe("ubicación del restaurante", () => {
     await expect(page.getByText("© OpenStreetMap")).toBeVisible();
   });
 
-  test("si la dirección no se encuentra, lo avisa y el restaurante se guarda igualmente", async ({
+  test("si la dirección no se encuentra en esa ciudad, no se guarda y pide revisarla", async ({
     page,
   }) => {
     await registerOwner(page);
     await createRestaurant(page);
-    await saveAddress(page, "Calle que no existe 0");
-    await expect(page.getByText("No hemos podido ubicar esta dirección")).toBeVisible();
+    await saveAddress(page, "Calle Mayor 1");
+    const form = restaurantForm(page);
+    await form.getByLabel(/^Dirección \(opcional\)/).fill("Calle que no existe 0");
+    await form.getByLabel(/^Teléfono/).fill("+34 600 999 999");
+    await form.getByRole("button", { name: "Guardar cambios" }).click();
+    await expect(form.getByText(/No encontramos esta dirección en Madrid/)).toBeVisible();
+    // Lo escrito se conserva para corregirlo...
+    await expect(form.getByLabel(/^Dirección \(opcional\)/)).toHaveValue("Calle que no existe 0");
+
+    // ...pero no se ha guardado nada: sigue la dirección anterior, ubicada.
+    await page.reload();
+    await expect(restaurantForm(page).getByLabel(/^Dirección \(opcional\)/)).toHaveValue(
+      "Calle Mayor 1",
+    );
+    await expect(restaurantForm(page).getByLabel(/^Teléfono/)).not.toHaveValue("+34 600 999 999");
+    await expect(page.getByText("Hemos ubicado tu dirección en el mapa")).toBeVisible();
+  });
+
+  test("al crear un restaurante con una dirección que no existe, no se crea", async ({ page }) => {
+    await registerOwner(page);
+    await page.goto("/panel/restaurantes/nuevo");
+    const form = restaurantForm(page);
+    await form.getByLabel("Nombre del establecimiento").fill("Casa Inexistente");
+    await form.getByLabel("Ciudad").fill("Madrid");
+    await form.getByLabel(/^Dirección \(opcional\)/).fill("Calle que no existe 0");
+    await form.getByRole("button", { name: "Crear restaurante" }).click();
+    await expect(form.getByText(/No encontramos esta dirección en Madrid/)).toBeVisible();
+    await expect(page).toHaveURL(/\/panel\/restaurantes\/nuevo$/);
+  });
+
+  test("si el servicio de mapas no responde, no guarda sin ubicar", async ({ page }) => {
+    await registerOwner(page);
+    await createRestaurant(page);
+    const form = restaurantForm(page);
+    await form.getByLabel(/^Dirección \(opcional\)/).fill("Calle sin servicio 1");
+    await form.getByRole("button", { name: "Guardar cambios" }).click();
+    await expect(form.getByRole("alert")).toContainText("No hemos podido comprobar la dirección");
+    await page.reload();
+    await expect(restaurantForm(page).getByLabel(/^Dirección \(opcional\)/)).toHaveValue("");
   });
 
   test("al cambiar de ciudad, la ubicación se actualiza", async ({ page }) => {
