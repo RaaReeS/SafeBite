@@ -1,6 +1,6 @@
 import "server-only";
 import { isAllergen, type Allergen } from "@safebite/core";
-import { requireDiner } from "@/lib/auth";
+import { getCurrentUser, requireDiner } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 /**
@@ -27,4 +27,14 @@ export async function getMyHealthProfile(): Promise<HealthProfile> {
     consentGivenAt: profile.health_data_consent_at,
     allergens: rows.map((row) => row.allergen).filter(isAllergen),
   };
+}
+
+/**
+ * Perfil del comensal con sesión, o null si no hay sesión de comensal (visitante
+ * anónimo, restaurante o admin). Para la carta pública: no redirige a nadie.
+ */
+export async function getHealthProfileIfDiner(): Promise<HealthProfile | null> {
+  const user = await getCurrentUser();
+  if (user?.role !== "diner") return null;
+  return getMyHealthProfile();
 }

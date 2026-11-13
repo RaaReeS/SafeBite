@@ -453,6 +453,11 @@ export const es = {
     poweredBy: "Carta digital con SafeBite",
     filterTitle: "¿Qué alérgenos quieres evitar?",
     filterHint: "Tu selección no se guarda ni se envía: solo se usa en esta pantalla.",
+    backToSearch: "← Restaurantes",
+    usingProfile: "Filtrada con tu perfil de alergias.",
+    adjusted: "Ajustada solo para esta carta: tu perfil guardado no cambia.",
+    resetToProfile: "Volver a mi perfil",
+    configureProfile: "Configura tus alergias para que las cartas se filtren solas",
     clear: "Borrar selección",
     hideNotSuitable: "Ocultar platos no aptos",
     summary: (counts: {

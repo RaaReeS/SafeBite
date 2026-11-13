@@ -23,7 +23,16 @@ import { AllergenIcon } from "./allergen-icon";
 type MenuViewProps = {
   restaurant: MenuRestaurant;
   dishes: MenuDish[];
+  /**
+   * Perfil guardado del comensal con sesión (null o ausente: visitante anónimo
+   * o vista previa del panel). Si lo hay, la carta parte de él.
+   */
+  savedProfile?: { consentGivenAt: string | null; allergens: Allergen[] } | null;
 };
+
+function sameAllergens(a: readonly Allergen[], b: readonly Allergen[]): boolean {
+  return a.length === b.length && a.every((allergen) => b.includes(allergen));
+}
 
 /**
  * Carta de un restaurante. La comparten la carta pública por QR (/r/[slug]) y
@@ -33,9 +42,11 @@ type MenuViewProps = {
  * Privacidad: las alergias seleccionadas viven solo en el estado de este
  * componente. No se guardan (ni URL, ni almacenamiento local) ni se envían.
  */
-export function MenuView({ restaurant, dishes }: MenuViewProps) {
+export function MenuView({ restaurant, dishes, savedProfile = null }: MenuViewProps) {
   const t = getMessages();
-  const [profile, setProfile] = useState<Allergen[]>([]);
+  const saved = savedProfile?.consentGivenAt ? savedProfile.allergens : null;
+  // Los ajustes sobre el perfil guardado son solo para esta carta: no se guardan.
+  const [profile, setProfile] = useState<Allergen[]>(saved ?? []);
   const [hideNotSuitable, setHideNotSuitable] = useState(false);
   const hideId = useId();
 
@@ -52,6 +63,11 @@ export function MenuView({ restaurant, dishes }: MenuViewProps) {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-6">
       <header className="flex flex-col gap-1">
+        {savedProfile !== null ? (
+          <Link href="/comensal/restaurantes" className="text-sm underline">
+            {t.menu.backToSearch}
+          </Link>
+        ) : null}
         <h1 className="text-2xl font-semibold">{restaurant.name}</h1>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
           {[restaurant.address, restaurant.city].filter(Boolean).join(" · ")}
@@ -72,6 +88,25 @@ export function MenuView({ restaurant, dishes }: MenuViewProps) {
         <h2 id="allergen-filter-title" className="font-semibold">
           {t.menu.filterTitle}
         </h2>
+        {saved !== null ? (
+          sameAllergens(profile, saved) ? (
+            <p className="text-sm text-emerald-800 dark:text-emerald-300">{t.menu.usingProfile}</p>
+          ) : (
+            <p className="flex flex-wrap items-center gap-x-3 text-sm">
+              <span>{t.menu.adjusted}</span>
+              <button type="button" onClick={() => setProfile(saved)} className="underline">
+                {t.menu.resetToProfile}
+              </button>
+            </p>
+          )
+        ) : null}
+        {savedProfile !== null && saved === null ? (
+          <p className="text-sm">
+            <Link href="/comensal/alergias" className="underline">
+              {t.menu.configureProfile}
+            </Link>
+          </p>
+        ) : null}
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {ALLERGENS.map((allergen) => {
             const pressed = profile.includes(allergen);
