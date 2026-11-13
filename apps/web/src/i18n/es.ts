@@ -160,6 +160,25 @@ export const es = {
       mapLabel: "Mapa de restaurantes",
       listLabel: "Lista de restaurantes",
       openMenu: "Ver la carta",
+      noProfile: "Guarda tus alergias para ver en el mapa dónde puedes comer.",
+      configureProfile: "Configurar mis alergias",
+      canEatIn: (n: number, total: number) =>
+        n === 1
+          ? `Puedes comer en 1 de ${total} restaurantes, según lo declarado.`
+          : `Puedes comer en ${n} de ${total} restaurantes, según lo declarado.`,
+      showAll: "Mostrar también los demás restaurantes",
+      declaredNotice:
+        "Se muestran los restaurantes con al menos un plato apto para tus alergias según la información declarada por el establecimiento. Confirma siempre con el establecimiento.",
+      suitableDishes: (n: number) =>
+        n === 1 ? "1 plato apto según lo declarado" : `${n} platos aptos según lo declarado`,
+      statuses: {
+        apto: "Con platos aptos",
+        posibles_trazas: "Solo platos con posibles trazas",
+        sin_datos: "Sin datos suficientes",
+        no_apto: "Ningún plato apto",
+      },
+      noneSuitable:
+        "Ningún restaurante tiene platos aptos para tus alergias según lo declarado. Marca «Mostrar también los demás» para verlos todos.",
       youAreHere: "Estás aquí",
     },
     account: {
