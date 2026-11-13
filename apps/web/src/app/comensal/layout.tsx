@@ -47,6 +47,12 @@ async function DinerShell({ children }: { children: ReactNode }) {
           <Link href="/comensal" className="underline">
             {t.diner.nav.home}
           </Link>
+          <Link href="/comensal/alergias" className="underline">
+            {t.diner.nav.allergies}
+          </Link>
+          <Link href="/comensal/cuenta" className="underline">
+            {t.diner.nav.account}
+          </Link>
         </nav>
       </header>
       <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-4 py-8">

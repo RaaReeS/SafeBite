@@ -98,6 +98,21 @@ export async function registerOwner(page: Page, email = uniqueEmail()): Promise<
   return email;
 }
 
+/** Registra un comensal en la web y confirma su email. Deja la sesión abierta en /comensal. */
+export async function registerDiner(page: Page, email = uniqueEmail("comensal")): Promise<string> {
+  await page.goto("/registro");
+  await page.getByLabel("Soy comensal").check();
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Contraseña").fill(DEFAULT_PASSWORD);
+  await page.getByLabel(/He leído y acepto/).check();
+  await page.getByRole("button", { name: "Crear cuenta" }).click();
+  await expect(page.getByRole("status")).toContainText("Te hemos enviado un email");
+
+  await page.goto(await getAuthLinkFromEmail(email, "Confirma tu cuenta de SafeBite"));
+  await expect(page).toHaveURL(/\/comensal\?aviso=cuenta$/);
+  return email;
+}
+
 export async function login(page: Page, email: string, password: string, path = "/login") {
   await page.goto(path);
   await page.getByLabel("Email").fill(email);

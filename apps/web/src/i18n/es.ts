@@ -13,6 +13,7 @@ export const es = {
     loading: "Cargando…",
   },
   home: {
+    accountDeleted: "Tu cuenta y todos tus datos se han borrado.",
     title: "Tu carta con información de alérgenos, clara y siempre actualizada",
     description:
       "Declara los alérgenos de cada plato y comparte tu carta con un código QR. Tus clientes con alergias o intolerancias podrán filtrarla según su perfil.",
@@ -106,6 +107,56 @@ export const es = {
         "Guarda tus alergias una vez y consulta las cartas de los restaurantes filtradas para ti. También puedes usar la app de SafeBite en el móvil con la misma cuenta.",
       accountConfirmed: "Tu cuenta está confirmada. ¡Bienvenido a SafeBite!",
       passwordChanged: "Tu contraseña se ha cambiado.",
+      allergiesTitle: "Mis alergias",
+      noConsent: "Aún no has configurado tus alergias.",
+      configure: "Configurar mis alergias",
+      noAllergies: "No has marcado ninguna alergia.",
+      yourAllergies: (list: string) => `Tus alergias: ${list}.`,
+      edit: "Editar mis alergias",
+    },
+    consent: {
+      title: "Tus datos de salud",
+      intro:
+        "Para filtrar las cartas según tus alergias, SafeBite necesita guardar tu perfil de alergias e intolerancias. Es un dato de salud, así que solo lo guardamos con tu consentimiento explícito.",
+      points: [
+        "Lo usamos únicamente para filtrar las cartas y los productos que consultes.",
+        "Solo tú puedes verlo. Nunca se comparte con los restaurantes ni con nadie más.",
+        "Se guarda en servidores de la Unión Europea.",
+        "Puedes retirar tu consentimiento cuando quieras desde «Mi cuenta»: tus alergias se borrarán en ese momento.",
+      ],
+      checkbox:
+        "Doy mi consentimiento explícito para que SafeBite guarde y use mi perfil de alergias e intolerancias con esta finalidad.",
+      required: "Para guardar tus alergias necesitamos tu consentimiento explícito.",
+      accept: "Continuar",
+      privacy: "Leer la política de privacidad",
+    },
+    allergies: {
+      title: "Mis alergias",
+      description:
+        "Marca los alérgenos que debes evitar. Las cartas se filtrarán automáticamente con esta selección.",
+      save: "Guardar",
+      saved: "Tu perfil de alergias se ha guardado.",
+      saveError: "No se ha podido guardar. No se ha cambiado nada: inténtalo de nuevo.",
+    },
+    account: {
+      title: "Mi cuenta",
+      signedInAs: (email: string) => `Has iniciado sesión como ${email}.`,
+      healthTitle: "Tus datos de salud",
+      consentGiven: "Has dado tu consentimiento para guardar tu perfil de alergias.",
+      consentNotGiven: "No tienes un perfil de alergias guardado.",
+      withdraw: "Retirar consentimiento y borrar mis alergias",
+      withdrawTitle: "¿Retirar el consentimiento?",
+      withdrawMessage:
+        "Se borrarán tus alergias guardadas. Las cartas dejarán de filtrarse automáticamente hasta que vuelvas a configurarlas.",
+      withdrawConfirm: "Retirar y borrar",
+      withdrawn: "Has retirado tu consentimiento y tus alergias se han borrado.",
+      deleteTitle: "Borrar mi cuenta",
+      delete: "Borrar mi cuenta",
+      deleteConfirmTitle: "¿Borrar tu cuenta?",
+      deleteMessage:
+        "Se borrarán tu cuenta, tu perfil de alergias y todos tus datos. No se puede deshacer.",
+      deleteConfirm: "Borrar mi cuenta",
+      cancel: "Cancelar",
     },
   },
   admin: {
