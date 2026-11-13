@@ -40,3 +40,6 @@ test-results/
 # Stryker (mutation testing)
 .stryker-tmp/
 reports/
+
+# Worker de MapLibre copiado al compilar (apps/web/scripts/copy-maplibre-worker.mjs)
+apps/web/public/vendor/
