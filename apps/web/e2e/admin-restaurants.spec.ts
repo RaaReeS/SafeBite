@@ -70,8 +70,8 @@ test.describe("verificación de restaurantes (administración)", () => {
 
   test("un comensal no entra en la verificación", async ({ page }) => {
     await login(page, SEED_DINER.email, SEED_DINER.password);
-    await expect(page).toHaveURL(/\/sin-acceso$/);
+    await expect(page).toHaveURL(/\/comensal$/);
     await page.goto("/admin/restaurantes");
-    await expect(page).toHaveURL(/\/sin-acceso$/);
+    await expect(page).toHaveURL(/\/comensal$/);
   });
 });

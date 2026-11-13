@@ -66,8 +66,8 @@ test.describe("solicitudes de restaurantes (administración)", () => {
 
   test("un comensal no entra", async ({ page }) => {
     await login(page, SEED_DINER.email, SEED_DINER.password);
-    await expect(page).toHaveURL(/\/sin-acceso$/);
+    await expect(page).toHaveURL(/\/comensal$/);
     await page.goto("/admin/solicitudes");
-    await expect(page).toHaveURL(/\/sin-acceso$/);
+    await expect(page).toHaveURL(/\/comensal$/);
   });
 });

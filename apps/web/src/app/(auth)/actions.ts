@@ -23,24 +23,35 @@ const RATE_LIMIT_CODES = new Set([
 export async function signUp(_prev: FormState, formData: FormData): Promise<FormState> {
   const t = getMessages();
   const email = textField(formData, "email") ?? "";
+  const accountType = textField(formData, "account_type");
   const parsed = signUpSchema.safeParse({
     email,
     password: textField(formData, "password"),
     accepted_terms: textField(formData, "accepted_terms"),
   });
-  if (!parsed.success) {
-    return { status: "error", fieldErrors: toFieldErrors(parsed.error.issues), values: { email } };
+  // El tipo de cuenta se elige siempre a propósito: sin valor por defecto.
+  const validType = accountType === "diner" || accountType === "restaurant_owner";
+  if (!parsed.success || !validType) {
+    return {
+      status: "error",
+      fieldErrors: {
+        ...(parsed.success ? {} : toFieldErrors(parsed.error.issues)),
+        ...(validType ? {} : { account_type: t.auth.register.chooseType }),
+      },
+      values: { email, ...(validType ? { account_type: accountType } : {}) },
+    };
   }
+  const home = accountType === "diner" ? "/comensal" : "/panel";
 
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
-      emailRedirectTo: `${env.siteUrl}/auth/confirmar?next=/panel`,
+      emailRedirectTo: `${env.siteUrl}/auth/confirmar?next=${home}`,
       // handle_new_user (BD) solo acepta 'restaurant_owner' o 'diner', y
       // registra la aceptación de términos únicamente si es el booleano true.
-      data: { role: "restaurant_owner", accepted_terms: parsed.data.accepted_terms },
+      data: { role: accountType, accepted_terms: parsed.data.accepted_terms },
     },
   });
 
@@ -64,7 +75,7 @@ export async function signUp(_prev: FormState, formData: FormData): Promise<Form
   if (data.session === null) {
     return { status: "success", message: t.auth.register.checkEmail };
   }
-  redirect("/panel");
+  redirect(home);
 }
 
 export async function signIn(_prev: FormState, formData: FormData): Promise<FormState> {

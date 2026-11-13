@@ -13,17 +13,16 @@ export const es = {
     loading: "Cargando…",
   },
   home: {
+    accountDeleted: "Tu cuenta y todos tus datos se han borrado.",
     title: "Tu carta con información de alérgenos, clara y siempre actualizada",
     description:
       "Declara los alérgenos de cada plato y comparte tu carta con un código QR. Tus clientes con alergias o intolerancias podrán filtrarla según su perfil.",
     login: "Entrar",
     register: "Crear cuenta de restaurante",
-  },
-  noAccess: {
-    title: "Esta cuenta no es de restaurante",
-    description:
-      "El panel es solo para establecimientos. Si eres comensal, usa la app de SafeBite para consultar cartas filtradas por tus alergias.",
-    back: "Volver al inicio",
+    dinerTitle: "¿Tienes alergias o intolerancias?",
+    dinerDescription:
+      "Guarda tu perfil una vez y busca restaurantes cerca de ti con la carta filtrada para ti.",
+    dinerRegister: "Crear cuenta de comensal",
   },
   auth: {
     email: "Email",
@@ -47,15 +46,22 @@ export const es = {
         "Si la cuenta existe y aún no está confirmada, te hemos enviado un email nuevo. Revisa también la carpeta de spam.",
     },
     register: {
-      title: "Crear cuenta de restaurante",
+      title: "Crear cuenta",
       description:
-        "Con tu cuenta podrás publicar la carta de tu establecimiento con la información de alérgenos de cada plato.",
+        "Como comensal, guardarás tus alergias y verás las cartas filtradas para ti. Como restaurante, publicarás tu carta con la información de alérgenos de cada plato.",
+      accountType: "Tipo de cuenta",
+      diner: "Soy comensal",
+      dinerHint: "Busco dónde comer según mis alergias o las de mi familia.",
+      owner: "Soy un restaurante",
+      ownerHint: "Quiero publicar la carta de mi establecimiento.",
+      chooseType: "Elige si eres comensal o restaurante.",
       acceptTermsBefore: "He leído y acepto los",
       terms: "términos de uso",
       acceptTermsMiddle: "y la",
       privacy: "política de privacidad",
-      acceptTermsAfter:
-        ". Entiendo que soy responsable de la información de alérgenos que declare.",
+      acceptTermsAfter: ".",
+      ownerResponsibility:
+        " Entiendo que soy responsable de la información de alérgenos que declare.",
       submit: "Crear cuenta",
       pending: "Creando cuenta…",
       hasAccount: "¿Ya tienes cuenta?",
@@ -90,6 +96,92 @@ export const es = {
     draftNotice:
       "Borrador pendiente de revisión legal. Este texto se sustituirá por la versión definitiva antes del lanzamiento.",
     back: "Volver",
+  },
+  diner: {
+    navLabel: "Secciones de tu cuenta",
+    nav: {
+      home: "Inicio",
+      restaurants: "Restaurantes",
+      allergies: "Mis alergias",
+      account: "Mi cuenta",
+    },
+    home: {
+      greeting: (email: string) => `Hola, ${email}`,
+      intro:
+        "Guarda tus alergias una vez y consulta las cartas de los restaurantes filtradas para ti. También puedes usar la app de SafeBite en el móvil con la misma cuenta.",
+      accountConfirmed: "Tu cuenta está confirmada. ¡Bienvenido a SafeBite!",
+      passwordChanged: "Tu contraseña se ha cambiado.",
+      allergiesTitle: "Mis alergias",
+      noConsent: "Aún no has configurado tus alergias.",
+      configure: "Configurar mis alergias",
+      noAllergies: "No has marcado ninguna alergia.",
+      yourAllergies: (list: string) => `Tus alergias: ${list}.`,
+      edit: "Editar mis alergias",
+    },
+    consent: {
+      title: "Tus datos de salud",
+      intro:
+        "Para filtrar las cartas según tus alergias, SafeBite necesita guardar tu perfil de alergias e intolerancias. Es un dato de salud, así que solo lo guardamos con tu consentimiento explícito.",
+      points: [
+        "Lo usamos únicamente para filtrar las cartas y los productos que consultes.",
+        "Solo tú puedes verlo. Nunca se comparte con los restaurantes ni con nadie más.",
+        "Se guarda en servidores de la Unión Europea.",
+        "Puedes retirar tu consentimiento cuando quieras desde «Mi cuenta»: tus alergias se borrarán en ese momento.",
+      ],
+      checkbox:
+        "Doy mi consentimiento explícito para que SafeBite guarde y use mi perfil de alergias e intolerancias con esta finalidad.",
+      required: "Para guardar tus alergias necesitamos tu consentimiento explícito.",
+      accept: "Continuar",
+      privacy: "Leer la política de privacidad",
+    },
+    allergies: {
+      title: "Mis alergias",
+      description:
+        "Marca los alérgenos que debes evitar. Las cartas se filtrarán automáticamente con esta selección.",
+      save: "Guardar",
+      saved: "Tu perfil de alergias se ha guardado.",
+      saveError: "No se ha podido guardar. No se ha cambiado nada: inténtalo de nuevo.",
+    },
+    search: {
+      title: "Restaurantes",
+      open: "Buscar restaurantes",
+      city: "Ciudad",
+      nearMe: "Cerca de mí",
+      locating: "Buscando tu ubicación…",
+      privacy:
+        "Tu ubicación solo se usa en tu navegador para ordenar por cercanía: no se guarda ni se envía.",
+      denied:
+        "Sin permiso de ubicación no podemos ordenar por cercanía. Puedes buscar por ciudad o permitirla en tu navegador.",
+      unavailable: "No se ha podido obtener tu ubicación. Inténtalo de nuevo o busca por ciudad.",
+      results: (n: number) => (n === 1 ? "1 restaurante" : `${n} restaurantes`),
+      byProximity: "de más cerca a más lejos",
+      noRestaurants: "Todavía no hay restaurantes publicados.",
+      noResultsCity: (city: string) => `No hemos encontrado restaurantes en «${city}».`,
+      mapLabel: "Mapa de restaurantes",
+      listLabel: "Lista de restaurantes",
+      openMenu: "Ver la carta",
+      youAreHere: "Estás aquí",
+    },
+    account: {
+      title: "Mi cuenta",
+      signedInAs: (email: string) => `Has iniciado sesión como ${email}.`,
+      healthTitle: "Tus datos de salud",
+      consentGiven: "Has dado tu consentimiento para guardar tu perfil de alergias.",
+      consentNotGiven: "No tienes un perfil de alergias guardado.",
+      withdraw: "Retirar consentimiento y borrar mis alergias",
+      withdrawTitle: "¿Retirar el consentimiento?",
+      withdrawMessage:
+        "Se borrarán tus alergias guardadas. Las cartas dejarán de filtrarse automáticamente hasta que vuelvas a configurarlas.",
+      withdrawConfirm: "Retirar y borrar",
+      withdrawn: "Has retirado tu consentimiento y tus alergias se han borrado.",
+      deleteTitle: "Borrar mi cuenta",
+      delete: "Borrar mi cuenta",
+      deleteConfirmTitle: "¿Borrar tu cuenta?",
+      deleteMessage:
+        "Se borrarán tu cuenta, tu perfil de alergias y todos tus datos. No se puede deshacer.",
+      deleteConfirm: "Borrar mi cuenta",
+      cancel: "Cancelar",
+    },
   },
   admin: {
     label: "Administración",
@@ -365,6 +457,11 @@ export const es = {
     poweredBy: "Carta digital con SafeBite",
     filterTitle: "¿Qué alérgenos quieres evitar?",
     filterHint: "Tu selección no se guarda ni se envía: solo se usa en esta pantalla.",
+    backToSearch: "← Restaurantes",
+    usingProfile: "Filtrada con tu perfil de alergias.",
+    adjusted: "Ajustada solo para esta carta: tu perfil guardado no cambia.",
+    resetToProfile: "Volver a mi perfil",
+    configureProfile: "Configura tus alergias para que las cartas se filtren solas",
     clear: "Borrar selección",
     hideNotSuitable: "Ocultar platos no aptos",
     summary: (counts: {
@@ -409,11 +506,6 @@ export const es = {
     notice:
       "Así verán tu carta tus clientes al escanear el QR. Los platos ocultos no aparecen. Prueba a seleccionar alergias para comprobar cómo se filtra.",
     notPublished: "Tu carta aún no está publicada: solo tú puedes verla aquí.",
-  },
-  accountConfirmed: {
-    title: "Tu cuenta está confirmada",
-    passwordTitle: "Contraseña actualizada",
-    backToApp: "Ya puedes volver a la app de SafeBite e iniciar sesión.",
   },
   notFound: {
     title: "Página no encontrada",

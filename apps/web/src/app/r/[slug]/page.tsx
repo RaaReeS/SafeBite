@@ -3,10 +3,12 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { MenuView } from "@/components/menu/menu-view";
 import { getMessages } from "@/i18n";
+import { getHealthProfileIfDiner } from "@/lib/data/health-profile";
 import { getPublicMenu } from "@/lib/data/public-menu";
 
-// Carta pública por QR: sin registro ni sesión. Sin caché a propósito: si el
-// restaurante cambia un alérgeno, el cliente debe ver el cambio al momento.
+// Carta pública por QR: sin registro ni sesión (con sesión de comensal, se
+// filtra con su perfil). Sin caché a propósito: si el restaurante cambia un
+// alérgeno, el cliente debe ver el cambio al momento.
 
 export async function generateMetadata({ params }: PageProps<"/r/[slug]">): Promise<Metadata> {
   const t = getMessages();
@@ -32,7 +34,8 @@ export default function PublicMenuPage({ params }: PageProps<"/r/[slug]">) {
 
 async function PublicMenu({ params }: Pick<PageProps<"/r/[slug]">, "params">) {
   const { slug } = await params;
-  const menu = await getPublicMenu(slug);
+  const [menu, savedProfile] = await Promise.all([getPublicMenu(slug), getHealthProfileIfDiner()]);
   if (menu === null) notFound();
-  return <MenuView restaurant={menu.restaurant} dishes={menu.dishes} />;
+  // Con sesión de comensal, la carta parte de su perfil guardado (solo lo ve él).
+  return <MenuView restaurant={menu.restaurant} dishes={menu.dishes} savedProfile={savedProfile} />;
 }

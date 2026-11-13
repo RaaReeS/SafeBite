@@ -5,8 +5,7 @@ type Supabase = Awaited<ReturnType<typeof createSupabaseServerClient>>;
 
 /**
  * Destino tras confirmar el email o cambiar la contraseña desde un enlace.
- * Los comensales usan la app: no se les manda al panel (donde verían "esta
- * cuenta no es de restaurante"), sino a una página que les pide volver a la app.
+ * Los comensales no van al panel de restaurantes, sino a su área (/comensal).
  */
 export async function destinationAfterEmailLink(
   supabase: Supabase,
@@ -22,5 +21,6 @@ export async function destinationAfterEmailLink(
     .eq("id", userId)
     .maybeSingle();
   if (profile?.role === "restaurant_owner") return next;
-  return `/cuenta-confirmada?motivo=${reason}`;
+  // Comensales: a su área de la web, con un aviso de que también pueden usar la app.
+  return `/comensal?aviso=${reason}`;
 }
