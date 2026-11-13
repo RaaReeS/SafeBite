@@ -14,8 +14,8 @@ export default function PrivacyPage() {
           su carta que publiques.
         </li>
         <li>
-          Cuentas de usuario de la app: email, contraseña (cifrada) y, solo si das tu consentimiento
-          explícito, tu perfil de alergias e intolerancias.
+          Cuentas de comensal (en la app o en la web): email, contraseña (cifrada) y, solo si das tu
+          consentimiento explícito, tu perfil de alergias e intolerancias.
         </li>
       </ul>
 
@@ -30,8 +30,16 @@ export default function PrivacyPage() {
 
       <h2>Ubicación</h2>
       <p>
-        Si lo permites, la app usa tu ubicación para ordenar los restaurantes por cercanía. Se usa
-        solo en tu móvil: no se guarda ni se envía a ningún servidor.
+        Si lo permites, la app y la web usan tu ubicación para ordenar los restaurantes por
+        cercanía. Se usa solo en tu dispositivo (el móvil o tu navegador): no se guarda ni se envía
+        a ningún servidor.
+      </p>
+
+      <h2>Mapa de restaurantes</h2>
+      <p>
+        El mapa de la web usa OpenStreetMap. Para mostrarlo, tu navegador descarga las imágenes del
+        mapa de los servidores de la OpenStreetMap Foundation (Reino Unido), que reciben tu
+        dirección IP y la zona del mapa que estás viendo. No reciben tus alergias ni tu cuenta.
       </p>
 
       <h2>Escáner de productos</h2>

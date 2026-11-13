@@ -22,6 +22,15 @@ export default function Home() {
           {t.home.login}
         </ButtonLink>
       </div>
+      <section className="flex flex-col gap-2 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+        <h2 className="font-semibold">{t.home.dinerTitle}</h2>
+        <p className="text-sm text-zinc-700 dark:text-zinc-300">{t.home.dinerDescription}</p>
+        <div>
+          <ButtonLink href="/registro" variant="secondary">
+            {t.home.dinerRegister}
+          </ButtonLink>
+        </div>
+      </section>
     </main>
   );
 }

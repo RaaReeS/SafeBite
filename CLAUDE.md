@@ -81,6 +81,10 @@ Especificación completa en `ESPECIFICACION.md`. Léela antes de empezar cualqui
 
 ## Convenciones de la web (Next.js 16)
 
+- Áreas por rol: `/comensal` (comensales: perfil de alergias, búsqueda con mapa), `/panel` (restaurantes) y `/admin`. `requireDiner`, `requireRestaurantOwner` y `requireAdmin` redirigen a cada uno a la suya. En el registro se elige el tipo de cuenta (sin valor por defecto).
+- Mapa: Leaflet + OpenStreetMap, cargado solo en el navegador (`next/dynamic` sin SSR). La búsqueda por ciudad y por cercanía se hace en el navegador: la ubicación nunca sale del dispositivo. En los tests se bloquean los trozos del mapa.
+- `Permissions-Policy` permite `geolocation=(self)` en toda la web: al navegar dentro de la web el navegador mantiene la política de la primera página cargada, así que limitarla a una ruta deja «Cerca de mí» bloqueado.
+- `/r/[slug]` con sesión de comensal parte de su perfil guardado (leído en el servidor); los ajustes en la carta no se guardan.
 - `proxy.ts` (antes `middleware.ts`) solo refresca la sesión y hace una redirección optimista. La autorización real se repite en cada página, cada Server Action y cada Route Handler, y RLS es la última barrera.
 - En archivos `"use server"` solo se exportan Server Actions: cualquier export es invocable desde el navegador. Los argumentos de `.bind()` se tratan como entrada no fiable (validar ids, comprobar propietario).
 - Con Cache Components, lo que lee la sesión va dentro de `<Suspense>`. No usar `use cache` con datos de un usuario.

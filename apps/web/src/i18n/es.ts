@@ -19,6 +19,10 @@ export const es = {
       "Declara los alérgenos de cada plato y comparte tu carta con un código QR. Tus clientes con alergias o intolerancias podrán filtrarla según su perfil.",
     login: "Entrar",
     register: "Crear cuenta de restaurante",
+    dinerTitle: "¿Tienes alergias o intolerancias?",
+    dinerDescription:
+      "Guarda tu perfil una vez y busca restaurantes cerca de ti con la carta filtrada para ti.",
+    dinerRegister: "Crear cuenta de comensal",
   },
   auth: {
     email: "Email",
