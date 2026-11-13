@@ -1,10 +1,8 @@
 import "server-only";
 import {
-  groupDeclarationsByDish,
-  restaurantSuitability,
+  suitabilityByRestaurant as summarize,
   type Allergen,
-  type AllergenDeclaration,
-  type FilterStatus,
+  type SuitabilitySummary,
 } from "@safebite/core";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -42,7 +40,7 @@ async function fetchAllPages<T>(
   }
 }
 
-export type SuitabilitySummary = { status: FilterStatus; suitableDishes: number };
+export type { SuitabilitySummary };
 
 /**
  * ¿Qué puede comer este comensal en cada restaurante? Se evalúan todos los
@@ -71,24 +69,5 @@ export async function suitabilityByRestaurant(
     ),
   ]);
 
-  const byDish = groupDeclarationsByDish(declarations);
-  type DishToEvaluate = {
-    category: string | null;
-    sort_order: number;
-    allergens: AllergenDeclaration[];
-  };
-  const dishesByRestaurant = new Map<string, DishToEvaluate[]>();
-  for (const dish of dishes) {
-    const list = dishesByRestaurant.get(dish.restaurant_id) ?? [];
-    // Un plato sin declaraciones queda con allergens = [] (el filtro: sin datos).
-    list.push({ ...dish, allergens: byDish.get(dish.id) ?? [] });
-    dishesByRestaurant.set(dish.restaurant_id, list);
-  }
-
-  const summary: Record<string, SuitabilitySummary> = {};
-  for (const [restaurantId, restaurantDishes] of dishesByRestaurant) {
-    const { status, counts } = restaurantSuitability(restaurantDishes, profile);
-    summary[restaurantId] = { status, suitableDishes: counts.apto };
-  }
-  return summary;
+  return summarize(dishes, declarations, profile);
 }

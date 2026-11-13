@@ -6,6 +6,7 @@ import {
   countByStatus,
   groupDeclarationsByDish,
   restaurantSuitability,
+  suitabilityByRestaurant,
   type MenuDishInput,
 } from "./menu";
 
@@ -227,5 +228,44 @@ describe("restaurantSuitability: ¿puedo comer en este restaurante?", () => {
     ]);
     expect(restaurantSuitability([nutTraces], ["gluten", "nuts"]).status).toBe("posibles_trazas");
     expect(restaurantSuitability([nutTraces], ["gluten"]).status).toBe("apto");
+  });
+});
+
+describe("suitabilityByRestaurant: el mapa de restaurantes", () => {
+  const free = (dishId: string) =>
+    ALLERGENS.map((allergen) => ({ dish_id: dishId, allergen, level: "free_from" as const }));
+
+  it("agrupa los platos por restaurante y resume cada uno con el perfil", () => {
+    const dishes = [
+      { id: "a1", restaurant_id: "A", category: null, sort_order: 1 },
+      { id: "a2", restaurant_id: "A", category: "Postres", sort_order: 2 },
+      { id: "b1", restaurant_id: "B", category: null, sort_order: 1 },
+    ];
+    const declarations = [
+      ...free("a1"),
+      ...free("a2"),
+      // El plato de B contiene gluten.
+      ...free("b1").map((d) =>
+        d.allergen === "gluten" ? { ...d, level: "contains" as const } : d,
+      ),
+    ];
+    expect(suitabilityByRestaurant(dishes, declarations, ["gluten"])).toEqual({
+      A: { status: "apto", suitableDishes: 2 },
+      B: { status: "no_apto", suitableDishes: 0 },
+    });
+  });
+
+  it("un plato sin declaraciones cuenta como sin datos, nunca como apto", () => {
+    expect(
+      suitabilityByRestaurant(
+        [{ id: "c1", restaurant_id: "C", category: null, sort_order: 1 }],
+        [],
+        ["milk"],
+      ),
+    ).toEqual({ C: { status: "sin_datos", suitableDishes: 0 } });
+  });
+
+  it("los restaurantes sin platos no aparecen", () => {
+    expect(suitabilityByRestaurant([], free("x"), ["milk"])).toEqual({});
   });
 });
