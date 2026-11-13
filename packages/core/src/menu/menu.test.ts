@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { ALLERGENS } from "../allergens/allergens";
 import type { AllergenDeclaration } from "../filter/evaluate";
-import { buildMenu, countByStatus, groupDeclarationsByDish, type MenuDishInput } from "./menu";
+import {
+  buildMenu,
+  countByStatus,
+  groupDeclarationsByDish,
+  restaurantSuitability,
+  type MenuDishInput,
+} from "./menu";
 
 type TestDish = MenuDishInput & { id: string; name: string };
 
@@ -171,5 +177,55 @@ describe("groupDeclarationsByDish", () => {
 
   it("un plato sin filas no aparece (sus alérgenos quedarán sin datos)", () => {
     expect(groupDeclarationsByDish([]).get("a")).toBeUndefined();
+  });
+});
+
+describe("restaurantSuitability: ¿puedo comer en este restaurante?", () => {
+  const celiac = ["gluten"] as const;
+  const glutenFree = () => dish("apto", null, 1, allFreeFrom());
+  const withGluten = () =>
+    dish("no", null, 2, [
+      ...allFreeFrom().filter((d) => d.allergen !== "gluten"),
+      { allergen: "gluten", level: "contains" },
+    ]);
+  const glutenTraces = () =>
+    dish("trazas", null, 3, [
+      ...allFreeFrom().filter((d) => d.allergen !== "gluten"),
+      { allergen: "gluten", level: "may_contain" },
+    ]);
+  const noData = () => dish("sin", null, 4);
+
+  it("con un solo plato apto, el restaurante es apto (y cuenta cada estado)", () => {
+    expect(
+      restaurantSuitability([withGluten(), glutenTraces(), noData(), glutenFree()], celiac),
+    ).toEqual({
+      status: "apto",
+      counts: { apto: 1, posibles_trazas: 1, sin_datos: 1, no_apto: 1 },
+    });
+  });
+
+  it("sin platos aptos, nunca es apto: gana el mejor de los demás", () => {
+    expect(restaurantSuitability([withGluten(), noData(), glutenTraces()], celiac).status).toBe(
+      "posibles_trazas",
+    );
+    expect(restaurantSuitability([withGluten(), noData()], celiac).status).toBe("sin_datos");
+    expect(restaurantSuitability([withGluten()], celiac).status).toBe("no_apto");
+  });
+
+  it("un restaurante sin platos queda sin datos", () => {
+    expect(restaurantSuitability([], celiac)).toEqual({
+      status: "sin_datos",
+      counts: { apto: 0, posibles_trazas: 0, sin_datos: 0, no_apto: 0 },
+    });
+  });
+
+  it("usa el mismo filtro que la carta: con varias alergias, todas cuentan", () => {
+    // Sin gluten pero con trazas de frutos de cáscara: no es apto para quien evita ambos.
+    const nutTraces = dish("nueces", null, 1, [
+      ...allFreeFrom().filter((d) => d.allergen !== "nuts"),
+      { allergen: "nuts", level: "may_contain" },
+    ]);
+    expect(restaurantSuitability([nutTraces], ["gluten", "nuts"]).status).toBe("posibles_trazas");
+    expect(restaurantSuitability([nutTraces], ["gluten"]).status).toBe("apto");
   });
 });

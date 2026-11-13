@@ -101,3 +101,28 @@ export function groupDeclarationsByDish(
   }
   return grouped;
 }
+
+/** Del mejor al peor resultado de un plato, para resumir un restaurante. */
+const BEST_FIRST: readonly FilterStatus[] = ["apto", "posibles_trazas", "sin_datos", "no_apto"];
+
+export type RestaurantSuitability = {
+  /**
+   * El mejor resultado entre sus platos. Solo es `apto` si al menos un plato es
+   * apto según lo declarado; un restaurante sin platos queda `sin_datos`.
+   */
+  status: FilterStatus;
+  counts: Record<FilterStatus, number>;
+};
+
+/**
+ * Resume un restaurante frente a un perfil de alergias: ¿hay algo que esta
+ * persona pueda comer? Cada plato se evalúa con el mismo filtro que la carta.
+ */
+export function restaurantSuitability<T extends MenuDishInput>(
+  dishes: readonly T[],
+  profile: readonly Allergen[],
+): RestaurantSuitability {
+  const counts = countByStatus(buildMenu(dishes, profile));
+  const status = BEST_FIRST.find((candidate) => counts[candidate] > 0) ?? "sin_datos";
+  return { status, counts };
+}

@@ -1,5 +1,13 @@
 import { expect, test, type Page } from "@playwright/test";
-import { SEED_DINER, login } from "./helpers";
+import {
+  SEED_DINER,
+  createRestaurant,
+  login,
+  registerDiner,
+  registerOwner,
+  restaurantForm,
+  verifyRestaurantAsAdmin,
+} from "./helpers";
 
 // Los tests no descargan trozos del mapa de OpenStreetMap.
 test.beforeEach(async ({ page }) => {
@@ -22,7 +30,10 @@ function restaurantList(page: Page) {
 test.describe("buscar restaurantes en la web (comensal)", () => {
   test("muestra los restaurantes en lista y en el mapa, y filtra por ciudad", async ({ page }) => {
     await openSearch(page);
-    await expect(restaurantList(page).getByRole("link", { name: /La Huerta Demo/ })).toBeVisible();
+    // El comensal del seed (celíaco, frutos de cáscara) puede comer en La Huerta Demo.
+    await expect(restaurantList(page).getByRole("link", { name: /La Huerta Demo/ })).toContainText(
+      /platos? aptos? según lo declarado/,
+    );
     const map = page.getByRole("region", { name: "Mapa de restaurantes" });
     await expect(map.locator(".leaflet-interactive").first()).toBeVisible();
     await expect(map).toContainText("OpenStreetMap");
@@ -75,6 +86,47 @@ test.describe("buscar restaurantes en la web (comensal)", () => {
     });
     await page.getByRole("button", { name: "Cerca de mí" }).click();
     await expect(page.getByText(/Sin permiso de ubicación/)).toBeVisible();
+  });
+
+  test("por defecto solo salen los restaurantes donde puedo comer", async ({ browser }) => {
+    // Un restaurante publicado y verificado pero sin carta: «sin datos», nunca apto.
+    const owner = await browser.newPage();
+    await owner.route("https://tile.openstreetmap.org/**", (route) => route.abort());
+    await registerOwner(owner);
+    const { name, url } = await createRestaurant(owner);
+    const form = restaurantForm(owner);
+    await form.getByLabel(/^Dirección \(opcional\)/).fill("Calle Mayor 7");
+    await form.getByRole("button", { name: "Guardar cambios" }).click();
+    await expect(form.getByRole("status")).toHaveText("Cambios guardados.");
+    await owner.getByRole("button", { name: "Publicar carta" }).click();
+    await expect(owner.getByText("Publicado", { exact: true })).toBeVisible();
+    await verifyRestaurantAsAdmin(url);
+
+    const page = await browser.newPage();
+    await page.route("https://tile.openstreetmap.org/**", (route) => route.abort());
+    await openSearch(page);
+    await expect(
+      page.getByText(/Puedes comer en \d+ de \d+ restaurantes, según lo declarado/),
+    ).toBeVisible();
+    await expect(restaurantList(page).getByRole("link", { name: /La Huerta Demo/ })).toBeVisible();
+    await expect(restaurantList(page).getByRole("link", { name: new RegExp(name) })).toHaveCount(0);
+
+    await page.getByLabel("Mostrar también los demás restaurantes").check();
+    await expect(restaurantList(page).getByRole("link", { name: new RegExp(name) })).toContainText(
+      "Sin datos suficientes",
+    );
+  });
+
+  test("sin alergias guardadas no hay semáforo e invita a configurarlas", async ({ page }) => {
+    await registerDiner(page);
+    await page.goto("/comensal/restaurantes");
+    await expect(page.locator(".leaflet-container")).toBeVisible();
+    await expect(
+      page.getByText(/Guarda tus alergias para ver en el mapa dónde puedes comer/),
+    ).toBeVisible();
+    await expect(
+      restaurantList(page).getByRole("link", { name: /La Huerta Demo/ }),
+    ).not.toContainText(/según lo declarado|Sin datos/);
   });
 
   test("la ubicación solo se permite a la propia web", async ({ request }) => {

@@ -30,6 +30,8 @@ export {
   buildMenu,
   countByStatus,
   groupDeclarationsByDish,
+  restaurantSuitability,
+  type RestaurantSuitability,
   type EvaluatedDish,
   type MenuDishInput,
   type MenuSection,
