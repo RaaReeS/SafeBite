@@ -113,6 +113,25 @@ export async function registerDiner(page: Page, email = uniqueEmail("comensal"))
   return email;
 }
 
+/**
+ * Los tests no descargan el mapa de OpenFreeMap: el estilo se sustituye por uno
+ * mínimo (solo un fondo) y cualquier otro recurso del mapa se bloquea.
+ */
+export async function useOfflineMap(page: Page) {
+  await page.route("https://tiles.openfreemap.org/**", (route) =>
+    route.request().url().includes("/styles/")
+      ? route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify({
+            version: 8,
+            sources: {},
+            layers: [{ id: "fondo", type: "background", paint: { "background-color": "#f2efe9" } }],
+          }),
+        })
+      : route.abort(),
+  );
+}
+
 export async function login(page: Page, email: string, password: string, path = "/login") {
   await page.goto(path);
   await page.getByLabel("Email").fill(email);

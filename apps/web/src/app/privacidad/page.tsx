@@ -37,9 +37,9 @@ export default function PrivacyPage() {
 
       <h2>Mapa de restaurantes</h2>
       <p>
-        El mapa de la web usa OpenStreetMap. Para mostrarlo, tu navegador descarga las imágenes del
-        mapa de los servidores de la OpenStreetMap Foundation (Reino Unido), que reciben tu
-        dirección IP y la zona del mapa que estás viendo. No reciben tus alergias ni tu cuenta.
+        El mapa de la web usa OpenFreeMap, con datos de OpenStreetMap. Para mostrarlo, tu navegador
+        descarga el mapa de los servidores de OpenFreeMap, que reciben tu dirección IP y la zona del
+        mapa que estás viendo. No reciben tus alergias ni tu cuenta.
       </p>
 
       <h2>Escáner de productos</h2>

@@ -16,7 +16,7 @@ import { getMessages } from "@/i18n";
 import type { PublishedRestaurant, SuitabilitySummary } from "@/lib/data/published-restaurants";
 import { SUITABILITY_STYLES } from "./suitability";
 
-// Leaflet usa `window`: el mapa solo se carga en el navegador.
+// MapLibre usa `window` y WebGL: el mapa solo se carga en el navegador.
 const RestaurantMap = dynamic(() => import("./restaurant-map"), { ssr: false });
 
 type LocationState =

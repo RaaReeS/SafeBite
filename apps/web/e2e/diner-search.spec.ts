@@ -4,14 +4,14 @@ import {
   createRestaurant,
   login,
   registerDiner,
+  useOfflineMap,
   registerOwner,
   restaurantForm,
   verifyRestaurantAsAdmin,
 } from "./helpers";
 
-// Los tests no descargan trozos del mapa de OpenStreetMap.
 test.beforeEach(async ({ page }) => {
-  await page.route("https://tile.openstreetmap.org/**", (route) => route.abort());
+  await useOfflineMap(page);
 });
 
 async function openSearch(page: Page) {
@@ -20,7 +20,7 @@ async function openSearch(page: Page) {
   await page.getByRole("link", { name: "Buscar restaurantes" }).click();
   await expect(page).toHaveURL(/\/comensal\/restaurantes$/);
   // El mapa solo se pinta en el navegador: cuando está, la página ya responde a los clics.
-  await expect(page.locator(".leaflet-container")).toBeVisible();
+  await expect(page.locator(".maplibregl-map")).toBeVisible();
 }
 
 function restaurantList(page: Page) {
@@ -35,8 +35,10 @@ test.describe("buscar restaurantes en la web (comensal)", () => {
       /platos? aptos? según lo declarado/,
     );
     const map = page.getByRole("region", { name: "Mapa de restaurantes" });
-    await expect(map.locator(".leaflet-interactive").first()).toBeVisible();
-    await expect(map).toContainText("OpenStreetMap");
+    // Marcador de La Huerta Demo: al pulsarlo, su ficha con el enlace a la carta.
+    await map.getByRole("button", { name: "La Huerta Demo" }).click();
+    await expect(page.locator(".maplibregl-popup")).toContainText("Ver la carta");
+    await expect(page.locator(".maplibregl-popup")).toContainText(/según lo declarado/);
 
     await page.getByLabel("Ciudad").fill("MADRÍD");
     await expect(restaurantList(page).getByRole("link", { name: /La Huerta Demo/ })).toBeVisible();
@@ -91,7 +93,7 @@ test.describe("buscar restaurantes en la web (comensal)", () => {
   test("por defecto solo salen los restaurantes donde puedo comer", async ({ browser }) => {
     // Un restaurante publicado y verificado pero sin carta: «sin datos», nunca apto.
     const owner = await browser.newPage();
-    await owner.route("https://tile.openstreetmap.org/**", (route) => route.abort());
+    await useOfflineMap(owner);
     await registerOwner(owner);
     const { name, url } = await createRestaurant(owner);
     const form = restaurantForm(owner);
@@ -103,7 +105,7 @@ test.describe("buscar restaurantes en la web (comensal)", () => {
     await verifyRestaurantAsAdmin(url);
 
     const page = await browser.newPage();
-    await page.route("https://tile.openstreetmap.org/**", (route) => route.abort());
+    await useOfflineMap(page);
     await openSearch(page);
     await expect(
       page.getByText(/Puedes comer en \d+ de \d+ restaurantes, según lo declarado/),
@@ -120,13 +122,19 @@ test.describe("buscar restaurantes en la web (comensal)", () => {
   test("sin alergias guardadas no hay semáforo e invita a configurarlas", async ({ page }) => {
     await registerDiner(page);
     await page.goto("/comensal/restaurantes");
-    await expect(page.locator(".leaflet-container")).toBeVisible();
+    await expect(page.locator(".maplibregl-map")).toBeVisible();
     await expect(
       page.getByText(/Guarda tus alergias para ver en el mapa dónde puedes comer/),
     ).toBeVisible();
     await expect(
       restaurantList(page).getByRole("link", { name: /La Huerta Demo/ }),
     ).not.toContainText(/según lo declarado|Sin datos/);
+  });
+
+  test("el worker de MapLibre se sirve (sin él no se dibujan las calles)", async ({ request }) => {
+    const response = await request.get("/vendor/maplibre-gl-worker.mjs");
+    expect(response.status()).toBe(200);
+    expect(response.headers()["content-type"]).toMatch(/javascript/);
   });
 
   test("la ubicación solo se permite a la propia web", async ({ request }) => {
