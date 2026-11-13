@@ -106,6 +106,35 @@ export const es = {
     error: "No se ha podido completar la búsqueda. Revisa tu conexión e inténtalo de nuevo.",
     missing: "¿Echas en falta un restaurante?",
     request: "Pide que se dé de alta",
+    views: { list: "Lista", map: "Mapa" },
+    viewsLabel: "Ver como",
+    mapLabel: "Mapa de restaurantes",
+    noLocationOnMap: (n: number) =>
+      n === 1
+        ? "1 restaurante no tiene ubicación y solo sale en la lista."
+        : `${n} restaurantes no tienen ubicación y solo salen en la lista.`,
+    openMenu: "Ver la carta",
+    noProfile: "Guarda tus alergias para ver dónde puedes comer.",
+    configureProfile: "Configurar mis alergias",
+    canEatIn: (n: number, total: number) =>
+      n === 1
+        ? `Puedes comer en 1 de ${total} restaurantes, según lo declarado.`
+        : `Puedes comer en ${n} de ${total} restaurantes, según lo declarado.`,
+    showOthers: "Mostrar también los demás restaurantes",
+    declaredNotice:
+      "Se muestran los restaurantes con al menos un plato apto para tus alergias según la información declarada por el establecimiento. Confirma siempre con el establecimiento.",
+    suitableDishes: (n: number) =>
+      n === 1 ? "1 plato apto según lo declarado" : `${n} platos aptos según lo declarado`,
+    statuses: {
+      apto: "Con platos aptos",
+      posibles_trazas: "Solo platos con posibles trazas",
+      sin_datos: "Sin datos suficientes",
+      no_apto: "Ningún plato apto",
+    },
+    noneSuitable:
+      "Ningún restaurante de esta búsqueda tiene platos aptos para tus alergias según lo declarado. Activa «Mostrar también los demás restaurantes» para verlos todos.",
+    suitabilityError:
+      "No se ha podido comprobar dónde puedes comer. Se muestran todos los restaurantes.",
   },
   menu: {
     title: "Carta",
