@@ -268,15 +268,17 @@ export default function SearchScreen() {
       {byRestaurant !== null && state.kind === "results" ? (
         <View style={styles.summary}>
           <Text style={styles.summaryText}>{t.search.canEatIn(suitableCount, results.length)}</Text>
+          <Text style={styles.muted}>{t.search.declaredNotice}</Text>
+          <View style={styles.divider} />
           <View style={styles.switchRow}>
-            <Text style={styles.text}>{t.search.showOthers}</Text>
+            {/* flexShrink: el texto se parte en líneas y el interruptor queda dentro. */}
+            <Text style={styles.switchLabel}>{t.search.showOthers}</Text>
             <Switch
               value={showOthers}
               onValueChange={setShowOthers}
               accessibilityLabel={t.search.showOthers}
             />
           </View>
-          <Text style={styles.muted}>{t.search.declaredNotice}</Text>
         </View>
       ) : null}
 
@@ -446,7 +448,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  summaryText: { fontSize: fontSize.md, fontWeight: "700", color: colors.text },
+  summaryText: { fontSize: fontSize.lg, fontWeight: "700", color: colors.text },
+  divider: { height: 1, backgroundColor: colors.border, marginVertical: spacing.xs },
+  switchLabel: { flex: 1, flexShrink: 1, fontSize: fontSize.md, color: colors.text },
   switchRow: {
     flexDirection: "row",
     alignItems: "center",
