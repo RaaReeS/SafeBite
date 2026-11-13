@@ -20,6 +20,7 @@ test.describe("registro", () => {
 
   test("con un email que ya tiene cuenta avisa de que está registrada", async ({ page }) => {
     await page.goto("/registro");
+    await page.getByLabel("Soy un restaurante").check();
     await page.getByLabel("Email").fill(SEED_DINER.email);
     await page.getByLabel("Contraseña").fill(DEFAULT_PASSWORD);
     await page.getByLabel(/He leído y acepto/).check();
@@ -31,6 +32,7 @@ test.describe("registro", () => {
   test("sin confirmar el email no se puede entrar", async ({ page }) => {
     const email = uniqueEmail();
     await page.goto("/registro");
+    await page.getByLabel("Soy un restaurante").check();
     await page.getByLabel("Email").fill(email);
     await page.getByLabel("Contraseña").fill(DEFAULT_PASSWORD);
     await page.getByLabel(/He leído y acepto/).check();
@@ -47,6 +49,7 @@ test.describe("registro", () => {
     const email = uniqueEmail();
     const subject = "Confirma tu cuenta de SafeBite";
     await page.goto("/registro");
+    await page.getByLabel("Soy un restaurante").check();
     await page.getByLabel("Email").fill(email);
     await page.getByLabel("Contraseña").fill(DEFAULT_PASSWORD);
     await page.getByLabel(/He leído y acepto/).check();
@@ -78,6 +81,7 @@ test.describe("registro", () => {
     page,
   }) => {
     await page.goto("/registro");
+    await page.getByLabel("Soy un restaurante").check();
     await page.getByLabel("Email").fill(uniqueEmail());
     await page.getByLabel("Contraseña").fill(DEFAULT_PASSWORD);
     // Quita la validación del navegador para comprobar la del servidor.
@@ -88,6 +92,7 @@ test.describe("registro", () => {
 
   test("el servidor rechaza contraseñas de menos de 8 caracteres", async ({ page }) => {
     await page.goto("/registro");
+    await page.getByLabel("Soy un restaurante").check();
     await page.getByLabel("Email").fill(uniqueEmail());
     await page.getByLabel("Contraseña").fill("corta");
     await page.getByLabel(/He leído y acepto/).check();
@@ -142,12 +147,12 @@ test.describe("inicio de sesión", () => {
     await expect(page).toHaveURL(/localhost:3000\/panel$/);
   });
 
-  test("una cuenta de comensal no puede entrar al panel", async ({ page }) => {
+  test("una cuenta de comensal entra en su área y no en el panel", async ({ page }) => {
     await login(page, SEED_DINER.email, SEED_DINER.password);
-    await expect(page).toHaveURL(/\/sin-acceso$/);
-    await expect(
-      page.getByRole("heading", { name: "Esta cuenta no es de restaurante" }),
-    ).toBeVisible();
+    await expect(page).toHaveURL(/\/comensal$/);
+    await expect(page.getByRole("heading", { name: `Hola, ${SEED_DINER.email}` })).toBeVisible();
+    await page.goto("/panel");
+    await expect(page).toHaveURL(/\/comensal$/);
   });
 
   test("cerrar sesión impide volver al panel", async ({ page }) => {
@@ -165,19 +170,55 @@ test.describe("inicio de sesión", () => {
   });
 });
 
-test.describe("comensales registrados desde la app", () => {
-  test("si abren el enlace del email en el navegador, se les pide volver a la app", async ({
+test.describe("comensales", () => {
+  test("un comensal se registra en la web, confirma su email y entra en su área", async ({
+    page,
+  }) => {
+    const email = uniqueEmail("comensal");
+    await page.goto("/registro");
+    await page.getByLabel("Soy comensal").check();
+    await page.getByLabel("Email").fill(email);
+    await page.getByLabel("Contraseña").fill(DEFAULT_PASSWORD);
+    // Al elegir comensal no se habla de la responsabilidad sobre los alérgenos.
+    await expect(page.getByText(/soy responsable de la información de alérgenos/)).toHaveCount(0);
+    await page.getByLabel(/He leído y acepto/).check();
+    await page.getByRole("button", { name: "Crear cuenta" }).click();
+    await expect(page.getByRole("status")).toContainText("Te hemos enviado un email");
+
+    await page.goto(await getAuthLinkFromEmail(email, "Confirma tu cuenta de SafeBite"));
+    await expect(page).toHaveURL(/\/comensal\?aviso=cuenta$/);
+    await expect(page.getByRole("status")).toContainText("Tu cuenta está confirmada");
+    await page.goto("/panel");
+    await expect(page).toHaveURL(/\/comensal$/);
+  });
+
+  test("el servidor exige elegir el tipo de cuenta", async ({ page }) => {
+    await page.goto("/registro");
+    await page.getByLabel("Email").fill(uniqueEmail());
+    await page.getByLabel("Contraseña").fill(DEFAULT_PASSWORD);
+    await page.getByLabel(/He leído y acepto/).check();
+    await page.locator("form").evaluate((form) => form.setAttribute("novalidate", ""));
+    await page.getByRole("button", { name: "Crear cuenta" }).click();
+    await expect(page.getByText("Elige si eres comensal o restaurante.")).toBeVisible();
+  });
+
+  test("al responsable de un restaurante se le recuerda su responsabilidad", async ({ page }) => {
+    await page.goto("/registro");
+    await page.getByLabel("Soy un restaurante").check();
+    await expect(page.getByText(/soy responsable de la información de alérgenos/)).toBeVisible();
+  });
+
+  test("si un comensal de la app abre el enlace del email, entra en su área de la web", async ({
     page,
   }) => {
     const email = uniqueEmail("comensal");
     await signUpDinerViaApi(email);
     await page.goto(await getAuthLinkFromEmail(email, "Confirma tu cuenta de SafeBite"));
-    await expect(page).toHaveURL(/\/cuenta-confirmada\?motivo=cuenta$/);
-    await expect(page.getByRole("heading", { name: "Tu cuenta está confirmada" })).toBeVisible();
-    await expect(page.getByText("volver a la app de SafeBite")).toBeVisible();
+    await expect(page).toHaveURL(/\/comensal\?aviso=cuenta$/);
+    await expect(page.getByRole("status")).toContainText("Tu cuenta está confirmada");
   });
 
-  test("si cambian la contraseña con el enlace, terminan en la misma página", async ({ page }) => {
+  test("si cambian la contraseña con el enlace, terminan en su área", async ({ page }) => {
     const email = uniqueEmail("comensal");
     await signUpDinerViaApi(email);
     await page.goto(await getAuthLinkFromEmail(email, "Confirma tu cuenta de SafeBite"));
@@ -190,8 +231,8 @@ test.describe("comensales registrados desde la app", () => {
     await page.getByLabel("Contraseña nueva").fill("otra-contraseña-nueva");
     await page.getByLabel("Repite la contraseña").fill("otra-contraseña-nueva");
     await page.getByRole("button", { name: "Guardar contraseña" }).click();
-    await expect(page).toHaveURL(/\/cuenta-confirmada\?motivo=contrasena$/);
-    await expect(page.getByRole("heading", { name: "Contraseña actualizada" })).toBeVisible();
+    await expect(page).toHaveURL(/\/comensal\?aviso=contrasena$/);
+    await expect(page.getByRole("status")).toContainText("Tu contraseña se ha cambiado");
   });
 });
 

@@ -19,12 +19,6 @@ export const es = {
     login: "Entrar",
     register: "Crear cuenta de restaurante",
   },
-  noAccess: {
-    title: "Esta cuenta no es de restaurante",
-    description:
-      "El panel es solo para establecimientos. Si eres comensal, usa la app de SafeBite para consultar cartas filtradas por tus alergias.",
-    back: "Volver al inicio",
-  },
   auth: {
     email: "Email",
     password: "Contraseña",
@@ -47,15 +41,22 @@ export const es = {
         "Si la cuenta existe y aún no está confirmada, te hemos enviado un email nuevo. Revisa también la carpeta de spam.",
     },
     register: {
-      title: "Crear cuenta de restaurante",
+      title: "Crear cuenta",
       description:
-        "Con tu cuenta podrás publicar la carta de tu establecimiento con la información de alérgenos de cada plato.",
+        "Como comensal, guardarás tus alergias y verás las cartas filtradas para ti. Como restaurante, publicarás tu carta con la información de alérgenos de cada plato.",
+      accountType: "Tipo de cuenta",
+      diner: "Soy comensal",
+      dinerHint: "Busco dónde comer según mis alergias o las de mi familia.",
+      owner: "Soy un restaurante",
+      ownerHint: "Quiero publicar la carta de mi establecimiento.",
+      chooseType: "Elige si eres comensal o restaurante.",
       acceptTermsBefore: "He leído y acepto los",
       terms: "términos de uso",
       acceptTermsMiddle: "y la",
       privacy: "política de privacidad",
-      acceptTermsAfter:
-        ". Entiendo que soy responsable de la información de alérgenos que declare.",
+      acceptTermsAfter: ".",
+      ownerResponsibility:
+        " Entiendo que soy responsable de la información de alérgenos que declare.",
       submit: "Crear cuenta",
       pending: "Creando cuenta…",
       hasAccount: "¿Ya tienes cuenta?",
@@ -90,6 +91,22 @@ export const es = {
     draftNotice:
       "Borrador pendiente de revisión legal. Este texto se sustituirá por la versión definitiva antes del lanzamiento.",
     back: "Volver",
+  },
+  diner: {
+    navLabel: "Secciones de tu cuenta",
+    nav: {
+      home: "Inicio",
+      restaurants: "Restaurantes",
+      allergies: "Mis alergias",
+      account: "Mi cuenta",
+    },
+    home: {
+      greeting: (email: string) => `Hola, ${email}`,
+      intro:
+        "Guarda tus alergias una vez y consulta las cartas de los restaurantes filtradas para ti. También puedes usar la app de SafeBite en el móvil con la misma cuenta.",
+      accountConfirmed: "Tu cuenta está confirmada. ¡Bienvenido a SafeBite!",
+      passwordChanged: "Tu contraseña se ha cambiado.",
+    },
   },
   admin: {
     label: "Administración",
@@ -409,11 +426,6 @@ export const es = {
     notice:
       "Así verán tu carta tus clientes al escanear el QR. Los platos ocultos no aparecen. Prueba a seleccionar alergias para comprobar cómo se filtra.",
     notPublished: "Tu carta aún no está publicada: solo tú puedes verla aquí.",
-  },
-  accountConfirmed: {
-    title: "Tu cuenta está confirmada",
-    passwordTitle: "Contraseña actualizada",
-    backToApp: "Ya puedes volver a la app de SafeBite e iniciar sesión.",
   },
   notFound: {
     title: "Página no encontrada",

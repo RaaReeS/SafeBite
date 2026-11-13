@@ -86,6 +86,7 @@ export async function countEmails(to: string, subject: string): Promise<number> 
 /** Registra un dueño de restaurante y confirma su email. Deja la sesión abierta en /panel. */
 export async function registerOwner(page: Page, email = uniqueEmail()): Promise<string> {
   await page.goto("/registro");
+  await page.getByLabel("Soy un restaurante").check();
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Contraseña").fill(DEFAULT_PASSWORD);
   await page.getByLabel(/He leído y acepto/).check();

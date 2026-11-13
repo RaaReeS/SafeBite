@@ -45,7 +45,17 @@ export async function requireRestaurantOwner(): Promise<CurrentUser> {
   if (user === null) redirect("/login");
   // El administrador no tiene restaurantes: su sitio es la administración.
   if (user.role === "admin") redirect("/admin/restaurantes");
-  if (user.role !== "restaurant_owner") redirect("/sin-acceso");
+  // Los comensales tienen su propia área en la web.
+  if (user.role !== "restaurant_owner") redirect("/comensal");
+  return user;
+}
+
+/** Exige una sesión de comensal. Usar en cada página y Server Action de /comensal. */
+export async function requireDiner(): Promise<CurrentUser> {
+  const user = await getCurrentUser();
+  if (user === null) redirect("/login?next=/comensal");
+  if (user.role === "restaurant_owner") redirect("/panel");
+  if (user.role === "admin") redirect("/admin/restaurantes");
   return user;
 }
 
@@ -57,7 +67,7 @@ export async function requireAdminAccount(): Promise<CurrentUser> {
   const user = await getCurrentUser();
   if (user === null) redirect("/login?next=/admin");
   if (user.role === "restaurant_owner") redirect("/panel");
-  if (user.role !== "admin") redirect("/sin-acceso");
+  if (user.role !== "admin") redirect("/comensal");
   return user;
 }
 
