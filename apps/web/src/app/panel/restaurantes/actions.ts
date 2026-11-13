@@ -16,10 +16,24 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const UNIQUE_VIOLATION = "23505";
 
-/** Coordenadas a partir de la dirección (sin dirección no se ubica: la ciudad sola es imprecisa). */
-async function locate(address: string | null, city: string) {
-  const coordinates = address === null ? null : await geocodeAddress(address, city);
-  return { latitude: coordinates?.latitude ?? null, longitude: coordinates?.longitude ?? null };
+type Located =
+  | { ok: true; location: { latitude: number | null; longitude: number | null } }
+  | { ok: false; state: Pick<FormState, "fieldErrors" | "message"> };
+
+/**
+ * Ubica la dirección. Sin dirección no se ubica (la ciudad sola es imprecisa).
+ * Si hay dirección y no se encuentra en esa ciudad, o el servicio no responde,
+ * NO se guarda: un restaurante mal ubicado o sin ubicar no saldría en el mapa.
+ */
+async function locate(address: string | null, city: string): Promise<Located> {
+  const t = getMessages();
+  if (address === null) return { ok: true, location: { latitude: null, longitude: null } };
+  const result = await geocodeAddress(address, city);
+  if (result.status === "found") return { ok: true, location: result.coordinates };
+  if (result.status === "not_found") {
+    return { ok: false, state: { fieldErrors: { address: t.restaurant.addressNotFound(city) } } };
+  }
+  return { ok: false, state: { message: t.restaurant.geocoderUnavailable } };
 }
 
 const RLS_VIOLATION = "42501";
@@ -54,11 +68,14 @@ export async function createRestaurant(_prev: FormState, formData: FormData): Pr
     };
   }
 
+  const located = await locate(parsed.data.address, parsed.data.city);
+  if (!located.ok) return { status: "error", ...located.state, values: valuesOf(input) };
+
   const supabase = await createSupabaseServerClient();
   // owner_id lo pone la base de datos (default auth.uid()); el cliente no puede elegirlo.
   const { data, error } = await supabase
     .from("restaurants")
-    .insert({ ...parsed.data, ...(await locate(parsed.data.address, parsed.data.city)) })
+    .insert({ ...parsed.data, ...located.location })
     .select("id")
     .single();
 
@@ -120,10 +137,12 @@ export async function updateRestaurant(
   // Solo se vuelve a ubicar si cambia la dirección o la ciudad, o si aún no tiene ubicación.
   const addressChanged =
     current.address !== parsed.data.address || current.city !== parsed.data.city;
-  const location =
-    addressChanged || current.latitude === null
-      ? await locate(parsed.data.address, parsed.data.city)
-      : {};
+  let location = {};
+  if (addressChanged || current.latitude === null) {
+    const located = await locate(parsed.data.address, parsed.data.city);
+    if (!located.ok) return { status: "error", ...located.state, values: valuesOf(input) };
+    location = located.location;
+  }
 
   const { data, error } = await supabase
     .from("restaurants")
