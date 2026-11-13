@@ -6,7 +6,10 @@ import type { NextConfig } from "next";
  *   un dueño para pulsar "Publicar" o "Borrar" sin saberlo: clickjacking).
  * - El navegador no adivina tipos de archivo (nosniff).
  * - A otras webs solo se envía el dominio de origen, nunca la ruta.
- * - La web no usa cámara, micrófono, ubicación ni pagos: quedan desactivados.
+ * - Cámara, micrófono y pagos, desactivados. La ubicación solo para la propia
+ *   web («Cerca de mí» en la búsqueda; el navegador siempre pide permiso). Tiene
+ *   que ser en todas las páginas: al navegar dentro de la web, el navegador
+ *   mantiene la política de la primera página cargada.
  * HSTS ya lo añade Vercel.
  */
 const SECURITY_HEADERS = [
@@ -14,7 +17,7 @@ const SECURITY_HEADERS = [
   { key: "X-Frame-Options", value: "DENY" },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
+  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(self), payment=()" },
 ];
 
 const nextConfig: NextConfig = {

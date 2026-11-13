@@ -20,6 +20,9 @@ export default async function DinerHomePage({ searchParams }: PageProps<"/comens
       {aviso === "contrasena" ? <Alert tone="success">{t.diner.home.passwordChanged}</Alert> : null}
       <h1 className="text-2xl font-semibold">{t.diner.home.greeting(user.email ?? "")}</h1>
       <p className="text-zinc-700 dark:text-zinc-300">{t.diner.home.intro}</p>
+      <div>
+        <ButtonLink href="/comensal/restaurantes">{t.diner.search.open}</ButtonLink>
+      </div>
 
       <section className="flex flex-col gap-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
         <h2 className="text-lg font-semibold">{t.diner.home.allergiesTitle}</h2>

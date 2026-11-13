@@ -138,6 +138,26 @@ export const es = {
       saved: "Tu perfil de alergias se ha guardado.",
       saveError: "No se ha podido guardar. No se ha cambiado nada: inténtalo de nuevo.",
     },
+    search: {
+      title: "Restaurantes",
+      open: "Buscar restaurantes",
+      city: "Ciudad",
+      nearMe: "Cerca de mí",
+      locating: "Buscando tu ubicación…",
+      privacy:
+        "Tu ubicación solo se usa en tu navegador para ordenar por cercanía: no se guarda ni se envía.",
+      denied:
+        "Sin permiso de ubicación no podemos ordenar por cercanía. Puedes buscar por ciudad o permitirla en tu navegador.",
+      unavailable: "No se ha podido obtener tu ubicación. Inténtalo de nuevo o busca por ciudad.",
+      results: (n: number) => (n === 1 ? "1 restaurante" : `${n} restaurantes`),
+      byProximity: "de más cerca a más lejos",
+      noRestaurants: "Todavía no hay restaurantes publicados.",
+      noResultsCity: (city: string) => `No hemos encontrado restaurantes en «${city}».`,
+      mapLabel: "Mapa de restaurantes",
+      listLabel: "Lista de restaurantes",
+      openMenu: "Ver la carta",
+      youAreHere: "Estás aquí",
+    },
     account: {
       title: "Mi cuenta",
       signedInAs: (email: string) => `Has iniciado sesión como ${email}.`,

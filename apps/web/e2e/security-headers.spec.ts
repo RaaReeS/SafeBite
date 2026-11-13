@@ -5,7 +5,7 @@ const EXPECTED = {
   "x-frame-options": "DENY",
   "x-content-type-options": "nosniff",
   "referrer-policy": "strict-origin-when-cross-origin",
-  "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=()",
+  "permissions-policy": "camera=(), microphone=(), geolocation=(self), payment=()",
 };
 
 test.describe("cabeceras de seguridad", () => {
