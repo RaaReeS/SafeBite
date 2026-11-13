@@ -131,6 +131,23 @@ test.describe("buscar restaurantes en la web (comensal)", () => {
     ).not.toContainText(/según lo declarado|Sin datos/);
   });
 
+  test.describe("en modo oscuro", () => {
+    test.use({ colorScheme: "dark" });
+
+    test("la ficha de un restaurante en el mapa se lee (texto oscuro sobre blanco)", async ({
+      page,
+    }) => {
+      await openSearch(page);
+      const map = page.getByRole("region", { name: "Mapa de restaurantes" });
+      await map.getByRole("button", { name: "La Huerta Demo" }).click();
+      const popup = page.locator(".safebite-popup .maplibregl-popup-content");
+      await expect(popup).toContainText("La Huerta Demo");
+      await expect(popup).toHaveCSS("color", "rgb(24, 24, 27)");
+      await expect(popup).toHaveCSS("background-color", "rgb(255, 255, 255)");
+      if (process.env.CAPTURA) await popup.screenshot({ path: process.env.CAPTURA });
+    });
+  });
+
   test("el worker de MapLibre se sirve (sin él no se dibujan las calles)", async ({ request }) => {
     const response = await request.get("/vendor/maplibre-gl-worker.mjs");
     expect(response.status()).toBe(200);

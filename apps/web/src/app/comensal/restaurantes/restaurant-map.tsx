@@ -93,7 +93,11 @@ export default function RestaurantMap({
         restaurant.statusLabel === null
           ? ""
           : `<br>${escapeHtml(`${style.symbol} ${restaurant.statusLabel}`)}`;
-      const popup = new maplibregl.Popup({ offset: 14, closeButton: true }).setHTML(
+      const popup = new maplibregl.Popup({
+        offset: 14,
+        closeButton: true,
+        className: "safebite-popup",
+      }).setHTML(
         `<strong>${escapeHtml(restaurant.name)}</strong><br>${escapeHtml(restaurant.city)}${status}<br><a href="${href}" style="color:#047857;font-weight:600">${escapeHtml(t.diner.search.openMenu)}</a>`,
       );
       const marker = new maplibregl.Marker({
@@ -113,7 +117,11 @@ export default function RestaurantMap({
         element: dot("#3b82f6", "#ffffff", 18, t.diner.search.youAreHere),
       })
         .setLngLat(here)
-        .setPopup(new maplibregl.Popup({ offset: 12 }).setText(t.diner.search.youAreHere))
+        .setPopup(
+          new maplibregl.Popup({ offset: 12, className: "safebite-popup" }).setText(
+            t.diner.search.youAreHere,
+          ),
+        )
         .addTo(map);
       markersRef.current.push(marker);
       bounds.extend(here);

@@ -24,3 +24,22 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/*
+ * Ficha de un restaurante en el mapa (MapLibre). Tiene sus propios colores: con
+ * el modo oscuro, heredaría el texto claro de la página sobre el fondo blanco.
+ */
+.safebite-popup .maplibregl-popup-content {
+  background: #ffffff;
+  color: #18181b;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  padding: 0.75rem 2rem 0.75rem 0.875rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.2);
+}
+.safebite-popup .maplibregl-popup-close-button {
+  color: #3f3f46;
+  font-size: 1.25rem;
+  padding: 0 0.4rem;
+}
