@@ -126,3 +126,41 @@ export function restaurantSuitability<T extends MenuDishInput>(
   const status = BEST_FIRST.find((candidate) => counts[candidate] > 0) ?? "sin_datos";
   return { status, counts };
 }
+
+/** Plato publicado, tal como lo dan las vistas públicas, para resumir por restaurante. */
+export type PublishedDishRow = {
+  id: string;
+  restaurant_id: string;
+  category: string | null;
+  sort_order: number;
+};
+
+export type SuitabilitySummary = { status: FilterStatus; suitableDishes: number };
+
+/**
+ * Resume todos los restaurantes publicados frente a un perfil: para cada uno,
+ * restaurantSuitability con sus platos y las declaraciones de cada plato. Lo
+ * usan el mapa de la web y el de la app. Un restaurante sin platos no aparece
+ * (la interfaz lo trata como "sin datos").
+ */
+export function suitabilityByRestaurant(
+  dishes: readonly PublishedDishRow[],
+  declarations: readonly { dish_id: string; allergen: Allergen; level: AllergenLevel }[],
+  profile: readonly Allergen[],
+): Record<string, SuitabilitySummary> {
+  const byDish = groupDeclarationsByDish(declarations);
+  const byRestaurant = new Map<string, (MenuDishInput & { id: string })[]>();
+  for (const dish of dishes) {
+    const list = byRestaurant.get(dish.restaurant_id) ?? [];
+    // Un plato sin declaraciones queda con allergens = [] (el filtro: sin datos).
+    list.push({ ...dish, allergens: byDish.get(dish.id) ?? [] });
+    byRestaurant.set(dish.restaurant_id, list);
+  }
+
+  const summary: Record<string, SuitabilitySummary> = {};
+  for (const [restaurantId, restaurantDishes] of byRestaurant) {
+    const { status, counts } = restaurantSuitability(restaurantDishes, profile);
+    summary[restaurantId] = { status, suitableDishes: counts.apto };
+  }
+  return summary;
+}

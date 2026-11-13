@@ -2,8 +2,10 @@ import { fireEvent, screen, waitFor } from "@testing-library/react-native";
 import { renderRouter } from "expo-router/testing-library";
 import { Linking } from "react-native";
 import * as location from "@/lib/location";
+import * as profile from "@/lib/profile";
 import * as restaurants from "@/lib/restaurants";
 import type { RestaurantSummary } from "@/lib/restaurants";
+import * as suitability from "@/lib/suitability";
 import { fakeSession, mockAuth, resetSupabaseMock } from "@/test-utils/supabase-mock";
 
 jest.mock(
@@ -23,6 +25,7 @@ jest.mock("@/lib/restaurants", () => ({
   listRestaurantsWithLocation: jest.fn(),
   requestRestaurant: jest.fn(async () => undefined),
 }));
+jest.mock("@/lib/suitability", () => ({ getSuitability: jest.fn(async () => ({})) }));
 jest.mock("@/lib/location", () => ({
   getCurrentCoordinates: jest.fn(),
   // Por defecto, el usuario aún no ha dado permiso de ubicación.
@@ -31,6 +34,8 @@ jest.mock("@/lib/location", () => ({
 
 const mockRestaurants = jest.mocked(restaurants);
 const mockLocation = jest.mocked(location);
+const mockProfile = jest.mocked(profile);
+const mockSuitability = jest.mocked(suitability);
 
 // Puerta del Sol (Madrid) como posición del usuario.
 const SOL = { latitude: 40.4169, longitude: -3.7035 };
@@ -270,5 +275,98 @@ describe("pide un restaurante", () => {
     await fireEvent.changeText(screen.getByLabelText("Ciudad"), "Madrid");
     await press("Enviar solicitud");
     expect(await screen.findByText(message)).toBeTruthy();
+  });
+});
+
+describe("dónde puedo comer (lista y mapa)", () => {
+  const ALL = [NEAR, MID, FAR, NO_LOCATION];
+
+  beforeEach(() => {
+    mockRestaurants.listPublishedRestaurants.mockResolvedValue(ALL);
+    mockProfile.getHealthProfile.mockResolvedValue({
+      consentGivenAt: "2026-11-13T10:00:00Z",
+      allergens: ["gluten"],
+    });
+    mockSuitability.getSuitability.mockResolvedValue({
+      [NEAR.id]: { status: "apto", suitableDishes: 2 },
+      [MID.id]: { status: "no_apto", suitableDishes: 0 },
+      [FAR.id]: { status: "posibles_trazas", suitableDishes: 0 },
+    });
+  });
+
+  it("por defecto solo muestra donde hay algún plato apto, calculado con el perfil", async () => {
+    await renderSearch();
+    expect(
+      await screen.findByText("Puedes comer en 1 de 4 restaurantes, según lo declarado."),
+    ).toBeTruthy();
+    expect(mockSuitability.getSuitability).toHaveBeenCalledWith(["gluten"]);
+    expect(resultNames()).toEqual(["Cerca"]);
+    expect(screen.getByText(/2 platos aptos según lo declarado/)).toBeTruthy();
+  });
+
+  it("«Mostrar también los demás» enseña el resto con su estado (sin carta: sin datos)", async () => {
+    await renderSearch();
+    await screen.findByText(/Puedes comer en 1 de 4/);
+    await fireEvent(
+      screen.getByLabelText("Mostrar también los demás restaurantes"),
+      "valueChange",
+      true,
+    );
+    expect(resultNames()).toEqual(
+      ["Barcelona", "Cerca", "Media", "Sin ubicacion"].sort(
+        (a, b) => ALL.findIndex((r) => r.name === a) - ALL.findIndex((r) => r.name === b),
+      ),
+    );
+    expect(screen.getByText(/Ningún plato apto/)).toBeTruthy();
+    expect(screen.getByText(/Solo platos con posibles trazas/)).toBeTruthy();
+    expect(screen.getByText(/Sin datos suficientes/)).toBeTruthy();
+  });
+
+  it("si no puede comer en ninguno, lo explica", async () => {
+    mockSuitability.getSuitability.mockResolvedValue({});
+    await renderSearch();
+    expect(
+      await screen.findByText(/Ningún restaurante de esta búsqueda tiene platos aptos/),
+    ).toBeTruthy();
+  });
+
+  it("sin alergias guardadas no calcula nada e invita a configurarlas", async () => {
+    mockProfile.getHealthProfile.mockResolvedValue({ consentGivenAt: null, allergens: [] });
+    await renderSearch();
+    expect(
+      await screen.findByText("Guarda tus alergias para ver dónde puedes comer."),
+    ).toBeTruthy();
+    expect(mockSuitability.getSuitability).not.toHaveBeenCalled();
+    expect(resultNames()).toHaveLength(4);
+  });
+
+  it("si falla el cálculo, lo avisa y muestra todos", async () => {
+    mockSuitability.getSuitability.mockRejectedValue(new Error("sin red"));
+    await renderSearch();
+    expect(await screen.findByText(/No se ha podido comprobar dónde puedes comer/)).toBeTruthy();
+    expect(resultNames()).toHaveLength(4);
+  });
+
+  it("la pestaña Mapa muestra los restaurantes y abre su carta", async () => {
+    await renderSearch();
+    await screen.findByText(/Puedes comer en 1 de 4/);
+    await fireEvent.press(screen.getByRole("tab", { name: "Mapa" }));
+    expect(screen.getByTestId("restaurant-map")).toBeTruthy();
+    expect(screen.getByTestId("marker-Cerca")).toBeTruthy();
+    expect(screen.queryByTestId("marker-Media")).toBeNull();
+
+    await fireEvent(
+      screen.getByLabelText("Mostrar también los demás restaurantes"),
+      "valueChange",
+      true,
+    );
+    expect(screen.getByTestId("marker-Media")).toBeTruthy();
+    // El que no tiene ubicación no puede salir en el mapa: se avisa.
+    expect(
+      screen.getByText("1 restaurante no tiene ubicación y solo sale en la lista."),
+    ).toBeTruthy();
+
+    await fireEvent.press(screen.getByRole("button", { name: /Cerca.*Ver la carta/s }));
+    expect(screen).toHavePathname("/restaurante/cerca");
   });
 });
