@@ -24,11 +24,12 @@ import {
 import { AllergenIcon } from "@/components/allergen-icon";
 import { Button } from "@/components/button";
 import { Notice } from "@/components/notice";
+import { PeoplePicker } from "@/components/people-picker";
 import { Screen } from "@/components/screen";
 import { StatusBadge } from "@/components/status-badge";
 import { getMessages } from "@/i18n";
 import { getMenu, type Menu, type MenuDish } from "@/lib/menu";
-import { useHealthProfile } from "@/lib/use-health-profile";
+import { usePeople } from "@/lib/use-people";
 import { colors, fontSize, radius, spacing } from "@/theme";
 
 type LoadState =
@@ -38,12 +39,14 @@ export default function RestaurantMenuScreen() {
   const t = getMessages();
   const router = useRouter();
   const { slug = "" } = useLocalSearchParams<{ slug: string }>();
-  const { state: profileState } = useHealthProfile();
+  const people = usePeople();
+  const profileState = people.profileState;
   const [load, setLoad] = useState<LoadState>({ kind: "loading" });
 
-  // Alergias aplicadas a esta carta: parten del perfil guardado y se pueden
-  // ajustar aquí sin cambiar el perfil (p. ej. para pedir para otra persona).
-  const profileAllergens = profileState.status === "ready" ? profileState.profile.allergens : [];
+  // Alergias aplicadas a esta carta: parten de las de las personas elegidas
+  // («Yo» y la familia; por defecto, todas) y se pueden ajustar aquí sin
+  // cambiar ningún perfil.
+  const profileAllergens = people.allergens;
   const [selection, setSelection] = useState<Allergen[] | null>(null);
   const applied = selection ?? profileAllergens;
   const adjusted = selection !== null;
@@ -114,9 +117,25 @@ export default function RestaurantMenuScreen() {
       <Notice tone="warning" text={`${FILTER_SOURCE_NOTICE.es} ${FILTER_DISCLAIMER.es}`} />
 
       <View style={styles.panel}>
+        <PeoplePicker
+          label={t.people.forWhomMenu}
+          people={people.people}
+          selected={people.selected}
+          onToggle={(id) => {
+            people.toggle(id);
+            // Al cambiar de personas se parte de nuevo de sus perfiles.
+            setSelection(null);
+          }}
+        />
         {filtering ? (
           <>
-            <Text style={styles.text}>{adjusted ? t.menu.adjusted : t.menu.usingProfile}</Text>
+            <Text style={styles.text}>
+              {adjusted
+                ? t.menu.adjusted
+                : (people.people?.length ?? 0) > 1
+                  ? t.people.usingProfileFor(people.chosenNames.join(", "))
+                  : t.menu.usingProfile}
+            </Text>
             <Text style={styles.summary} accessibilityLiveRegion="polite">
               {t.menu.summary(counts)}
             </Text>

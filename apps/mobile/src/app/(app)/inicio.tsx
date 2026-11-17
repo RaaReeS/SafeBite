@@ -60,6 +60,7 @@ export default function HomeScreen() {
         ) : null}
       </View>
 
+      <Button label={t.family.open} variant="secondary" onPress={() => router.push("/familia")} />
       <Button label={t.home.account} variant="link" onPress={() => router.push("/cuenta")} />
       <Text style={styles.disclaimer}>{FILTER_DISCLAIMER.es}</Text>
     </Screen>

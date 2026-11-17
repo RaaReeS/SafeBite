@@ -263,6 +263,53 @@ export const es = {
     saved: "Tu perfil de alergias se ha guardado.",
     saveError: "No se ha podido guardar. No se ha cambiado nada: inténtalo de nuevo.",
   },
+  people: {
+    me: "Yo",
+    forWhomMenu: "¿Para quién es?",
+    forWhomSearch: "¿Para quién buscas?",
+    forWhomProduct: "¿Para quién es?",
+    usingProfileFor: (names: string) => `Filtrada para: ${names}.`,
+  },
+  family: {
+    title: "Mi familia",
+    open: "Mi familia",
+    description:
+      "Guarda las alergias de las personas con las que comes y filtra cartas, mapa y productos para todos a la vez.",
+    consentRequired:
+      "Antes de guardar las alergias de tu familia, configura las tuyas y da tu consentimiento para guardar datos de salud.",
+    configure: "Configurar mis alergias",
+    empty: "Aún no has añadido a nadie.",
+    noAllergies: "Sin alergias marcadas",
+    usage: (n: number, limit: number) => `${n} de ${limit} familiares en tu plan.`,
+    addTitle: "Añadir a alguien",
+    name: "Nombre o apodo",
+    nameHint: "Por ejemplo, «Lucía» o «Abuelo».",
+    nameInvalid: "Escribe un nombre de 1 a 40 caracteres.",
+    guardian:
+      "Soy su madre, padre o tutor legal, o tengo su permiso para guardar sus alergias en SafeBite.",
+    guardianRequired:
+      "Para guardar las alergias de otra persona necesitas su permiso o ser su tutor.",
+    add: "Añadir",
+    limitReached:
+      "Has llegado al número de familiares de tu plan. El plan premium permitirá hasta 10.",
+    freeFull:
+      "Con el plan gratis puedes guardar 1 familiar. El plan premium, con hasta 10, estará disponible próximamente.",
+    premiumFull: "Has llegado al máximo de 10 familiares.",
+    error: "No se ha podido completar la acción. Inténtalo de nuevo.",
+    loadError: "No se ha podido cargar tu familia. Revisa tu conexión.",
+    retry: "Reintentar",
+    allergiesOf: (name: string) => `Alergias de ${name}`,
+    allergiesSaved: "Sus alergias se han guardado.",
+    save: "Guardar",
+    renameTitle: "Cambiar el nombre",
+    rename: "Guardar nombre",
+    renamed: "Nombre guardado.",
+    delete: "Quitar de mi familia",
+    deleteTitle: (name: string) => `¿Quitar a ${name}?`,
+    deleteMessage: "Se borrarán su nombre y sus alergias. No se puede deshacer.",
+    cancel: "Cancelar",
+    notFound: "Este familiar ya no está en tu familia.",
+  },
   account: {
     title: "Mi cuenta",
     signedInAs: (email: string) => `Has iniciado sesión como ${email}.`,
