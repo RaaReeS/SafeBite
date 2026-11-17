@@ -27,6 +27,7 @@ export {
   type FilterStatusLabel,
 } from "./filter/labels";
 export {
+  buildAllergenTable,
   buildMenu,
   countByStatus,
   groupDeclarationsByDish,
@@ -35,6 +36,8 @@ export {
   type PublishedDishRow,
   type RestaurantSuitability,
   type SuitabilitySummary,
+  type AllergenTableRow,
+  type AllergenTableSection,
   type EvaluatedDish,
   type MenuDishInput,
   type MenuSection,

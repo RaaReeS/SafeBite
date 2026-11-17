@@ -446,6 +446,41 @@ export const es = {
         ? "1 plato tiene alérgenos sin declarar."
         : `${n} platos tienen alérgenos sin declarar.`,
   },
+  allergenTable: {
+    title: "Información sobre alérgenos",
+    download: "Descargar tabla de alérgenos (PDF)",
+    description:
+      "Una tabla con todos tus platos activos y los 14 alérgenos, para colgar en el local o enseñar si te la piden.",
+    updated: (date: string) => `Actualizada el ${date}.`,
+    dish: "Plato",
+    uncategorized: "Otros platos",
+    empty: "La carta todavía no tiene platos activos.",
+    legend: {
+      contains: "Contiene",
+      may_contain: "Puede contener trazas",
+      free_from: "No contiene",
+      undeclared: "Sin declarar: consulta al personal",
+    },
+    disclaimer:
+      "Información sobre alérgenos (Reglamento (UE) n.º 1169/2011) declarada por el establecimiento. Si tienes alguna alergia o intolerancia, consulta siempre al personal antes de pedir.",
+    page: (page: number, total: number) => `Página ${page} de ${total}`,
+    shortLabels: {
+      gluten: "Gluten",
+      crustaceans: "Crustáceos",
+      eggs: "Huevos",
+      fish: "Pescado",
+      peanuts: "Cacahuetes",
+      soybeans: "Soja",
+      milk: "Lácteos",
+      nuts: "Frutos de cáscara",
+      celery: "Apio",
+      mustard: "Mostaza",
+      sesame: "Sésamo",
+      sulphites: "Sulfitos",
+      lupin: "Altramuces",
+      molluscs: "Moluscos",
+    },
+  },
   qr: {
     title: "Código QR",
     manage: "Código QR de la carta",

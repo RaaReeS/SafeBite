@@ -4,7 +4,7 @@ import { Alert } from "@/components/ui/alert";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { PublishedBadge } from "@/components/status-badge";
 import { VerificationBadge, VerificationNotice } from "@/components/verification-status";
-import { Button, ButtonLink } from "@/components/ui/button";
+import { Button, ButtonLink, buttonClasses } from "@/components/ui/button";
 import { env } from "@/env";
 import { isValidCoordinates } from "@safebite/core";
 import { mapUrl } from "@/lib/geocoding";
@@ -46,6 +46,21 @@ export default async function RestaurantPage({ params }: PageProps<"/panel/resta
           {t.preview.manage}
         </ButtonLink>
       </div>
+
+      <section className="flex flex-col gap-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+        <h2 className="text-lg font-semibold">{t.allergenTable.title}</h2>
+        <p className="text-sm text-zinc-700 dark:text-zinc-300">{t.allergenTable.description}</p>
+        <div>
+          {/* Enlace normal (no <Link>): es una descarga, no una página. */}
+          <a
+            href={`/panel/restaurantes/${restaurant.id}/alergenos/pdf`}
+            download
+            className={buttonClasses("secondary")}
+          >
+            {t.allergenTable.download}
+          </a>
+        </div>
+      </section>
 
       <section className="flex flex-col gap-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
         <h2 className="text-lg font-semibold">{t.restaurant.publication}</h2>
