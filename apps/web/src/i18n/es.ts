@@ -7,6 +7,8 @@ export const es = {
   common: {
     appName: "SafeBite",
     forRestaurants: "para restaurantes",
+    tagline:
+      "Cartas y productos filtrados según tus alergias, con lo que declara cada establecimiento.",
     sourceNotice: "Información declarada por el establecimiento.",
     genericError: "Ha ocurrido un error inesperado. Inténtalo de nuevo en unos minutos.",
     tooManyAttempts: "Demasiados intentos. Espera unos minutos antes de volver a probar.",
@@ -105,6 +107,12 @@ export const es = {
       allergies: "Mis alergias",
       family: "Mi familia",
       account: "Mi cuenta",
+    },
+    /** Barra inferior del móvil (poco espacio). */
+    navShort: {
+      allergies: "Alergias",
+      family: "Familia",
+      account: "Cuenta",
     },
     home: {
       greeting: (email: string) => `Hola, ${email}`,
@@ -363,6 +371,7 @@ export const es = {
     },
   },
   panel: {
+    area: "Restaurantes",
     title: "Mis restaurantes",
     empty: "Aún no tienes ningún restaurante.",
     newRestaurant: "Nuevo restaurante",

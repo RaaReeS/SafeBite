@@ -1,15 +1,11 @@
-import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
-import { Button } from "@/components/ui/button";
+import { AppShell, PageSkeleton } from "@/components/app-shell/app-shell";
 import { getMessages } from "@/i18n";
 import { requireAdmin } from "@/lib/auth";
-import { signOut } from "@/app/(auth)/actions";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
-  const t = getMessages();
-
   return (
-    <Suspense fallback={<p className="px-4 py-8">{t.common.loading}</p>}>
+    <Suspense fallback={<PageSkeleton padded />}>
       <AdminShell>{children}</AdminShell>
     </Suspense>
   );
@@ -25,42 +21,18 @@ async function AdminShell({ children }: { children: ReactNode }) {
   const user = await requireAdmin();
 
   return (
-    <div className="flex flex-1 flex-col">
-      <header className="border-b border-zinc-200 dark:border-zinc-800">
-        <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-4 py-3">
-          <Link
-            href="/admin/solicitudes"
-            className="font-semibold text-emerald-700 dark:text-emerald-400"
-          >
-            {t.common.appName} · {t.admin.label}
-          </Link>
-          <div className="flex items-center gap-3 text-sm">
-            <span className="hidden text-zinc-600 sm:inline dark:text-zinc-400">{user.email}</span>
-            <form action={signOut}>
-              <Button type="submit" variant="secondary">
-                {t.auth.logout}
-              </Button>
-            </form>
-          </div>
-        </div>
-        <nav
-          aria-label={t.admin.navLabel}
-          className="mx-auto flex w-full max-w-5xl gap-4 px-4 pb-3 text-sm"
-        >
-          <Link href="/admin/restaurantes" className="underline">
-            {t.admin.nav.restaurants}
-          </Link>
-          <Link href="/admin/solicitudes" className="underline">
-            {t.admin.nav.requests}
-          </Link>
-          <Link href="/admin/planes" className="underline">
-            {t.admin.nav.plans}
-          </Link>
-        </nav>
-      </header>
-      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-4 py-8">
-        <Suspense fallback={<p>{t.common.loading}</p>}>{children}</Suspense>
-      </main>
-    </div>
+    <AppShell
+      homeHref="/admin/solicitudes"
+      area={t.admin.label}
+      email={user.email}
+      navLabel={t.admin.navLabel}
+      nav={[
+        { href: "/admin/restaurantes", label: t.admin.nav.restaurants, icon: "storefront" },
+        { href: "/admin/solicitudes", label: t.admin.nav.requests, icon: "list" },
+        { href: "/admin/planes", label: t.admin.nav.plans, icon: "star" },
+      ]}
+    >
+      {children}
+    </AppShell>
   );
 }
