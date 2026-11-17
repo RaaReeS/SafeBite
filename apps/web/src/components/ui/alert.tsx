@@ -1,25 +1,25 @@
 import type { ReactNode } from "react";
+import { Icon, type IconName } from "@/components/ui/icon";
 
 type Tone = "info" | "success" | "warning" | "error";
 
-const TONE_CLASSES: Record<Tone, string> = {
-  info: "border-sky-300 bg-sky-50 text-sky-950 dark:border-sky-800 dark:bg-sky-950 dark:text-sky-100",
-  success:
-    "border-emerald-300 bg-emerald-50 text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-100",
-  warning:
-    "border-amber-300 bg-amber-50 text-amber-950 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100",
-  error:
-    "border-red-300 bg-red-50 text-red-950 dark:border-red-800 dark:bg-red-950 dark:text-red-100",
+const TONES: Record<Tone, { className: string; icon: IconName }> = {
+  info: { className: "bg-info-bg text-info-fg", icon: "info" },
+  success: { className: "bg-success-bg text-success-fg", icon: "checkmark-circle" },
+  warning: { className: "bg-warning-bg text-warning-fg", icon: "warning" },
+  error: { className: "bg-danger-soft text-danger", icon: "alert" },
 };
 
 export function Alert({ tone = "info", children }: { tone?: Tone; children: ReactNode }) {
+  const { className, icon } = TONES[tone];
   // Los errores se anuncian de inmediato a los lectores de pantalla.
   return (
     <div
       role={tone === "error" ? "alert" : "status"}
-      className={`rounded-md border px-4 py-3 text-sm ${TONE_CLASSES[tone]}`}
+      className={`flex items-start gap-3 rounded-2xl px-4 py-3 text-sm font-medium ${className}`}
     >
-      {children}
+      <Icon name={icon} className="mt-0.5 size-5" />
+      <div className="min-w-0 flex-1">{children}</div>
     </div>
   );
 }

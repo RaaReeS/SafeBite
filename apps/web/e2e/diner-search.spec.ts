@@ -134,7 +134,7 @@ test.describe("buscar restaurantes en la web (comensal)", () => {
   test.describe("en modo oscuro", () => {
     test.use({ colorScheme: "dark" });
 
-    test("la ficha de un restaurante en el mapa se lee (texto oscuro sobre blanco)", async ({
+    test("la ficha de un restaurante en el mapa usa los colores oscuros del tema", async ({
       page,
     }) => {
       await openSearch(page);
@@ -142,8 +142,9 @@ test.describe("buscar restaurantes en la web (comensal)", () => {
       await map.getByRole("button", { name: "La Huerta Demo" }).click();
       const popup = page.locator(".safebite-popup .maplibregl-popup-content");
       await expect(popup).toContainText("La Huerta Demo");
-      await expect(popup).toHaveCSS("color", "rgb(24, 24, 27)");
-      await expect(popup).toHaveCSS("background-color", "rgb(255, 255, 255)");
+      // --fg y --card del modo oscuro (contraste comprobado en theme.spec.ts).
+      await expect(popup).toHaveCSS("color", "rgb(238, 242, 240)");
+      await expect(popup).toHaveCSS("background-color", "rgb(20, 28, 25)");
       if (process.env.CAPTURA) await popup.screenshot({ path: process.env.CAPTURA });
     });
   });

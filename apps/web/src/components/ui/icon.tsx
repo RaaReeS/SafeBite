@@ -1,0 +1,98 @@
+import type { IconType } from "react-icons";
+import {
+  IoAdd,
+  IoAddCircleOutline,
+  IoAlertCircle,
+  IoArrowBack,
+  IoBarcodeOutline,
+  IoCallOutline,
+  IoCheckmark,
+  IoCheckmarkCircle,
+  IoChevronForward,
+  IoCloseCircleOutline,
+  IoCreateOutline,
+  IoDocumentTextOutline,
+  IoEyeOutline,
+  IoHomeOutline,
+  IoInformationCircle,
+  IoKeyOutline,
+  IoListOutline,
+  IoLocationOutline,
+  IoLogOutOutline,
+  IoMailOutline,
+  IoMapOutline,
+  IoMedicalOutline,
+  IoNavigate,
+  IoPeopleOutline,
+  IoPersonOutline,
+  IoPrintOutline,
+  IoQrCodeOutline,
+  IoRefresh,
+  IoRestaurantOutline,
+  IoScanOutline,
+  IoSearch,
+  IoSend,
+  IoSettingsOutline,
+  IoShieldCheckmark,
+  IoShieldCheckmarkOutline,
+  IoStarOutline,
+  IoStorefrontOutline,
+  IoTimeOutline,
+  IoTrashOutline,
+  IoWarning,
+} from "react-icons/io5";
+
+/** Los mismos iconos que la app (Ionicons 5), por nombre. */
+const ICONS = {
+  add: IoAdd,
+  "add-circle": IoAddCircleOutline,
+  alert: IoAlertCircle,
+  back: IoArrowBack,
+  barcode: IoBarcodeOutline,
+  call: IoCallOutline,
+  checkmark: IoCheckmark,
+  "checkmark-circle": IoCheckmarkCircle,
+  "chevron-forward": IoChevronForward,
+  close: IoCloseCircleOutline,
+  edit: IoCreateOutline,
+  document: IoDocumentTextOutline,
+  eye: IoEyeOutline,
+  home: IoHomeOutline,
+  info: IoInformationCircle,
+  key: IoKeyOutline,
+  list: IoListOutline,
+  location: IoLocationOutline,
+  logout: IoLogOutOutline,
+  mail: IoMailOutline,
+  map: IoMapOutline,
+  medical: IoMedicalOutline,
+  navigate: IoNavigate,
+  people: IoPeopleOutline,
+  person: IoPersonOutline,
+  print: IoPrintOutline,
+  qr: IoQrCodeOutline,
+  refresh: IoRefresh,
+  restaurant: IoRestaurantOutline,
+  scan: IoScanOutline,
+  search: IoSearch,
+  send: IoSend,
+  settings: IoSettingsOutline,
+  shield: IoShieldCheckmark,
+  "shield-outline": IoShieldCheckmarkOutline,
+  star: IoStarOutline,
+  storefront: IoStorefrontOutline,
+  time: IoTimeOutline,
+  trash: IoTrashOutline,
+  warning: IoWarning,
+} satisfies Record<string, IconType>;
+
+export type IconName = keyof typeof ICONS;
+
+/**
+ * Icono decorativo: siempre va junto a un texto que dice lo mismo, así que se
+ * oculta a los lectores de pantalla.
+ */
+export function Icon({ name, className = "size-5" }: { name: IconName; className?: string }) {
+  const Component = ICONS[name];
+  return <Component aria-hidden="true" focusable="false" className={`shrink-0 ${className}`} />;
+}
