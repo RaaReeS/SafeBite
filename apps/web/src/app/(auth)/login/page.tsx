@@ -13,7 +13,7 @@ export default function LoginPage({ searchParams }: PageProps<"/login">) {
 
   return (
     <>
-      <h1 className="text-2xl font-semibold">{t.auth.login.title}</h1>
+      <h1 className="text-3xl font-bold tracking-tight">{t.auth.login.title}</h1>
       <Suspense fallback={<p>{t.common.loading}</p>}>
         <LoginContent searchParams={searchParams} />
       </Suspense>

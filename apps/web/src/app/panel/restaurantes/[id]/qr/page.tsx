@@ -17,14 +17,17 @@ export default async function QrPage({ params }: PageProps<"/panel/restaurantes/
 
   return (
     <>
-      <Link href={`/panel/restaurantes/${restaurant.id}`} className="text-sm underline">
+      <Link
+        href={`/panel/restaurantes/${restaurant.id}`}
+        className="inline-flex min-h-11 w-fit items-center text-sm font-semibold text-primary-text hover:underline"
+      >
         {t.qr.backToRestaurant}
       </Link>
       <div>
-        <h1 className="text-2xl font-semibold">{t.qr.title}</h1>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">{restaurant.name}</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t.qr.title}</h1>
+        <p className="text-sm text-muted">{restaurant.name}</p>
       </div>
-      <p className="text-zinc-700 dark:text-zinc-300">{t.qr.description}</p>
+      <p className="text-muted">{t.qr.description}</p>
       {restaurant.published ? null : <Alert tone="warning">{t.qr.notPublished}</Alert>}
       {restaurant.published && restaurant.verification_status !== "verified" ? (
         <Alert tone="warning">{t.verification.notVisibleYet}</Alert>
@@ -37,7 +40,7 @@ export default async function QrPage({ params }: PageProps<"/panel/restaurantes/
           alt={t.qr.imageAlt(restaurant.name)}
           width={240}
           height={240}
-          className="rounded-lg border border-zinc-200 bg-white dark:border-zinc-800"
+          className="rounded-2xl bg-card shadow-card"
         />
         <div className="flex flex-col gap-3">
           <p className="text-sm">
@@ -53,7 +56,7 @@ export default async function QrPage({ params }: PageProps<"/panel/restaurantes/
           </div>
         </div>
       </div>
-      <p className="text-sm text-zinc-600 dark:text-zinc-400">{t.qr.slugWarning}</p>
+      <p className="text-sm text-muted">{t.qr.slugWarning}</p>
     </>
   );
 }

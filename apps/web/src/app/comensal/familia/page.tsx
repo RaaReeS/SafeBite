@@ -23,8 +23,8 @@ export default async function FamilyPage({ searchParams }: PageProps<"/comensal/
   return (
     <>
       <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-semibold">{t.family.title}</h1>
-        <p className="text-zinc-700 dark:text-zinc-300">{t.family.description}</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t.family.title}</h1>
+        <p className="text-muted">{t.family.description}</p>
       </div>
       {aviso === "borrado" ? <Alert tone="success">{t.family.deleted}</Alert> : null}
 
@@ -38,17 +38,17 @@ export default async function FamilyPage({ searchParams }: PageProps<"/comensal/
       ) : (
         <>
           {family.members.length === 0 ? (
-            <p className="text-zinc-700 dark:text-zinc-300">{t.family.empty}</p>
+            <p className="text-muted">{t.family.empty}</p>
           ) : (
             <ul
               aria-label={t.family.title}
-              className="flex flex-col divide-y divide-zinc-200 rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800"
+              className="flex flex-col divide-y divide-line rounded-2xl bg-card px-5 shadow-card"
             >
               {family.members.map((member) => (
                 <li key={member.id} className="flex items-center justify-between gap-4 px-4 py-3">
                   <span className="flex flex-col">
                     <span className="font-medium">{member.name}</span>
-                    <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                    <span className="text-sm text-muted">
                       {member.allergens.length === 0
                         ? t.family.noAllergies
                         : member.allergens.map((a) => ALLERGEN_LABELS.es[a]).join(", ")}
@@ -66,7 +66,7 @@ export default async function FamilyPage({ searchParams }: PageProps<"/comensal/
             </ul>
           )}
 
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="text-sm text-muted">
             {t.family.usage(family.members.length, family.limit)}
           </p>
           {canAdd ? (

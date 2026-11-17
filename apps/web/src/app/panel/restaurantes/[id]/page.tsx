@@ -23,11 +23,14 @@ export default async function RestaurantPage({ params }: PageProps<"/panel/resta
 
   return (
     <>
-      <Link href="/panel" className="text-sm underline">
+      <Link
+        href="/panel"
+        className="inline-flex min-h-11 w-fit items-center text-sm font-semibold text-primary-text hover:underline"
+      >
         {t.panel.backToList}
       </Link>
       <div className="flex flex-wrap items-center gap-3">
-        <h1 className="text-2xl font-semibold">{restaurant.name}</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{restaurant.name}</h1>
         <PublishedBadge published={restaurant.published} />
         <VerificationBadge status={restaurant.verification_status} />
       </div>
@@ -47,9 +50,9 @@ export default async function RestaurantPage({ params }: PageProps<"/panel/resta
         </ButtonLink>
       </div>
 
-      <section className="flex flex-col gap-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+      <section className="flex flex-col gap-3 rounded-2xl bg-card p-5 shadow-card">
         <h2 className="text-lg font-semibold">{t.allergenTable.title}</h2>
-        <p className="text-sm text-zinc-700 dark:text-zinc-300">{t.allergenTable.description}</p>
+        <p className="text-sm text-muted">{t.allergenTable.description}</p>
         <div>
           {/* Enlace normal (no <Link>): es una descarga, no una página. */}
           <a
@@ -62,9 +65,9 @@ export default async function RestaurantPage({ params }: PageProps<"/panel/resta
         </div>
       </section>
 
-      <section className="flex flex-col gap-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+      <section className="flex flex-col gap-3 rounded-2xl bg-card p-5 shadow-card">
         <h2 className="text-lg font-semibold">{t.restaurant.publication}</h2>
-        <p className="text-sm text-zinc-700 dark:text-zinc-300">
+        <p className="text-sm text-muted">
           {restaurant.published ? t.restaurant.publishedInfo : t.restaurant.draftInfo}
         </p>
         <form action={setRestaurantPublished.bind(null, restaurant.id, !restaurant.published)}>
@@ -74,7 +77,7 @@ export default async function RestaurantPage({ params }: PageProps<"/panel/resta
         </form>
       </section>
 
-      <section className="flex flex-col gap-2 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+      <section className="flex flex-col gap-2 rounded-2xl bg-card p-5 shadow-card">
         <h2 className="text-lg font-semibold">{t.restaurant.location}</h2>
         <RestaurantLocation restaurant={restaurant} />
       </section>
@@ -90,9 +93,9 @@ export default async function RestaurantPage({ params }: PageProps<"/panel/resta
         />
       </section>
 
-      <section className="flex flex-col gap-3 rounded-lg border border-red-200 p-4 dark:border-red-900">
+      <section className="flex flex-col gap-3 rounded-2xl bg-card p-5 shadow-card ring-1 ring-danger/30">
         <h2 className="text-lg font-semibold">{t.restaurant.dangerZone}</h2>
-        <p className="text-sm text-zinc-700 dark:text-zinc-300">{t.restaurant.deleteDescription}</p>
+        <p className="text-sm text-muted">{t.restaurant.deleteDescription}</p>
         <div>
           <ConfirmDialog
             trigger={t.restaurant.delete}
@@ -114,7 +117,7 @@ function RestaurantLocation({ restaurant }: { restaurant: MyRestaurant }) {
   if (isValidCoordinates(restaurant)) {
     return (
       <>
-        <p className="text-sm text-zinc-700 dark:text-zinc-300">{t.restaurant.locationFound}</p>
+        <p className="text-sm text-muted">{t.restaurant.locationFound}</p>
         <p className="text-sm">
           <a
             href={mapUrl(restaurant)}
@@ -125,7 +128,7 @@ function RestaurantLocation({ restaurant }: { restaurant: MyRestaurant }) {
             {t.restaurant.locationCheck}
           </a>
         </p>
-        <p className="text-xs text-zinc-500">{t.restaurant.locationAttribution}</p>
+        <p className="text-xs text-muted">{t.restaurant.locationAttribution}</p>
       </>
     );
   }

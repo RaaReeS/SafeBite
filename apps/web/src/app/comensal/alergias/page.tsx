@@ -12,7 +12,7 @@ export default async function AllergiesPage() {
 
   return (
     <>
-      <h1 className="text-2xl font-semibold">{t.diner.allergies.title}</h1>
+      <h1 className="text-3xl font-bold tracking-tight">{t.diner.allergies.title}</h1>
       {profile.consentGivenAt === null ? (
         <ConsentForm action={giveHealthConsent} />
       ) : (

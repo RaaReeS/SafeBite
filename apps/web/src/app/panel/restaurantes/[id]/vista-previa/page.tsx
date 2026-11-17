@@ -18,7 +18,10 @@ export default async function MenuPreviewPage({
 
   return (
     <>
-      <Link href={`/panel/restaurantes/${restaurant.id}`} className="text-sm underline">
+      <Link
+        href={`/panel/restaurantes/${restaurant.id}`}
+        className="inline-flex min-h-11 w-fit items-center text-sm font-semibold text-primary-text hover:underline"
+      >
         {t.preview.backToRestaurant}
       </Link>
       <h1 className="sr-only">{t.preview.title}</h1>
@@ -27,7 +30,7 @@ export default async function MenuPreviewPage({
       {restaurant.published && restaurant.verification_status !== "verified" ? (
         <Alert tone="warning">{t.verification.notVisibleYet}</Alert>
       ) : null}
-      <div className="rounded-lg border border-dashed border-zinc-300 dark:border-zinc-700">
+      <div className="rounded-2xl border-2 border-dashed border-line">
         <MenuView restaurant={restaurant} dishes={dishes} />
       </div>
     </>

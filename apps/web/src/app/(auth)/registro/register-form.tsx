@@ -38,7 +38,7 @@ export function RegisterForm() {
         ).map(([value, label, hint]) => (
           <label
             key={value}
-            className="flex items-start gap-2 rounded-md border border-zinc-300 p-3 has-checked:border-emerald-700 dark:border-zinc-700"
+            className="flex cursor-pointer items-start gap-3 rounded-2xl bg-card p-4 shadow-card has-checked:bg-success-bg has-checked:ring-2 has-checked:ring-primary has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary-text"
           >
             <input
               type="radio"
@@ -47,16 +47,16 @@ export function RegisterForm() {
               required
               checked={accountType === value}
               onChange={() => setAccountType(value)}
-              className="mt-1 size-4 accent-emerald-700"
+              className="mt-1 size-4 accent-primary"
             />
             <span className="flex flex-col">
               <span className="text-sm font-medium">{label}</span>
-              <span className="text-xs text-zinc-600 dark:text-zinc-400">{hint}</span>
+              <span className="text-xs text-muted">{hint}</span>
             </span>
           </label>
         ))}
         {typeError ? (
-          <p id={typeErrorId} className="text-xs font-medium text-red-700 dark:text-red-400">
+          <p id={typeErrorId} className="text-sm font-semibold text-danger">
             {typeError}
           </p>
         ) : null}
@@ -89,7 +89,7 @@ export function RegisterForm() {
             required
             aria-invalid={termsError ? true : undefined}
             aria-describedby={termsError ? `${termsId}-error` : undefined}
-            className="mt-1 size-4 accent-emerald-700"
+            className="mt-1 size-4 accent-primary"
           />
           <label htmlFor={termsId} className="text-sm">
             {t.auth.register.acceptTermsBefore}{" "}
@@ -105,7 +105,7 @@ export function RegisterForm() {
           </label>
         </div>
         {termsError ? (
-          <p id={`${termsId}-error`} className="text-xs font-medium text-red-700 dark:text-red-400">
+          <p id={`${termsId}-error`} className="text-sm font-semibold text-danger">
             {termsError}
           </p>
         ) : null}

@@ -11,11 +11,14 @@ export default function ForgotPasswordPage() {
   return (
     <>
       <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-semibold">{t.auth.forgot.title}</h1>
-        <p className="text-sm text-zinc-700 dark:text-zinc-300">{t.auth.forgot.description}</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t.auth.forgot.title}</h1>
+        <p className="text-sm text-muted">{t.auth.forgot.description}</p>
       </div>
       <ForgotForm />
-      <Link href="/login" className="text-sm underline">
+      <Link
+        href="/login"
+        className="inline-flex min-h-11 w-fit items-center text-sm font-semibold text-primary-text hover:underline"
+      >
         {t.auth.forgot.back}
       </Link>
     </>

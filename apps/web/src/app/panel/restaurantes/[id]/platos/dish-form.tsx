@@ -94,7 +94,7 @@ export function DishForm({ action, initial, categories }: DishFormProps) {
           name="is_active"
           type="checkbox"
           defaultChecked={isActive}
-          className="size-4 accent-emerald-700"
+          className="size-4 accent-primary"
         />
         <label htmlFor={activeId} className="text-sm">
           {t.dishes.active}

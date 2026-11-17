@@ -126,6 +126,9 @@ export const es = {
       noAllergies: "No has marcado ninguna alergia.",
       yourAllergies: (list: string) => `Tus alergias: ${list}.`,
       edit: "Editar mis alergias",
+      family: (names: string) => `También filtras para: ${names}.`,
+      quickSearchHint: "Cartas filtradas y mapa de dónde puedes comer",
+      quickFamilyHint: "Filtra a la vez para las personas con las que comes",
     },
     consent: {
       title: "Tus datos de salud",

@@ -18,12 +18,15 @@ export default async function NewDishPage({
 
   return (
     <>
-      <Link href={`/panel/restaurantes/${restaurant.id}/platos`} className="text-sm underline">
+      <Link
+        href={`/panel/restaurantes/${restaurant.id}/platos`}
+        className="inline-flex min-h-11 w-fit items-center text-sm font-semibold text-primary-text hover:underline"
+      >
         {t.dishes.backToDishes}
       </Link>
       <div>
-        <h1 className="text-2xl font-semibold">{t.dishes.newTitle}</h1>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">{restaurant.name}</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t.dishes.newTitle}</h1>
+        <p className="text-sm text-muted">{restaurant.name}</p>
       </div>
       <DishForm action={createDish.bind(null, restaurant.id)} categories={categories} />
     </>

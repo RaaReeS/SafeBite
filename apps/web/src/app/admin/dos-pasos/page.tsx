@@ -24,7 +24,7 @@ export default function TwoFactorPage({ searchParams }: PageProps<"/admin/dos-pa
   const t = getMessages();
   return (
     <main className="mx-auto flex w-full max-w-xl flex-1 flex-col gap-6 px-4 py-12">
-      <h1 className="text-2xl font-semibold">{t.admin.twoFactor.title}</h1>
+      <h1 className="text-3xl font-bold tracking-tight">{t.admin.twoFactor.title}</h1>
       <Suspense fallback={<p>{t.common.loading}</p>}>
         <TwoFactorStep searchParams={searchParams} />
       </Suspense>
@@ -54,7 +54,7 @@ async function TwoFactorStep({
 
   return (
     <>
-      <p className="text-zinc-700 dark:text-zinc-300">{t.admin.twoFactor.why}</p>
+      <p className="text-muted">{t.admin.twoFactor.why}</p>
 
       <nav aria-label={t.admin.twoFactor.methodLabel} className="flex flex-wrap gap-2">
         {(["app", "email"] as const).map((option) => (
@@ -62,10 +62,10 @@ async function TwoFactorStep({
             key={option}
             href={`/admin/dos-pasos?metodo=${option}`}
             aria-current={option === method ? "page" : undefined}
-            className={`rounded-full border px-3 py-1 text-sm ${
+            className={`inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-text ${
               option === method
-                ? "border-emerald-700 bg-emerald-700 text-white"
-                : "border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
+                ? "border-primary bg-primary text-on-primary"
+                : "border-input bg-card hover:bg-surface"
             }`}
           >
             {t.admin.twoFactor.methods[option]}
@@ -73,9 +73,7 @@ async function TwoFactorStep({
         ))}
       </nav>
 
-      {method === null ? (
-        <p className="text-zinc-700 dark:text-zinc-300">{t.admin.twoFactor.chooseMethod}</p>
-      ) : null}
+      {method === null ? <p className="text-muted">{t.admin.twoFactor.chooseMethod}</p> : null}
       {method === "app" ? (
         hasAuthenticator ? (
           <CodeForm action={verifyCode} />
@@ -90,13 +88,11 @@ async function TwoFactorStep({
             request={requestEmailCode}
             verify={verifyEmailCode}
           />
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            {t.admin.twoFactor.emailWarning}
-          </p>
+          <p className="text-sm text-muted">{t.admin.twoFactor.emailWarning}</p>
         </>
       ) : null}
 
-      <p className="text-sm text-zinc-600 dark:text-zinc-400">{t.admin.twoFactor.lostDevice}</p>
+      <p className="text-sm text-muted">{t.admin.twoFactor.lostDevice}</p>
       <form action={signOut}>
         <Button type="submit" variant="secondary">
           {t.auth.logout}

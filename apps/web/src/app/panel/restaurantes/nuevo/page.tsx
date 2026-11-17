@@ -14,10 +14,13 @@ export default async function NewRestaurantPage() {
 
   return (
     <>
-      <Link href="/panel" className="text-sm underline">
+      <Link
+        href="/panel"
+        className="inline-flex min-h-11 w-fit items-center text-sm font-semibold text-primary-text hover:underline"
+      >
         {t.panel.backToList}
       </Link>
-      <h1 className="text-2xl font-semibold">{t.restaurant.newTitle}</h1>
+      <h1 className="text-3xl font-bold tracking-tight">{t.restaurant.newTitle}</h1>
       <RestaurantForm action={createRestaurant} siteUrl={env.siteUrl} />
     </>
   );

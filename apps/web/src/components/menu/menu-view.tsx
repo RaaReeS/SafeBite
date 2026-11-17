@@ -20,6 +20,9 @@ import { Fragment, useId, useState } from "react";
 import { getMessages } from "@/i18n";
 import type { Person } from "@/lib/data/health-profile";
 import type { MenuDish, MenuRestaurant } from "@/lib/data/public-menu";
+import { IconBadge } from "@/components/ui/card";
+import { Icon } from "@/components/ui/icon";
+import { STATUS_STYLES } from "@/components/ui/status";
 import { AllergenIcon } from "./allergen-icon";
 
 type MenuViewProps = {
@@ -82,18 +85,29 @@ export function MenuView({ restaurant, dishes, diner = null }: MenuViewProps) {
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-6">
-      <header className="flex flex-col gap-1">
-        {diner !== null ? (
-          <Link href="/comensal/restaurantes" className="text-sm underline">
-            {t.menu.backToSearch}
-          </Link>
-        ) : null}
-        <h1 className="text-2xl font-semibold">{restaurant.name}</h1>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          {[restaurant.address, restaurant.city].filter(Boolean).join(" · ")}
-        </p>
+      {diner !== null ? (
+        <Link
+          href="/comensal/restaurantes"
+          className="inline-flex min-h-11 w-fit items-center text-sm font-semibold text-primary-text hover:underline gap-1"
+        >
+          {t.menu.backToSearch}
+        </Link>
+      ) : null}
+      <header className="flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-card sm:flex-row sm:items-center">
+        <IconBadge icon="restaurant" size="lg" />
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <h1 className="text-3xl font-bold tracking-tight">{restaurant.name}</h1>
+          <p className="inline-flex items-center gap-1 text-sm text-muted">
+            <Icon name="location" className="size-4" />
+            {[restaurant.address, restaurant.city].filter(Boolean).join(" · ")}
+          </p>
+        </div>
         {restaurant.phone ? (
-          <a href={`tel:${restaurant.phone.replace(/[^+0-9]/g, "")}`} className="text-sm underline">
+          <a
+            href={`tel:${restaurant.phone.replace(/[^+0-9]/g, "")}`}
+            className="inline-flex min-h-11 w-fit items-center gap-2 rounded-full border border-input bg-card px-5 text-sm font-semibold hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-text"
+          >
+            <Icon name="call" className="size-[1.15rem]" />
             {t.menu.call} {restaurant.phone}
           </a>
         ) : null}
@@ -103,25 +117,25 @@ export function MenuView({ restaurant, dishes, diner = null }: MenuViewProps) {
 
       <section
         aria-labelledby="allergen-filter-title"
-        className="flex flex-col gap-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800"
+        className="flex flex-col gap-3 rounded-2xl bg-card p-5 shadow-card"
       >
-        <h2 id="allergen-filter-title" className="font-semibold">
+        <h2 id="allergen-filter-title" className="text-lg font-semibold">
           {t.menu.filterTitle}
         </h2>
         {people !== null && people.length > 1 ? (
           <fieldset className="flex flex-col gap-2">
-            <legend className="mb-1 text-sm font-medium">{t.menu.forWhom}</legend>
+            <legend className="mb-1 text-sm font-semibold text-muted">{t.menu.forWhom}</legend>
             <div className="flex flex-wrap gap-2">
               {people.map((person) => (
                 <label
                   key={person.id}
-                  className="flex min-h-11 items-center gap-2 rounded-md border border-zinc-300 px-3 py-2 text-sm has-checked:border-emerald-700 has-checked:bg-emerald-50 dark:border-zinc-700 dark:has-checked:bg-emerald-950"
+                  className="flex min-h-11 cursor-pointer items-center gap-2 rounded-full bg-surface px-4 text-sm font-medium has-checked:bg-success-bg has-checked:ring-2 has-checked:ring-primary has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary-text"
                 >
                   <input
                     type="checkbox"
                     checked={selected.includes(person.id)}
                     onChange={() => togglePerson(person.id)}
-                    className="size-4 accent-emerald-700"
+                    className="size-4 accent-primary"
                   />
                   {person.name}
                 </label>
@@ -131,7 +145,7 @@ export function MenuView({ restaurant, dishes, diner = null }: MenuViewProps) {
         ) : null}
         {saved !== null ? (
           sameAllergens(profile, saved) ? (
-            <p className="text-sm text-emerald-800 dark:text-emerald-300">
+            <p className="text-sm text-primary-text">
               {people !== null && people.length > 1
                 ? t.menu.usingProfileFor(selectedNames.join(", "))
                 : t.menu.usingProfile}
@@ -139,7 +153,11 @@ export function MenuView({ restaurant, dishes, diner = null }: MenuViewProps) {
           ) : (
             <p className="flex flex-wrap items-center gap-x-3 text-sm">
               <span>{t.menu.adjusted}</span>
-              <button type="button" onClick={() => setProfile(saved)} className="underline">
+              <button
+                type="button"
+                onClick={() => setProfile(saved)}
+                className="inline-flex min-h-11 w-fit items-center text-sm font-semibold text-primary-text hover:underline"
+              >
                 {t.menu.resetToProfile}
               </button>
             </p>
@@ -147,7 +165,10 @@ export function MenuView({ restaurant, dishes, diner = null }: MenuViewProps) {
         ) : null}
         {diner !== null && people === null ? (
           <p className="text-sm">
-            <Link href="/comensal/alergias" className="underline">
+            <Link
+              href="/comensal/alergias"
+              className="inline-flex min-h-11 w-fit items-center text-sm font-semibold text-primary-text hover:underline"
+            >
               {t.menu.configureProfile}
             </Link>
           </p>
@@ -161,10 +182,10 @@ export function MenuView({ restaurant, dishes, diner = null }: MenuViewProps) {
                 type="button"
                 aria-pressed={pressed}
                 onClick={() => toggle(allergen)}
-                className={`flex min-h-11 items-center gap-2 rounded-md border px-3 py-2 text-left text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700 ${
+                className={`flex min-h-11 items-center gap-2 rounded-full px-3 py-2 text-left text-sm font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-text ${
                   pressed
-                    ? "border-emerald-700 bg-emerald-700 text-white"
-                    : "border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+                    ? "bg-primary text-on-primary shadow-card"
+                    : "bg-surface text-fg hover:brightness-95"
                 }`}
               >
                 <AllergenIcon allergen={allergen} className="size-5 shrink-0" />
@@ -173,11 +194,11 @@ export function MenuView({ restaurant, dishes, diner = null }: MenuViewProps) {
             );
           })}
         </div>
-        <p className="text-xs text-zinc-600 dark:text-zinc-400">{t.menu.filterHint}</p>
+        <p className="text-xs text-muted">{t.menu.filterHint}</p>
 
         {filtering ? (
           <div className="flex flex-col gap-3">
-            <p className="text-sm font-medium" aria-live="polite">
+            <p className="font-semibold" aria-live="polite">
               {t.menu.summary(counts)}
             </p>
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
@@ -187,13 +208,17 @@ export function MenuView({ restaurant, dishes, diner = null }: MenuViewProps) {
                   type="checkbox"
                   checked={hideNotSuitable}
                   onChange={(event) => setHideNotSuitable(event.target.checked)}
-                  className="size-4 accent-emerald-700"
+                  className="size-5 accent-primary"
                 />
                 <label htmlFor={hideId} className="text-sm">
                   {t.menu.hideNotSuitable}
                 </label>
               </div>
-              <button type="button" onClick={() => setProfile([])} className="text-sm underline">
+              <button
+                type="button"
+                onClick={() => setProfile([])}
+                className="inline-flex min-h-11 w-fit items-center text-sm font-semibold text-primary-text hover:underline"
+              >
                 {t.menu.clear}
               </button>
             </div>
@@ -205,13 +230,9 @@ export function MenuView({ restaurant, dishes, diner = null }: MenuViewProps) {
         )}
       </section>
 
-      {sections.length === 0 ? (
-        <p className="text-zinc-700 dark:text-zinc-300">{t.menu.empty}</p>
-      ) : null}
+      {sections.length === 0 ? <p className="text-muted">{t.menu.empty}</p> : null}
       {hiding && counts.no_apto > 0 ? (
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          {t.menu.hiddenCount(counts.no_apto)}
-        </p>
+        <p className="text-sm text-muted">{t.menu.hiddenCount(counts.no_apto)}</p>
       ) : null}
       {hiding && sections.length > 0 && counts.no_apto === dishes.length ? (
         <p className="font-medium">{t.menu.allHidden}</p>
@@ -234,19 +255,19 @@ export function MenuView({ restaurant, dishes, diner = null }: MenuViewProps) {
         );
       })}
 
-      <aside className="flex flex-col items-start gap-2 rounded-lg bg-emerald-50 p-4 text-emerald-950 dark:bg-emerald-950 dark:text-emerald-50">
+      <aside className="flex flex-col items-start gap-2 rounded-2xl bg-primary-soft p-5 text-primary-strong">
         <p className="text-sm">{t.appPromo.text}</p>
         <Link
           href="/app"
-          className="rounded-md bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700"
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-on-primary shadow-card hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-text"
         >
           {t.appPromo.button}
         </Link>
       </aside>
 
-      <footer className="flex flex-col gap-3 border-t border-zinc-200 pt-4 dark:border-zinc-800">
+      <footer className="flex flex-col gap-3 border-t border-line pt-4">
         <Notices />
-        <p className="text-center text-xs text-zinc-500">{t.menu.poweredBy}</p>
+        <p className="text-center text-xs text-muted">{t.menu.poweredBy}</p>
       </footer>
     </div>
   );
@@ -255,25 +276,17 @@ export function MenuView({ restaurant, dishes, diner = null }: MenuViewProps) {
 /** Aviso obligatorio: siempre visible (regla crítica 5). */
 function Notices() {
   return (
-    <p className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100">
+    <p className="rounded-2xl bg-warning-bg px-4 py-3 text-sm font-medium text-warning-fg">
       {FILTER_SOURCE_NOTICE.es} <strong>{FILTER_DISCLAIMER.es}</strong>
     </p>
   );
 }
 
-// El estado se indica con texto y símbolo, no solo con color (daltonismo).
-const STATUS_STYLES: Record<FilterStatus, { symbol: string; className: string }> = {
-  no_apto: { symbol: "✕", className: "bg-red-700 text-white" },
-  posibles_trazas: { symbol: "!", className: "bg-amber-400 text-zinc-950" },
-  sin_datos: { symbol: "?", className: "bg-zinc-600 text-white" },
-  apto: { symbol: "✓", className: "bg-emerald-700 text-white" },
-};
-
 function StatusBadge({ status }: { status: FilterStatus }) {
   const { symbol, className } = STATUS_STYLES[status];
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${className}`}
+      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${className}`}
       data-status={status}
     >
       <span aria-hidden="true">{symbol}</span>
@@ -300,6 +313,13 @@ function AllergenList({ allergens }: { allergens: readonly Allergen[] }) {
   );
 }
 
+const STATUS_COLOR: Record<FilterStatus, string> = {
+  apto: "var(--status-apto)",
+  no_apto: "var(--status-no-apto)",
+  posibles_trazas: "var(--status-trazas)",
+  sin_datos: "var(--status-sin-datos)",
+};
+
 type DishCardProps = {
   item: EvaluatedDish<MenuDish>;
   profile: readonly Allergen[];
@@ -322,14 +342,20 @@ function DishCard({ item, profile }: DishCardProps) {
 
   return (
     <li
-      className={`flex flex-col gap-2 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800 ${
+      className={`flex flex-col gap-2 rounded-2xl border-l-[6px] bg-card p-5 shadow-card ${
         notSuitable ? "opacity-60" : ""
       }`}
+      // Franja del color del estado (además de la etiqueta con texto).
+      style={{ borderLeftColor: filtering ? STATUS_COLOR[evaluation.status] : "var(--card)" }}
     >
       <div className="flex items-start justify-between gap-3">
-        <h3 className={`font-medium ${notSuitable ? "line-through" : ""}`}>{dish.name}</h3>
+        <h3 className={`text-lg font-semibold ${notSuitable ? "line-through" : ""}`}>
+          {dish.name}
+        </h3>
         {dish.price_cents === null ? null : (
-          <span className="shrink-0 font-medium">{formatCents(dish.price_cents)}</span>
+          <span className="shrink-0 text-lg font-bold text-primary-text">
+            {formatCents(dish.price_cents)}
+          </span>
         )}
       </div>
 
@@ -359,18 +385,16 @@ function DishCard({ item, profile }: DishCardProps) {
         </div>
       ) : null}
 
-      {dish.description ? (
-        <p className="text-sm text-zinc-700 dark:text-zinc-300">{dish.description}</p>
-      ) : null}
+      {dish.description ? <p className="text-sm text-muted">{dish.description}</p> : null}
       {dish.ingredients ? (
-        <p className="text-xs text-zinc-600 dark:text-zinc-400">
+        <p className="text-xs text-muted">
           {t.menu.ingredients} {dish.ingredients}
         </p>
       ) : null}
 
-      <div className="flex flex-col gap-1 text-xs text-zinc-700 dark:text-zinc-300">
+      <div className="flex flex-col gap-1 text-xs text-muted">
         {levelOf.size === 0 ? (
-          <p className="text-zinc-600 dark:text-zinc-400">{t.menu.noDeclarations}</p>
+          <p className="text-muted">{t.menu.noDeclarations}</p>
         ) : (
           <>
             {filtering && contains.length + traces.length > 0 ? (
@@ -388,9 +412,7 @@ function DishCard({ item, profile }: DishCardProps) {
                 <AllergenList allergens={traces} />
               </p>
             ) : null}
-            {undeclared > 0 ? (
-              <p className="text-zinc-600 dark:text-zinc-400">{t.menu.undeclared(undeclared)}</p>
-            ) : null}
+            {undeclared > 0 ? <p className="text-muted">{t.menu.undeclared(undeclared)}</p> : null}
           </>
         )}
       </div>

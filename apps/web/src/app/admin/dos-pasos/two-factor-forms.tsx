@@ -60,7 +60,7 @@ export function EnrollFlow({ start, confirm }: { start: Action; confirm: Action 
         {state.status === "error" && state.message ? (
           <Alert tone="error">{state.message}</Alert>
         ) : null}
-        <p className="text-zinc-700 dark:text-zinc-300">{t.admin.twoFactor.enrollIntro}</p>
+        <p className="text-muted">{t.admin.twoFactor.enrollIntro}</p>
         <div>
           <Button type="submit" disabled={pending}>
             {t.admin.twoFactor.startEnroll}
@@ -72,7 +72,7 @@ export function EnrollFlow({ start, confirm }: { start: Action; confirm: Action 
 
   return (
     <div className="flex flex-col gap-4">
-      <ol className="list-decimal space-y-1 pl-5 text-zinc-700 dark:text-zinc-300">
+      <ol className="list-decimal space-y-1 pl-5 text-muted">
         <li>{t.admin.twoFactor.step1}</li>
         <li>{t.admin.twoFactor.step2}</li>
         <li>{t.admin.twoFactor.step3}</li>
@@ -84,7 +84,7 @@ export function EnrollFlow({ start, confirm }: { start: Action; confirm: Action 
         alt={t.admin.twoFactor.qrAlt}
         width={200}
         height={200}
-        className="rounded-md border border-zinc-200 bg-white p-2"
+        className="rounded-2xl bg-white p-3 shadow-card"
       />
       <p className="text-sm">
         {t.admin.twoFactor.manualKey}{" "}
@@ -121,7 +121,7 @@ export function EmailCodeFlow({
           <CodeForm action={verify} initialState={state} hint={t.admin.twoFactor.emailCodeHint} />
         </>
       ) : (
-        <p className="text-zinc-700 dark:text-zinc-300">{t.admin.twoFactor.emailIntro(email)}</p>
+        <p className="text-muted">{t.admin.twoFactor.emailIntro(email)}</p>
       )}
       <form action={formAction}>
         <Button
