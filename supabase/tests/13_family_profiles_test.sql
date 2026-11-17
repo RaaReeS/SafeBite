@@ -74,7 +74,9 @@ select throws_ok(
        (select id from public.family_members limit 1), array['gluten']::public.allergen[]) $$,
   '42501', null, 'B no puede cambiar las alergias de un familiar ajeno');
 reset role;
-select is((select count(*)::int from public.family_member_allergens), 1,
+select is((select count(*)::int from public.family_member_allergens a
+            join public.family_members m on m.id = a.member_id
+            where m.user_id = 'aaaaaaaa-1313-0000-0000-000000000000'), 1,
   'Las alergias de Lucía siguen intactas');
 set local role authenticated;
 
