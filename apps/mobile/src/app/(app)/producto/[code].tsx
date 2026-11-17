@@ -9,18 +9,19 @@ import {
 } from "@safebite/core";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Image, Linking, StyleSheet, Text, View } from "react-native";
+import { Image, Linking, StyleSheet, Text, View } from "react-native";
 import { AllergenIcon } from "@/components/allergen-icon";
 import { Button } from "@/components/button";
 import { Notice } from "@/components/notice";
 import { PeoplePicker } from "@/components/people-picker";
 import { Screen } from "@/components/screen";
 import { StatusBadge } from "@/components/status-badge";
+import { Card, IconBadge, Skeleton } from "@/components/ui";
 import { getMessages } from "@/i18n";
 import { addToHistory } from "@/lib/product-history";
 import { lookupProduct, type ProductLookup } from "@/lib/products";
 import { usePeople } from "@/lib/use-people";
-import { colors, fontSize, radius, spacing } from "@/theme";
+import { colors, fonts, radius, spacing, typography } from "@/theme";
 
 type LoadState = { kind: "loading" } | ProductLookup;
 
@@ -59,9 +60,16 @@ export default function ProductScreen() {
       <Stack.Screen options={{ title: t.product.title }} />
 
       {"kind" in load ? (
-        <View style={styles.center} accessibilityLabel={t.product.loading}>
-          <ActivityIndicator color={colors.primary} />
-          <Text style={styles.muted}>{t.product.loading}</Text>
+        <View style={styles.loading} accessibilityLabel={t.product.loading}>
+          <Card style={styles.header}>
+            <Skeleton height={96} width={96} />
+            <View style={styles.headerText}>
+              <Skeleton height={20} width="80%" />
+              <Skeleton height={14} width="50%" />
+            </View>
+          </Card>
+          <Skeleton height={64} />
+          <Text style={[typography.caption, styles.centerText]}>{t.product.loading}</Text>
         </View>
       ) : null}
 
@@ -75,16 +83,18 @@ export default function ProductScreen() {
       ) : null}
 
       {"status" in load && load.status === "not_found" ? (
-        <>
+        <Card>
+          <IconBadge icon="help-circle-outline" size={52} />
           <Notice tone="info" text={t.product.notFound} />
-          <Text style={styles.muted}>{t.product.code(code)}</Text>
-          <Text style={styles.text}>{t.product.addToOffHint}</Text>
+          <Text style={typography.caption}>{t.product.code(code)}</Text>
+          <Text style={typography.body}>{t.product.addToOffHint}</Text>
           <Button
             label={t.product.addToOff}
             variant="secondary"
+            icon="add-circle-outline"
             onPress={() => void Linking.openURL(offAddProductUrl(code))}
           />
-        </>
+        </Card>
       ) : null}
 
       {"status" in load && load.status === "invalid" ? (
@@ -97,11 +107,16 @@ export default function ProductScreen() {
             tone="error"
             text={load.status === "unavailable" ? t.product.unavailable : t.product.networkError}
           />
-          <Button label={t.product.retry} variant="secondary" onPress={() => void fetchProduct()} />
+          <Button
+            label={t.product.retry}
+            variant="secondary"
+            icon="refresh"
+            onPress={() => void fetchProduct()}
+          />
         </>
       ) : null}
 
-      <Button label={t.product.scanAnother} onPress={scanAnother} />
+      <Button label={t.product.scanAnother} icon="scan" onPress={scanAnother} />
     </Screen>
   );
 }
@@ -126,26 +141,34 @@ function ProductDetails({
 
   return (
     <>
-      <View style={styles.header}>
-        {product.imageUrl !== null ? (
-          <Image
-            source={{ uri: product.imageUrl }}
-            style={styles.image}
-            resizeMode="contain"
-            accessibilityIgnoresInvertColors
-          />
-        ) : null}
+      <Card style={styles.header}>
+        <View style={styles.imageBox}>
+          {product.imageUrl !== null ? (
+            <Image
+              source={{ uri: product.imageUrl }}
+              style={styles.image}
+              resizeMode="contain"
+              accessibilityIgnoresInvertColors
+            />
+          ) : (
+            <IconBadge icon="image-outline" size={52} />
+          )}
+        </View>
         <View style={styles.headerText}>
-          <Text style={styles.title} accessibilityRole="header">
+          <Text style={typography.title} accessibilityRole="header">
             {product.name ?? t.product.unnamed}
           </Text>
-          {product.brands !== null ? <Text style={styles.muted}>{product.brands}</Text> : null}
-          <Text style={styles.muted}>{t.product.code(product.code)}</Text>
+          {product.brands !== null ? (
+            <Text style={typography.bodyStrong}>{product.brands}</Text>
+          ) : null}
+          <Text style={typography.caption}>{t.product.code(product.code)}</Text>
         </View>
-      </View>
+      </Card>
 
       {profileState.status === "loading" ? (
-        <ActivityIndicator color={colors.primary} accessibilityLabel={t.common.loading} />
+        <View accessibilityLabel={t.common.loading}>
+          <Skeleton height={64} />
+        </View>
       ) : null}
       {profileState.status === "error" ? <Notice tone="error" text={t.home.loadError} /> : null}
 
@@ -164,22 +187,22 @@ function ProductDetails({
       />
 
       {profile.length > 0 ? (
-        <View style={styles.result}>
+        <Card>
           <StatusBadge status={evaluation.status} large />
-          <Text style={styles.text}>{t.product.statusDescription[evaluation.status]}</Text>
+          <Text style={typography.body}>{t.product.statusDescription[evaluation.status]}</Text>
           <Reasons label={t.product.reasonContains} allergens={evaluation.contains} />
           <Reasons label={t.product.reasonTraces} allergens={evaluation.mayContain} />
           <Reasons label={t.product.reasonMissing} allergens={evaluation.missing} />
-        </View>
+        </Card>
       ) : null}
 
       {product.ingredientsText !== null ? (
-        <Text style={styles.small}>{`${t.product.ingredients} ${product.ingredientsText}`}</Text>
+        <Card>
+          <Text style={styles.small}>{`${t.product.ingredients} ${product.ingredientsText}`}</Text>
+        </Card>
       ) : null}
 
-      <View style={styles.source}>
-        <Text style={styles.sourceText}>{t.product.source}</Text>
-      </View>
+      <Notice tone="warning" text={t.product.source} />
     </>
   );
 }
@@ -201,30 +224,30 @@ function Reasons({ label, allergens }: { label: string; allergens: readonly Alle
 }
 
 const styles = StyleSheet.create({
-  center: { alignItems: "center", gap: spacing.sm, paddingVertical: spacing.xl },
+  loading: { gap: spacing.md },
+  centerText: { textAlign: "center" },
   header: { flexDirection: "row", gap: spacing.lg, alignItems: "center" },
   headerText: { flex: 1, gap: spacing.xs },
-  image: { width: 88, height: 88, borderRadius: radius.sm, backgroundColor: colors.surface },
-  title: { fontSize: fontSize.xl, fontWeight: "700", color: colors.text },
-  text: { fontSize: fontSize.md, color: colors.text },
-  small: { fontSize: fontSize.sm, color: colors.text },
-  muted: { fontSize: fontSize.sm, color: colors.textMuted },
-  result: {
-    gap: spacing.md,
-    padding: spacing.lg,
+  imageBox: {
+    width: 96,
+    height: 96,
     borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
   },
+  image: { width: "100%", height: "100%" },
+  small: { fontFamily: fonts.regular, fontSize: 13, lineHeight: 19, color: colors.text },
   reasons: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: spacing.sm },
-  reasonLabel: { fontSize: fontSize.sm, fontWeight: "700", color: colors.text },
-  reason: { flexDirection: "row", alignItems: "center", gap: spacing.xs },
-  source: {
-    padding: spacing.md,
-    borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: colors.warningBorder,
-    backgroundColor: colors.warningBackground,
+  reasonLabel: { fontFamily: fonts.semibold, fontSize: 13, color: colors.text },
+  reason: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 3,
+    borderRadius: radius.full,
+    backgroundColor: colors.surface,
   },
-  sourceText: { fontSize: fontSize.sm, color: colors.warningText },
 });
