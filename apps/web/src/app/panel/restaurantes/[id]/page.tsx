@@ -39,13 +39,17 @@ export default async function RestaurantPage({ params }: PageProps<"/panel/resta
         note={restaurant.verification_note}
       />
       <div className="flex flex-wrap gap-3">
-        <ButtonLink href={`/panel/restaurantes/${restaurant.id}/platos`}>
+        <ButtonLink href={`/panel/restaurantes/${restaurant.id}/platos`} icon="list">
           {t.dishes.manage}
         </ButtonLink>
-        <ButtonLink href={`/panel/restaurantes/${restaurant.id}/qr`} variant="secondary">
+        <ButtonLink href={`/panel/restaurantes/${restaurant.id}/qr`} variant="secondary" icon="qr">
           {t.qr.manage}
         </ButtonLink>
-        <ButtonLink href={`/panel/restaurantes/${restaurant.id}/vista-previa`} variant="secondary">
+        <ButtonLink
+          href={`/panel/restaurantes/${restaurant.id}/vista-previa`}
+          variant="secondary"
+          icon="eye"
+        >
           {t.preview.manage}
         </ButtonLink>
       </div>

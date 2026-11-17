@@ -1,5 +1,6 @@
 "use client";
 
+import { AllergenIcon } from "@/components/menu/allergen-icon";
 import {
   ALLERGENS,
   ALLERGEN_LABELS,
@@ -77,12 +78,15 @@ export function AllergenEditor({ action, declarations }: AllergenEditorProps) {
           {undeclared.length > 0 ? ` · ${t.allergens.missing(undeclared.length)}` : ""}
         </p>
 
-        <div className="flex flex-col divide-y divide-line rounded-2xl bg-card px-5 shadow-card">
+        <div className="flex flex-col divide-y divide-line overflow-hidden rounded-2xl bg-card shadow-card">
           {ALLERGENS.map((allergen) => (
             <fieldset key={allergen} className="px-4 py-3">
               {/* float: el legend se comporta como un bloque normal dentro del fieldset. */}
-              <legend className="float-left w-full pb-2 text-sm font-medium sm:w-56 sm:pb-0 sm:pt-1">
-                {labels[allergen]}
+              <legend className="float-left w-full pb-2 text-sm font-semibold sm:w-60 sm:pb-0 sm:pt-1.5">
+                <span className="inline-flex items-center gap-2">
+                  <AllergenIcon allergen={allergen} className="size-5 text-primary-text" />
+                  {labels[allergen]}
+                </span>
               </legend>
               <div className="flex flex-wrap gap-1.5">
                 {CHOICES.map((choice) => (

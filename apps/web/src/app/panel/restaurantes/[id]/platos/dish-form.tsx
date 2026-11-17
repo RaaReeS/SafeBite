@@ -39,7 +39,11 @@ export function DishForm({ action, initial, categories }: DishFormProps) {
       : (initial?.is_active ?? true);
 
   return (
-    <form action={formAction} aria-label={t.dishes.details} className="flex flex-col gap-4">
+    <form
+      action={formAction}
+      aria-label={t.dishes.details}
+      className="flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-card"
+    >
       <FormStatus state={state} />
       <TextField
         label={t.dishes.name}

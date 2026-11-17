@@ -31,7 +31,9 @@ export default async function DishesPage({ params }: PageProps<"/panel/restauran
             {restaurant.name} · {t.dishes.count(dishes.length)}
           </p>
         </div>
-        <ButtonLink href={`${base}/platos/nuevo`}>{t.dishes.newDish}</ButtonLink>
+        <ButtonLink href={`${base}/platos/nuevo`} icon="add">
+          {t.dishes.newDish}
+        </ButtonLink>
       </div>
 
       {incomplete > 0 ? (
@@ -43,7 +45,7 @@ export default async function DishesPage({ params }: PageProps<"/panel/restauran
       ) : (
         <ol
           aria-label={t.dishes.title}
-          className="flex flex-col divide-y divide-line rounded-2xl bg-card px-5 shadow-card"
+          className="flex flex-col divide-y divide-line overflow-hidden rounded-2xl bg-card shadow-card"
         >
           {dishes.map((dish, index) => (
             <li key={dish.id} className="flex items-center gap-3 px-4 py-3">

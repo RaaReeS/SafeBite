@@ -42,7 +42,7 @@ export default async function FamilyPage({ searchParams }: PageProps<"/comensal/
           ) : (
             <ul
               aria-label={t.family.title}
-              className="flex flex-col divide-y divide-line rounded-2xl bg-card px-5 shadow-card"
+              className="flex flex-col divide-y divide-line overflow-hidden rounded-2xl bg-card shadow-card"
             >
               {family.members.map((member) => (
                 <li key={member.id} className="flex items-center justify-between gap-4 px-4 py-3">

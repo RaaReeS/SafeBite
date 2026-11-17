@@ -51,7 +51,11 @@ export function RestaurantForm({
   const confirmError = state.fieldErrors?.confirm_slug_change;
 
   return (
-    <form action={formAction} aria-label={t.restaurant.details} className="flex flex-col gap-4">
+    <form
+      action={formAction}
+      aria-label={t.restaurant.details}
+      className="flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-card"
+    >
       {isEdit && verified ? (
         <p className="text-sm text-muted">{t.verification.identityChangeWarning}</p>
       ) : null}

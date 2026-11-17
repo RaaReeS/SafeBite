@@ -25,6 +25,16 @@ export const es = {
     dinerDescription:
       "Guarda tu perfil una vez y busca restaurantes cerca de ti con la carta filtrada para ti.",
     dinerRegister: "Crear cuenta de comensal",
+    features: {
+      qrTitle: "Carta con código QR",
+      qrText: "Tus clientes la abren desde la mesa, sin descargar nada.",
+      allergensTitle: "Los 14 alérgenos",
+      allergensText: "Declara para cada plato si contiene, puede contener trazas o no contiene.",
+      tableTitle: "Tabla imprimible",
+      tableText: "Descarga en PDF la tabla de alérgenos de tu carta para tenerla en el local.",
+    },
+    privacy: "Privacidad",
+    terms: "Términos de uso",
   },
   auth: {
     email: "Email",
