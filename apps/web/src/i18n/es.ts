@@ -243,7 +243,23 @@ export const es = {
   },
   admin: {
     label: "Administración",
-    nav: { requests: "Solicitudes", restaurants: "Verificación de restaurantes" },
+    nav: {
+      requests: "Solicitudes",
+      restaurants: "Verificación de restaurantes",
+      plans: "Planes",
+    },
+    plans: {
+      title: "Planes de las cuentas",
+      description:
+        "Mientras no haya pagos, aquí se da o se quita el plan premium (hasta 10 familiares en lugar de 1). Escribe el email de la cuenta.",
+      formLabel: "Cambiar el plan de una cuenta",
+      email: "Email de la cuenta",
+      makePremium: "Dar premium",
+      makeFree: "Volver al plan gratis",
+      notFound: "No hay ninguna cuenta con ese email.",
+      madePremium: (email: string) => `${email} ya tiene el plan premium.`,
+      madeFree: (email: string) => `${email} vuelve al plan gratis.`,
+    },
     twoFactor: {
       title: "Verificación en dos pasos",
       why: "La cuenta de administración decide qué cartas ven las personas con alergias, así que además de la contraseña pide un código de tu móvil.",

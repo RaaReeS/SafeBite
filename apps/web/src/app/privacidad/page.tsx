@@ -26,6 +26,12 @@ export default function PrivacyPage() {
         ni con otras personas. Puedes retirar el consentimiento en cualquier momento: tu perfil de
         alergias se borrará.
       </p>
+      <p>
+        Si añades a familiares en «Mi familia», guardamos su nombre o apodo y sus alergias, con las
+        mismas garantías: solo los ves tú. Al añadirlos declaras que eres su madre, padre o tutor
+        legal, o que tienes su permiso. Si retiras tu consentimiento se borran también sus alergias,
+        y al borrar tu cuenta se borra todo.
+      </p>
       <p>La carta pública por QR no guarda ningún dato personal: el filtro es temporal.</p>
 
       <h2>Ubicación</h2>
