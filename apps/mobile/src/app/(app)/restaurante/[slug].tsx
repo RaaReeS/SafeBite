@@ -12,25 +12,20 @@ import {
 } from "@safebite/core";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  Linking,
-  Pressable,
-  StyleSheet,
-  Switch,
-  Text,
-  View,
-} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { Linking, Pressable, StyleSheet, Switch, Text, View } from "react-native";
 import { AllergenIcon } from "@/components/allergen-icon";
 import { Button } from "@/components/button";
 import { Notice } from "@/components/notice";
 import { PeoplePicker } from "@/components/people-picker";
 import { Screen } from "@/components/screen";
-import { StatusBadge } from "@/components/status-badge";
+import { STATUS_STYLES, StatusBadge } from "@/components/status-badge";
+import { Card, Divider, IconBadge, Skeleton } from "@/components/ui";
 import { getMessages } from "@/i18n";
 import { getMenu, type Menu, type MenuDish } from "@/lib/menu";
 import { usePeople } from "@/lib/use-people";
-import { colors, fontSize, radius, spacing } from "@/theme";
+import { tapFeedback } from "@/lib/haptics";
+import { colors, fonts, radius, shadow, spacing, typography } from "@/theme";
 
 type LoadState =
   { kind: "loading" } | { kind: "ready"; menu: Menu } | { kind: "missing" | "error" };
@@ -70,7 +65,18 @@ export default function RestaurantMenuScreen() {
       <Screen>
         <Stack.Screen options={{ title: t.menu.title }} />
         {load.kind === "loading" ? (
-          <ActivityIndicator color={colors.primary} accessibilityLabel={t.common.loading} />
+          <View style={styles.loading} accessibilityLabel={t.common.loading}>
+            <Card>
+              <Skeleton height={26} width="70%" />
+              <Skeleton height={14} width="50%" />
+            </Card>
+            {[0, 1, 2].map((i) => (
+              <Card key={i}>
+                <Skeleton height={18} width="60%" />
+                <Skeleton height={14} />
+              </Card>
+            ))}
+          </View>
         ) : (
           <Notice
             tone="error"
@@ -98,25 +104,34 @@ export default function RestaurantMenuScreen() {
   return (
     <Screen>
       <Stack.Screen options={{ title: restaurant.name }} />
-      <View style={styles.header}>
-        <Text style={styles.title} accessibilityRole="header">
-          {restaurant.name}
-        </Text>
-        <Text style={styles.muted}>
-          {[restaurant.address, restaurant.city].filter(Boolean).join(" · ")}
-        </Text>
+      <Card>
+        <View style={styles.headerRow}>
+          <IconBadge icon="restaurant" size={52} />
+          <View style={styles.flex}>
+            <Text style={typography.title} accessibilityRole="header">
+              {restaurant.name}
+            </Text>
+            <View style={styles.addressRow}>
+              <Ionicons name="location-outline" size={14} color={colors.textMuted} />
+              <Text style={[typography.caption, styles.flex]}>
+                {[restaurant.address, restaurant.city].filter(Boolean).join(" · ")}
+              </Text>
+            </View>
+          </View>
+        </View>
         {restaurant.phone ? (
           <Button
-            variant="link"
+            variant="secondary"
+            icon="call-outline"
             label={t.menu.call(restaurant.phone)}
             onPress={() => void Linking.openURL(`tel:${restaurant.phone?.replace(/[^+0-9]/g, "")}`)}
           />
         ) : null}
-      </View>
+      </Card>
 
       <Notice tone="warning" text={`${FILTER_SOURCE_NOTICE.es} ${FILTER_DISCLAIMER.es}`} />
 
-      <View style={styles.panel}>
+      <Card>
         <PeoplePicker
           label={t.people.forWhomMenu}
           people={people.people}
@@ -136,11 +151,12 @@ export default function RestaurantMenuScreen() {
                   ? t.people.usingProfileFor(people.chosenNames.join(", "))
                   : t.menu.usingProfile}
             </Text>
-            <Text style={styles.summary} accessibilityLiveRegion="polite">
+            <Text style={typography.heading} accessibilityLiveRegion="polite">
               {t.menu.summary(counts)}
             </Text>
+            <Divider />
             <View style={styles.switchRow}>
-              <Text style={styles.text}>{t.menu.hideNotSuitable}</Text>
+              <Text style={[typography.body, styles.flex]}>{t.menu.hideNotSuitable}</Text>
               <Switch
                 accessibilityLabel={t.menu.hideNotSuitable}
                 value={hideNotSuitable}
@@ -176,8 +192,15 @@ export default function RestaurantMenuScreen() {
                   accessibilityRole="switch"
                   accessibilityLabel={ALLERGEN_LABELS.es[allergen]}
                   accessibilityState={{ checked: pressed }}
-                  onPress={() => toggle(allergen)}
-                  style={[styles.chip, pressed ? styles.chipOn : null]}
+                  onPress={() => {
+                    tapFeedback();
+                    toggle(allergen);
+                  }}
+                  style={({ pressed: touching }) => [
+                    styles.chip,
+                    pressed ? styles.chipOn : null,
+                    touching ? styles.touching : null,
+                  ]}
                 >
                   <AllergenIcon
                     allergen={allergen}
@@ -199,7 +222,7 @@ export default function RestaurantMenuScreen() {
             ) : null}
           </View>
         ) : null}
-      </View>
+      </Card>
 
       {dishes.length === 0 ? <Text style={styles.text}>{t.menu.empty}</Text> : null}
       {hiding && counts.no_apto > 0 ? (
@@ -213,7 +236,7 @@ export default function RestaurantMenuScreen() {
         if (visible.length === 0) return null;
         return (
           <View key={section.category ?? ""} style={styles.section}>
-            <Text style={styles.sectionTitle} accessibilityRole="header">
+            <Text style={typography.title} accessibilityRole="header">
               {section.category ?? t.menu.uncategorized}
             </Text>
             {visible.map((item) => (
@@ -257,7 +280,14 @@ function DishCard({ item, profile }: { item: EvaluatedDish<MenuDish>; profile: A
   const undeclared = ALLERGENS.length - levelOf.size;
 
   return (
-    <View style={[styles.card, notSuitable ? styles.cardDimmed : null]}>
+    <View
+      style={[
+        styles.card,
+        // Franja del color del estado (además del texto de la etiqueta).
+        filtering ? { borderLeftColor: STATUS_STYLES[evaluation.status].background } : null,
+        notSuitable ? styles.cardDimmed : null,
+      ]}
+    >
       <View style={styles.cardHeader}>
         <Text style={[styles.dishName, notSuitable ? styles.strike : null]}>{dish.name}</Text>
         {dish.price_cents === null ? null : (
@@ -298,49 +328,58 @@ function DishCard({ item, profile }: { item: EvaluatedDish<MenuDish>; profile: A
 }
 
 const styles = StyleSheet.create({
-  header: { gap: spacing.xs },
-  title: { fontSize: fontSize.xxl, fontWeight: "700", color: colors.text },
-  text: { fontSize: fontSize.md, color: colors.text },
-  muted: { fontSize: fontSize.sm, color: colors.textMuted },
-  small: { fontSize: fontSize.sm, color: colors.text },
-  summary: { fontSize: fontSize.md, fontWeight: "600", color: colors.text },
-  panel: {
-    gap: spacing.sm,
-    padding: spacing.lg,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  switchRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  flex: { flex: 1 },
+  loading: { gap: spacing.md },
+  headerRow: { flexDirection: "row", alignItems: "center", gap: spacing.md },
+  addressRow: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 2 },
+  text: { fontFamily: fonts.regular, fontSize: 15, lineHeight: 21, color: colors.text },
+  muted: { fontFamily: fonts.regular, fontSize: 13, lineHeight: 18, color: colors.textMuted },
+  small: { fontFamily: fonts.regular, fontSize: 13, lineHeight: 18, color: colors.text },
+  switchRow: { flexDirection: "row", alignItems: "center", gap: spacing.md },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
   chip: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.xs,
-    minHeight: 44,
+    gap: 6,
+    minHeight: 40,
     paddingHorizontal: spacing.md,
-    borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderRadius: radius.full,
+    backgroundColor: colors.surface,
   },
-  chipOn: { backgroundColor: colors.primary, borderColor: colors.primary },
-  chipText: { fontSize: fontSize.sm, color: colors.text },
-  chipTextOn: { color: colors.primaryText, fontWeight: "600" },
-  section: { gap: spacing.md },
-  sectionTitle: { fontSize: fontSize.xl, fontWeight: "700", color: colors.text },
+  chipOn: { backgroundColor: colors.primary },
+  touching: { opacity: 0.8 },
+  chipText: { fontFamily: fonts.medium, fontSize: 13, color: colors.text },
+  chipTextOn: { fontFamily: fonts.semibold, color: colors.primaryText },
+  section: { gap: spacing.md, marginTop: spacing.sm },
   card: {
     gap: spacing.sm,
     padding: spacing.lg,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderRadius: radius.lg,
+    borderLeftWidth: 5,
+    borderLeftColor: colors.card,
+    backgroundColor: colors.card,
+    ...shadow.card,
   },
   cardDimmed: { opacity: 0.6 },
   cardHeader: { flexDirection: "row", justifyContent: "space-between", gap: spacing.md },
-  dishName: { flex: 1, fontSize: fontSize.lg, fontWeight: "600", color: colors.text },
+  dishName: {
+    flex: 1,
+    fontFamily: fonts.semibold,
+    fontSize: 17,
+    lineHeight: 22,
+    color: colors.text,
+  },
   strike: { textDecorationLine: "line-through" },
-  price: { fontSize: fontSize.lg, fontWeight: "600", color: colors.text },
+  price: { fontFamily: fonts.bold, fontSize: 17, color: colors.primaryDark },
   listRow: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: spacing.sm },
-  listLabel: { fontSize: fontSize.sm, fontWeight: "700", color: colors.text },
-  listItem: { flexDirection: "row", alignItems: "center", gap: spacing.xs },
+  listLabel: { fontFamily: fonts.semibold, fontSize: 13, color: colors.text },
+  listItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 3,
+    borderRadius: radius.full,
+    backgroundColor: colors.surface,
+  },
 });
