@@ -3,6 +3,7 @@ import { StatusBar } from "expo-status-bar";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { getMessages } from "@/i18n";
+import { useAppFonts } from "@/lib/fonts";
 import { SessionProvider, useSession } from "@/lib/session";
 import { colors } from "@/theme";
 
@@ -24,8 +25,9 @@ export default function RootLayout() {
 function RootNavigator() {
   const t = getMessages();
   const { session, isLoading, isRecoveringPassword } = useSession();
+  const fontsReady = useAppFonts();
 
-  if (isLoading) {
+  if (isLoading || !fontsReady) {
     return (
       <View style={styles.loading} accessibilityLabel={t.common.loading}>
         <ActivityIndicator color={colors.primary} />

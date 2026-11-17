@@ -1,14 +1,6 @@
 import { Stack } from "expo-router";
-import { colors } from "@/theme";
+import { stackScreenOptions } from "@/lib/stack-options";
 
 export default function AppLayout() {
-  return (
-    <Stack
-      screenOptions={{
-        headerTintColor: colors.primary,
-        headerBackButtonDisplayMode: "minimal",
-        contentStyle: { backgroundColor: colors.background },
-      }}
-    />
-  );
+  return <Stack screenOptions={stackScreenOptions} />;
 }
