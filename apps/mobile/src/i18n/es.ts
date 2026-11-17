@@ -69,6 +69,21 @@ export const es = {
     },
     logout: "Cerrar sesión",
   },
+  tabs: {
+    home: "Inicio",
+    search: "Buscar",
+    scan: "Escanear",
+    profile: "Perfil",
+    /** Nombre de la pestaña para VoiceOver/TalkBack (por defecto lo diría en inglés). */
+    accessibilityLabel: (label: string, index: number, total: number) =>
+      `${label}, pestaña ${index} de ${total}`,
+  },
+  profile: {
+    title: "Perfil",
+    allergiesHint: "Los alérgenos que debes evitar",
+    familyHint: "Filtra también para las personas con las que comes",
+    accountHint: "Email, consentimiento, contraseña y cerrar sesión",
+  },
   home: {
     greeting: (email: string) => `Hola, ${email}`,
     allergiesTitle: "Mis alergias",

@@ -1,6 +1,6 @@
 import { isValidBarcode, normalizeBarcode } from "@safebite/core";
 import { CameraView, useCameraPermissions, type BarcodeScanningResult } from "expo-camera";
-import { Stack, useFocusEffect, useRouter } from "expo-router";
+import { Stack, useFocusEffect, useIsFocused, useRouter } from "expo-router";
 import { useCallback, useRef, useState } from "react";
 import { Linking, StyleSheet, Text, View } from "react-native";
 import { Button } from "@/components/button";
@@ -18,6 +18,9 @@ export default function ScannerScreen() {
   const [manualError, setManualError] = useState<string | undefined>();
   // La cámara lee el mismo código muchas veces por segundo: solo se usa la primera.
   const handled = useRef(false);
+  // Las pestañas no se desmontan al cambiar de una a otra: sin esto la cámara
+  // seguiría encendida en segundo plano.
+  const focused = useIsFocused();
 
   useFocusEffect(
     useCallback(() => {
@@ -56,13 +59,15 @@ export default function ScannerScreen() {
         <>
           <Text style={styles.text}>{t.scanner.instructions}</Text>
           <View style={styles.cameraFrame}>
-            <CameraView
-              style={StyleSheet.absoluteFill}
-              facing="back"
-              accessibilityLabel={t.scanner.cameraLabel}
-              barcodeScannerSettings={{ barcodeTypes: ["ean13", "ean8", "upc_a"] }}
-              onBarcodeScanned={onScanned}
-            />
+            {focused ? (
+              <CameraView
+                style={StyleSheet.absoluteFill}
+                facing="back"
+                accessibilityLabel={t.scanner.cameraLabel}
+                barcodeScannerSettings={{ barcodeTypes: ["ean13", "ean8", "upc_a"] }}
+                onBarcodeScanned={onScanned}
+              />
+            ) : null}
           </View>
         </>
       ) : (

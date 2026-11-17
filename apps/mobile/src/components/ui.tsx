@@ -116,7 +116,8 @@ export function ListItem({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel ?? [title, subtitle].filter(Boolean).join(", ")}
+      accessibilityLabel={accessibilityLabel ?? title}
+      accessibilityHint={subtitle ?? undefined}
       onPress={onPress}
       style={({ pressed }) => [styles.listItem, pressed ? styles.pressed : null]}
     >

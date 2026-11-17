@@ -39,6 +39,7 @@ describe("acceso a la app", () => {
     await renderApp();
     expect(await screen.findByText("Hola, comensal@safebite.test")).toBeTruthy();
 
+    await press("Perfil, pestaña 4 de 4");
     await press("Mi cuenta");
     await screen.findByRole("button", { name: "Cerrar sesión" });
     await press("Cerrar sesión");
