@@ -96,6 +96,9 @@ Especificación completa en `ESPECIFICACION.md`. Léela antes de empezar cualqui
 ## Convenciones de la app móvil (Expo SDK 58)
 
 - Rutas en `apps/mobile/src/app` con Expo Router. Con sesión solo se accede al grupo `(app)`; sin sesión, solo a `(auth)` (`Stack.Protected`). La ruta raíz `index` solo redirige y debe seguir existiendo: sin ella, abrir la app sin sesión da "Unmatched Route".
+- Navegación: barra inferior `(app)/(tabs)` con Inicio, Buscar, Escanear y Perfil; las pantallas de detalle se abren por encima en el `Stack` de `(app)`. Las direcciones (`/inicio`, `/buscar`…) no llevan el grupo.
+- Diseño: todo color, tamaño, sombra y estilo de texto sale de `src/theme.ts` (contrastes WCAG AA comprobados; no usar colores sueltos). Piezas comunes en `src/components/ui.tsx` (Card, ListItem, Chip, EmptyState, Skeleton…), `AllergenGrid` para elegir alérgenos y `Icon` para iconos (decorativos, ocultos al lector de pantalla). Tipografía Inter. Zonas táctiles de al menos 44 pt.
+- Sin conexión: las peticiones a Supabase se cortan a los 20 s (`fetch-timeout.ts`) y, si la sesión no se recupera en 10 s al abrir, se muestra «No se puede conectar» con Reintentar.
 - La sesión de Supabase se guarda cifrada (`src/lib/secure-session-storage.ts`): nunca en AsyncStorage en claro.
 - La confirmación de email y la recuperación de contraseña en la app usan el código del email (`verifyOtp`), no el enlace.
 - Tests con jest-expo y React Native Testing Library v14: `renderRouter`, `fireEvent` y `act` son asíncronos y hay que esperarlos (`await`). Los simuladores van en `src/test-utils/` (todo lo que esté en `__tests__/` se ejecuta como test).
