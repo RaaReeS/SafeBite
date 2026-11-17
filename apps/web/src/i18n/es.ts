@@ -162,6 +162,7 @@ export const es = {
       listLabel: "Lista de restaurantes",
       openMenu: "Ver la carta",
       noProfile: "Guarda tus alergias para ver en el mapa dónde puedes comer.",
+      forWhom: "¿Para quién buscas?",
       configureProfile: "Configurar mis alergias",
       canEatIn: (n: number, total: number) =>
         n === 1
@@ -555,6 +556,8 @@ export const es = {
     filterHint: "Tu selección no se guarda ni se envía: solo se usa en esta pantalla.",
     backToSearch: "← Restaurantes",
     usingProfile: "Filtrada con tu perfil de alergias.",
+    forWhom: "¿Para quién es?",
+    usingProfileFor: (names: string) => `Filtrada para: ${names}.`,
     adjusted: "Ajustada solo para esta carta: tu perfil guardado no cambia.",
     resetToProfile: "Volver a mi perfil",
     configureProfile: "Configura tus alergias para que las cartas se filtren solas",

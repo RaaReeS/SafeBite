@@ -87,3 +87,48 @@ test.describe("perfiles de familia (web)", () => {
     await expect(other.getByText("Secreto")).toHaveCount(0);
   });
 });
+
+test.describe("¿para quién? (carta y mapa)", () => {
+  test("la carta y el mapa filtran por defecto para toda la familia", async ({ page }) => {
+    await page.route("https://tiles.openfreemap.org/**", (route) => route.abort());
+    await registerDiner(page);
+    await giveConsent(page);
+    // Yo: celíaco.
+    const mine = page.getByRole("form", { name: "Mis alergias" });
+    await mine.getByLabel("Cereales con gluten").check();
+    await mine.getByRole("button", { name: "Guardar" }).click();
+    await expect(mine.getByRole("status")).toBeVisible();
+    // Lucía: alérgica a la leche.
+    await addMember(page, "Lucía");
+    const hers = page.getByRole("form", { name: "Alergias de Lucía" });
+    await hers.getByLabel("Leche y lácteos").check();
+    await hers.getByRole("button", { name: "Guardar" }).click();
+    await expect(hers.getByRole("status")).toBeVisible();
+
+    await page.goto("/r/la-huerta-demo");
+    const forWhom = page.getByRole("group", { name: "¿Para quién es?" });
+    await expect(forWhom.getByLabel("Yo")).toBeChecked();
+    await expect(forWhom.getByLabel("Lucía")).toBeChecked();
+    await expect(page.getByText("Filtrada para: Yo, Lucía.")).toBeVisible();
+    const button = (name: string) => page.getByRole("button", { name, exact: true });
+    await expect(button("Cereales con gluten")).toHaveAttribute("aria-pressed", "true");
+    await expect(button("Leche y lácteos")).toHaveAttribute("aria-pressed", "true");
+    // El brownie lleva leche: no es apto para el grupo.
+    await expect(page.getByRole("listitem").filter({ hasText: "Brownie" })).toContainText(
+      "No apto",
+    );
+
+    await forWhom.getByLabel("Lucía").uncheck();
+    await expect(page.getByText("Filtrada para: Yo.")).toBeVisible();
+    await expect(button("Leche y lácteos")).toHaveAttribute("aria-pressed", "false");
+    // Siempre queda al menos una persona.
+    await forWhom.getByLabel("Yo").click();
+    await expect(forWhom.getByLabel("Yo")).toBeChecked();
+
+    await page.goto("/comensal/restaurantes");
+    const mapForWhom = page.getByRole("group", { name: "¿Para quién buscas?" });
+    await expect(mapForWhom.getByLabel("Yo")).toBeChecked();
+    await expect(mapForWhom.getByLabel("Lucía")).toBeChecked();
+    await expect(page.getByText(/Puedes comer en \d+ de \d+ restaurantes/)).toBeVisible();
+  });
+});

@@ -1,6 +1,7 @@
 import "server-only";
 import { isAllergen, type Allergen } from "@safebite/core";
 import { getCurrentUser, requireDiner } from "@/lib/auth";
+import { getMyFamily } from "@/lib/data/family";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 /**
@@ -29,12 +30,28 @@ export async function getMyHealthProfile(): Promise<HealthProfile> {
   };
 }
 
+/** Una persona para la que se filtra: «Yo» o un familiar. */
+export type Person = { id: string; name: string; allergens: Allergen[] };
+
+/** Id fijo de «Yo» en la lista de personas (los familiares usan su uuid). */
+export const ME = "yo";
+
 /**
- * Perfil del comensal con sesión, o null si no hay sesión de comensal (visitante
- * anónimo, restaurante o admin). Para la carta pública: no redirige a nadie.
+ * Personas del comensal con sesión («Yo» y su familia) para la carta y el mapa,
+ * o null si no hay sesión de comensal (visitante anónimo, restaurante o admin).
+ * No redirige a nadie. Sin consentimiento para datos de salud, no hay personas.
  */
-export async function getHealthProfileIfDiner(): Promise<HealthProfile | null> {
+export async function getPeopleIfDiner(): Promise<{
+  consentGiven: boolean;
+  people: Person[];
+} | null> {
   const user = await getCurrentUser();
   if (user?.role !== "diner") return null;
-  return getMyHealthProfile();
+  const profile = await getMyHealthProfile();
+  if (profile.consentGivenAt === null) return { consentGiven: false, people: [] };
+  const family = await getMyFamily();
+  return {
+    consentGiven: true,
+    people: [{ id: ME, name: "Yo", allergens: profile.allergens }, ...family.members],
+  };
 }
