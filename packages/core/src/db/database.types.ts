@@ -118,12 +118,70 @@ export type Database = {
           },
         ];
       };
+      family_member_allergens: {
+        Row: {
+          allergen: Database["public"]["Enums"]["allergen"];
+          member_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          allergen: Database["public"]["Enums"]["allergen"];
+          member_id: string;
+        };
+        Update: {
+          allergen?: Database["public"]["Enums"]["allergen"];
+          member_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "family_member_allergens_member_id_fkey";
+            columns: ["member_id"];
+            isOneToOne: false;
+            referencedRelation: "family_members";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      family_members: {
+        Row: {
+          created_at: string;
+          guardian_confirmed_at: string;
+          id: string;
+          name: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          guardian_confirmed_at: string;
+          id?: string;
+          name: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          guardian_confirmed_at?: string;
+          id?: string;
+          name?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "family_members_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       profiles: {
         Row: {
           created_at: string;
           display_name: string | null;
           health_data_consent_at: string | null;
           id: string;
+          plan: Database["public"]["Enums"]["account_plan"];
           role: Database["public"]["Enums"]["user_role"];
           terms_accepted_at: string | null;
           updated_at: string;
@@ -134,6 +192,7 @@ export type Database = {
           display_name?: string | null;
           health_data_consent_at?: string | null;
           id: string;
+          plan?: Database["public"]["Enums"]["account_plan"];
           role?: Database["public"]["Enums"]["user_role"];
           terms_accepted_at?: string | null;
           updated_at?: string;
@@ -143,6 +202,7 @@ export type Database = {
           display_name?: string | null;
           health_data_consent_at?: string | null;
           id?: string;
+          plan?: Database["public"]["Enums"]["account_plan"];
           role?: Database["public"]["Enums"]["user_role"];
           terms_accepted_at?: string | null;
           updated_at?: string;
@@ -372,6 +432,10 @@ export type Database = {
       };
     };
     Functions: {
+      add_family_member: {
+        Args: { guardian_confirmed: boolean; member_name: string };
+        Returns: string;
+      };
       admin_has_second_factor: { Args: Record<PropertyKey, never>; Returns: boolean };
       admin_list_restaurants: {
         Args: Record<PropertyKey, never>;
@@ -406,6 +470,10 @@ export type Database = {
           status: Database["public"]["Enums"]["restaurant_request_status"];
         }[];
       };
+      admin_set_account_plan: {
+        Args: { new_plan: Database["public"]["Enums"]["account_plan"]; target_email: string };
+        Returns: undefined;
+      };
       admin_set_request_status: {
         Args: {
           new_status: Database["public"]["Enums"]["restaurant_request_status"];
@@ -424,8 +492,13 @@ export type Database = {
       };
       admin_verify_email_code: { Args: { code: string }; Returns: string };
       delete_own_account: { Args: Record<PropertyKey, never>; Returns: undefined };
+      family_member_limit: { Args: Record<PropertyKey, never>; Returns: number };
       set_dish_allergens: {
         Args: { declarations: Json; target_dish_id: string };
+        Returns: undefined;
+      };
+      set_family_member_allergens: {
+        Args: { allergens: Database["public"]["Enums"]["allergen"][]; target_member_id: string };
         Returns: undefined;
       };
       set_my_allergens: {
@@ -434,6 +507,7 @@ export type Database = {
       };
     };
     Enums: {
+      account_plan: "free" | "premium";
       allergen:
         | "gluten"
         | "crustaceans"
@@ -567,6 +641,7 @@ export const Constants = {
   },
   public: {
     Enums: {
+      account_plan: ["free", "premium"],
       allergen: [
         "gluten",
         "crustaceans",
