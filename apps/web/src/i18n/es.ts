@@ -103,6 +103,7 @@ export const es = {
       home: "Inicio",
       restaurants: "Restaurantes",
       allergies: "Mis alergias",
+      family: "Mi familia",
       account: "Mi cuenta",
     },
     home: {
@@ -201,6 +202,43 @@ export const es = {
       deleteConfirm: "Borrar mi cuenta",
       cancel: "Cancelar",
     },
+  },
+  family: {
+    title: "Mi familia",
+    description:
+      "Guarda las alergias de las personas con las que comes (tus hijos, tu pareja…) y filtra las cartas y el mapa para todos a la vez.",
+    consentRequired:
+      "Antes de guardar las alergias de tu familia, configura las tuyas y da tu consentimiento para guardar datos de salud.",
+    empty: "Aún no has añadido a nadie.",
+    noAllergies: "Sin alergias marcadas",
+    edit: "Editar",
+    editOf: (name: string) => `Editar a ${name}`,
+    usage: (n: number, limit: number) => `${n} de ${limit} familiares en tu plan.`,
+    addTitle: "Añadir a alguien",
+    name: "Nombre o apodo",
+    nameHint: "Por ejemplo, «Lucía» o «Abuelo». No hace falta el nombre completo.",
+    nameInvalid: "Escribe un nombre de 1 a 40 caracteres.",
+    guardian:
+      "Soy su madre, padre o tutor legal, o tengo su permiso para guardar sus alergias en SafeBite.",
+    guardianRequired:
+      "Para guardar las alergias de otra persona necesitas su permiso o ser su tutor.",
+    add: "Añadir",
+    limitReached:
+      "Has llegado al número de familiares de tu plan. El plan premium permitirá hasta 10.",
+    freeFull:
+      "Con el plan gratis puedes guardar 1 familiar. El plan premium, con hasta 10, estará disponible próximamente.",
+    premiumFull: "Has llegado al máximo de 10 familiares.",
+    back: "← Mi familia",
+    allergiesOf: (name: string) => `Alergias de ${name}`,
+    allergiesSaved: "Sus alergias se han guardado.",
+    renameTitle: "Cambiar el nombre",
+    rename: "Guardar nombre",
+    renamed: "Nombre guardado.",
+    deleteTitle: "Quitar de mi familia",
+    delete: "Quitar de mi familia",
+    deleteConfirmTitle: (name: string) => `¿Quitar a ${name}?`,
+    deleteMessage: "Se borrarán su nombre y sus alergias. No se puede deshacer.",
+    deleted: "Se ha quitado de tu familia y sus datos se han borrado.",
   },
   admin: {
     label: "Administración",
