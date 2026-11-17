@@ -1,0 +1,175 @@
+import { ALLERGENS, ALLERGEN_LABELS, type Allergen } from "@safebite/core";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
+import { ActivityIndicator, Alert, StyleSheet, Text, View } from "react-native";
+import { Button } from "@/components/button";
+import { Checkbox } from "@/components/checkbox";
+import { Notice } from "@/components/notice";
+import { Screen } from "@/components/screen";
+import { TextField } from "@/components/text-field";
+import { getMessages } from "@/i18n";
+import {
+  deleteFamilyMember,
+  getFamily,
+  renameFamilyMember,
+  setFamilyMemberAllergens,
+  type FamilyMember,
+} from "@/lib/family";
+import { useSession } from "@/lib/session";
+import { colors, fontSize, radius, spacing } from "@/theme";
+
+type Load = { kind: "loading" } | { kind: "ready"; member: FamilyMember } | { kind: "missing" };
+
+export default function FamilyMemberScreen() {
+  const t = getMessages();
+  const router = useRouter();
+  const { id = "" } = useLocalSearchParams<{ id: string }>();
+  const { session } = useSession();
+  const userId = session?.user.id;
+  const [load, setLoad] = useState<Load>({ kind: "loading" });
+  const [selected, setSelected] = useState<Allergen[]>([]);
+  const [name, setName] = useState("");
+  const [notice, setNotice] = useState<{ tone: "success" | "error"; text: string } | null>(null);
+  const [busy, setBusy] = useState<"save" | "rename" | null>(null);
+
+  const reload = useCallback(async () => {
+    if (userId === undefined) return;
+    try {
+      // RLS: solo aparecen los familiares propios; uno ajeno o borrado no está.
+      const member = (await getFamily(userId)).members.find((m) => m.id === id);
+      if (member === undefined) {
+        setLoad({ kind: "missing" });
+        return;
+      }
+      setLoad({ kind: "ready", member });
+      setSelected(member.allergens);
+      setName(member.name);
+    } catch {
+      setLoad({ kind: "missing" });
+    }
+  }, [userId, id]);
+
+  useEffect(() => {
+    void reload();
+  }, [reload]);
+
+  async function save() {
+    setNotice(null);
+    setBusy("save");
+    try {
+      await setFamilyMemberAllergens(id, selected);
+      setNotice({ tone: "success", text: t.family.allergiesSaved });
+    } catch {
+      setNotice({ tone: "error", text: t.allergies.saveError });
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function rename() {
+    const clean = name.trim();
+    setNotice(null);
+    if (clean === "" || clean.length > 40) {
+      setNotice({ tone: "error", text: t.family.nameInvalid });
+      return;
+    }
+    setBusy("rename");
+    try {
+      await renameFamilyMember(id, clean);
+      setNotice({ tone: "success", text: t.family.renamed });
+      await reload();
+    } catch {
+      setNotice({ tone: "error", text: t.family.error });
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  function confirmDelete(member: FamilyMember) {
+    Alert.alert(t.family.deleteTitle(member.name), t.family.deleteMessage, [
+      { text: t.family.cancel, style: "cancel" },
+      {
+        text: t.family.delete,
+        style: "destructive",
+        onPress: () => {
+          void deleteFamilyMember(member.id)
+            .then(() => {
+              if (router.canGoBack()) router.back();
+              else router.replace("/familia");
+            })
+            .catch(() => setNotice({ tone: "error", text: t.family.error }));
+        },
+      },
+    ]);
+  }
+
+  if (load.kind === "loading") {
+    return (
+      <Screen>
+        <ActivityIndicator color={colors.primary} accessibilityLabel={t.common.loading} />
+      </Screen>
+    );
+  }
+  if (load.kind === "missing") {
+    return (
+      <Screen>
+        <Notice tone="info" text={t.family.notFound} />
+        <Button label={t.family.title} onPress={() => router.replace("/familia")} />
+      </Screen>
+    );
+  }
+
+  const { member } = load;
+  return (
+    <Screen>
+      <Stack.Screen options={{ title: member.name }} />
+      {notice ? <Notice tone={notice.tone} text={notice.text} /> : null}
+
+      <Text style={styles.title} accessibilityRole="header">
+        {t.family.allergiesOf(member.name)}
+      </Text>
+      <View style={styles.list}>
+        {ALLERGENS.map((allergen) => (
+          <Checkbox
+            key={allergen}
+            label={ALLERGEN_LABELS.es[allergen]}
+            checked={selected.includes(allergen)}
+            onChange={(checked) =>
+              setSelected((current) =>
+                checked ? [...current, allergen] : current.filter((a) => a !== allergen),
+              )
+            }
+          />
+        ))}
+      </View>
+      <Button label={t.family.save} onPress={() => void save()} loading={busy === "save"} />
+
+      <View style={styles.section}>
+        <Text style={styles.title} accessibilityRole="header">
+          {t.family.renameTitle}
+        </Text>
+        <TextField label={t.family.name} value={name} onChangeText={setName} maxLength={40} />
+        <Button
+          label={t.family.rename}
+          variant="secondary"
+          onPress={() => void rename()}
+          loading={busy === "rename"}
+        />
+      </View>
+
+      <Button label={t.family.delete} variant="danger" onPress={() => confirmDelete(member)} />
+    </Screen>
+  );
+}
+
+const styles = StyleSheet.create({
+  title: { fontSize: fontSize.lg, fontWeight: "700", color: colors.text },
+  list: { gap: spacing.xs },
+  section: {
+    gap: spacing.md,
+    padding: spacing.lg,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+});

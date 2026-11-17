@@ -18,6 +18,7 @@ import {
 } from "react-native";
 import { Button } from "@/components/button";
 import { Notice } from "@/components/notice";
+import { PeoplePicker } from "@/components/people-picker";
 import { RestaurantMap } from "@/components/restaurant-map";
 import { Screen } from "@/components/screen";
 import { STATUS_STYLES } from "@/components/status-badge";
@@ -25,7 +26,7 @@ import { TextField } from "@/components/text-field";
 import { getMessages } from "@/i18n";
 import { getCoordinatesIfAllowed, getCurrentCoordinates } from "@/lib/location";
 import { getSuitability } from "@/lib/suitability";
-import { useHealthProfile } from "@/lib/use-health-profile";
+import { usePeople } from "@/lib/use-people";
 import {
   listPublishedRestaurants,
   listRestaurantsWithLocation,
@@ -83,7 +84,8 @@ export default function SearchScreen() {
   const [state, setState] = useState<State>({ kind: "loading" });
   const [view, setView] = useState<"list" | "map">("list");
   const [showOthers, setShowOthers] = useState(false);
-  const { state: profileState } = useHealthProfile();
+  const people = usePeople();
+  const profileState = people.profileState;
   const [suitability, setSuitability] = useState<Suitability>({ kind: "none" });
   /** Aviso de ubicación que no sustituye a la lista (al ordenar por cercanía). */
   const [locationNotice, setLocationNotice] = useState<{ text: string; settings: boolean } | null>(
@@ -110,12 +112,10 @@ export default function SearchScreen() {
     // Solo al abrir la pantalla.
   }, []);
 
-  // Con alergias guardadas, se calcula en el móvil dónde puede comer (el perfil
-  // no sale del dispositivo). Sin alergias, no hay semáforo.
-  const allergens =
-    profileState.status === "ready" && profileState.profile.consentGivenAt !== null
-      ? profileState.profile.allergens
-      : null;
+  // Con alergias guardadas, se calcula en el móvil dónde pueden comer las
+  // personas elegidas («Yo» y la familia; por defecto, todas). Los perfiles no
+  // salen del dispositivo. Sin alergias, no hay semáforo.
+  const allergens = people.consent && people.people !== null ? people.allergens : null;
   const allergensKey = allergens?.join(",") ?? null;
   useEffect(() => {
     if (allergens === null || allergens.length === 0) {
@@ -231,6 +231,13 @@ export default function SearchScreen() {
       <Button label={t.search.submit} onPress={() => void searchByCity()} />
       <Button label={t.search.nearMe} variant="secondary" onPress={() => void searchNearMe()} />
       <Text style={styles.privacy}>{t.search.privacy}</Text>
+
+      <PeoplePicker
+        label={t.people.forWhomSearch}
+        people={people.people}
+        selected={people.selected}
+        onToggle={people.toggle}
+      />
 
       <View
         style={styles.tabs}

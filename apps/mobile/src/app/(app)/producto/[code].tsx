@@ -13,12 +13,13 @@ import { ActivityIndicator, Image, Linking, StyleSheet, Text, View } from "react
 import { AllergenIcon } from "@/components/allergen-icon";
 import { Button } from "@/components/button";
 import { Notice } from "@/components/notice";
+import { PeoplePicker } from "@/components/people-picker";
 import { Screen } from "@/components/screen";
 import { StatusBadge } from "@/components/status-badge";
 import { getMessages } from "@/i18n";
 import { addToHistory } from "@/lib/product-history";
 import { lookupProduct, type ProductLookup } from "@/lib/products";
-import { useHealthProfile } from "@/lib/use-health-profile";
+import { usePeople } from "@/lib/use-people";
 import { colors, fontSize, radius, spacing } from "@/theme";
 
 type LoadState = { kind: "loading" } | ProductLookup;
@@ -28,7 +29,8 @@ export default function ProductScreen() {
   const router = useRouter();
   const { code = "" } = useLocalSearchParams<{ code: string }>();
   const validCode = isValidBarcode(code);
-  const { state: profileState, userId } = useHealthProfile();
+  const people = usePeople();
+  const { profileState, userId } = people;
   const [load, setLoad] = useState<LoadState>(
     validCode ? { kind: "loading" } : { status: "invalid" },
   );
@@ -67,6 +69,7 @@ export default function ProductScreen() {
         <ProductDetails
           product={load.product}
           profileState={profileState}
+          people={people}
           onConfigure={() => router.push("/alergias")}
         />
       ) : null}
@@ -103,22 +106,22 @@ export default function ProductScreen() {
   );
 }
 
-type ProfileState = ReturnType<typeof useHealthProfile>["state"];
+type PeopleState = ReturnType<typeof usePeople>;
 
 function ProductDetails({
   product,
   profileState,
+  people,
   onConfigure,
 }: {
   product: OffProduct;
-  profileState: ProfileState;
+  profileState: PeopleState["profileState"];
+  people: PeopleState;
   onConfigure: () => void;
 }) {
   const t = getMessages();
-  const profile =
-    profileState.status === "ready" && profileState.profile.consentGivenAt !== null
-      ? profileState.profile.allergens
-      : [];
+  // Alergias de las personas elegidas («Yo» y la familia; por defecto, todas).
+  const profile = people.consent ? people.allergens : [];
   const evaluation = evaluateAllergens(profile, productDeclarations(product));
 
   return (
@@ -152,6 +155,13 @@ function ProductDetails({
           <Button label={t.product.configureProfile} variant="secondary" onPress={onConfigure} />
         </>
       ) : null}
+
+      <PeoplePicker
+        label={t.people.forWhomProduct}
+        people={people.people}
+        selected={people.selected}
+        onToggle={people.toggle}
+      />
 
       {profile.length > 0 ? (
         <View style={styles.result}>

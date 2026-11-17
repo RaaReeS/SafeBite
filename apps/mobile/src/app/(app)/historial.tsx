@@ -13,13 +13,14 @@ import { Screen } from "@/components/screen";
 import { StatusBadge } from "@/components/status-badge";
 import { getMessages } from "@/i18n";
 import { clearHistory, getHistory, historyProduct, type HistoryEntry } from "@/lib/product-history";
-import { useHealthProfile } from "@/lib/use-health-profile";
+import { usePeople } from "@/lib/use-people";
 import { colors, fontSize, radius, spacing } from "@/theme";
 
 export default function HistoryScreen() {
   const t = getMessages();
   const router = useRouter();
-  const { state: profileState, userId } = useHealthProfile();
+  const people = usePeople();
+  const { profileState, userId } = people;
   const [history, setHistory] = useState<HistoryEntry[] | null>(null);
   const [cleared, setCleared] = useState(false);
 
@@ -30,10 +31,8 @@ export default function HistoryScreen() {
   );
 
   // Sin perfil no hay semáforo, igual que en la carta y en la ficha del producto.
-  const profile: Allergen[] =
-    profileState.status === "ready" && profileState.profile.consentGivenAt !== null
-      ? profileState.profile.allergens
-      : [];
+  // Por defecto, para todas las personas («Yo» y la familia).
+  const profile: Allergen[] = people.consent ? people.allergens : [];
 
   function confirmClear() {
     Alert.alert(t.history.clearTitle, t.history.clearMessage, [
