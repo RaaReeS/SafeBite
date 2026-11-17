@@ -127,7 +127,7 @@ function RestaurantLocation({ restaurant }: { restaurant: MyRestaurant }) {
             href={mapUrl(restaurant)}
             target="_blank"
             rel="noopener noreferrer"
-            className="underline"
+            className="font-semibold text-primary-text underline"
           >
             {t.restaurant.locationCheck}
           </a>

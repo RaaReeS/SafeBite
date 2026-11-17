@@ -18,12 +18,12 @@ export default function LoginPage({ searchParams }: PageProps<"/login">) {
         <LoginContent searchParams={searchParams} />
       </Suspense>
       <div className="flex flex-col gap-2 text-sm">
-        <Link href="/recuperar" className="underline">
+        <Link href="/recuperar" className="font-semibold text-primary-text underline">
           {t.auth.login.forgot}
         </Link>
         <p>
           {t.auth.login.noAccount}{" "}
-          <Link href="/registro" className="underline">
+          <Link href="/registro" className="font-semibold text-primary-text underline">
             {t.auth.login.register}
           </Link>
         </p>

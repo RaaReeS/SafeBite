@@ -135,6 +135,17 @@
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
+/*
+ * Foco con teclado siempre visible y con el color del tema, también en
+ * enlaces y controles sin estilo propio (las clases de cada pieza mandan).
+ */
+@layer base {
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--primary-text);
+    outline-offset: 2px;
+  }
+}
+
 body {
   background: var(--background);
   color: var(--fg);

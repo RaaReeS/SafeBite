@@ -31,7 +31,7 @@ export default async function FamilyPage({ searchParams }: PageProps<"/comensal/
       {profile.consentGivenAt === null ? (
         <Alert tone="info">
           {t.family.consentRequired}{" "}
-          <Link href="/comensal/alergias" className="underline">
+          <Link href="/comensal/alergias" className="font-semibold text-primary-text underline">
             {t.diner.home.configure}
           </Link>
         </Alert>

@@ -89,3 +89,19 @@ for (const colorScheme of ["light", "dark"] as const) {
     });
   });
 }
+
+test("con el teclado, el elemento enfocado se ve (anillo de foco)", async ({ page }) => {
+  await page.goto("/");
+  for (let step = 0; step < 3; step += 1) {
+    await page.keyboard.press("Tab");
+    const outline = await page.evaluate(() => {
+      const element = document.activeElement;
+      if (element === null || element === document.body) return null;
+      const style = getComputedStyle(element);
+      return { style: style.outlineStyle, width: Number.parseFloat(style.outlineWidth) };
+    });
+    expect(outline, `paso ${step + 1}: hay un elemento enfocado`).not.toBeNull();
+    expect(outline?.style).not.toBe("none");
+    expect(outline?.width ?? 0).toBeGreaterThanOrEqual(2);
+  }
+});

@@ -17,7 +17,7 @@ export default function RegisterPage() {
       <RegisterForm />
       <p className="text-sm">
         {t.auth.register.hasAccount}{" "}
-        <Link href="/login" className="underline">
+        <Link href="/login" className="font-semibold text-primary-text underline">
           {t.auth.register.login}
         </Link>
       </p>

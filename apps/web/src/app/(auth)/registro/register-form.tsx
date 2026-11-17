@@ -93,11 +93,19 @@ export function RegisterForm() {
           />
           <label htmlFor={termsId} className="text-sm">
             {t.auth.register.acceptTermsBefore}{" "}
-            <Link href="/terminos" target="_blank" className="underline">
+            <Link
+              href="/terminos"
+              target="_blank"
+              className="font-semibold text-primary-text underline"
+            >
               {t.auth.register.terms}
             </Link>{" "}
             {t.auth.register.acceptTermsMiddle}{" "}
-            <Link href="/privacidad" target="_blank" className="underline">
+            <Link
+              href="/privacidad"
+              target="_blank"
+              className="font-semibold text-primary-text underline"
+            >
               {t.auth.register.privacy}
             </Link>
             {t.auth.register.acceptTermsAfter}

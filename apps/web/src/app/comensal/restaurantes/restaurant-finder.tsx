@@ -193,7 +193,7 @@ export function RestaurantFinder({
       {suitability === null ? (
         <Alert tone="info">
           {t.diner.search.noProfile}{" "}
-          <Link href="/comensal/alergias" className="font-semibold underline">
+          <Link href="/comensal/alergias" className="font-semibold text-primary-text underline">
             {t.diner.search.configureProfile}
           </Link>
         </Alert>
