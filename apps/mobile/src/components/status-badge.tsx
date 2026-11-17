@@ -7,10 +7,10 @@ export const STATUS_STYLES: Record<
   FilterStatus,
   { symbol: string; background: string; text: string }
 > = {
-  no_apto: { symbol: "✕", background: "#dc2626", text: "#ffffff" },
+  no_apto: { symbol: "✕", background: "#b91c1c", text: "#ffffff" },
   posibles_trazas: { symbol: "!", background: "#fbbf24", text: "#18181b" },
   sin_datos: { symbol: "?", background: "#5b6472", text: "#ffffff" },
-  apto: { symbol: "✓", background: "#059669", text: "#ffffff" },
+  apto: { symbol: "✓", background: "#047857", text: "#ffffff" },
 };
 
 /** Etiqueta de estado. `label` sustituye al texto corto (p. ej. «2 platos aptos»). */

@@ -5,7 +5,7 @@ import {
   type FilterStatus,
   type SuitabilitySummary,
 } from "@safebite/core";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/icon";
 import { Stack, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Linking, Pressable, StyleSheet, Switch, Text, TextInput, View } from "react-native";
@@ -217,7 +217,7 @@ export default function SearchScreen() {
 
       {/* Buscador: ciudad + «Buscar», y «Cerca de mí» debajo. */}
       <View style={styles.searchBar}>
-        <Ionicons name="search" size={20} color={colors.textSubtle} />
+        <Icon name="search" size={20} color={colors.textSubtle} />
         <TextInput
           accessibilityLabel={t.search.city}
           placeholder={t.search.city}
@@ -245,7 +245,7 @@ export default function SearchScreen() {
           onPress={() => void searchNearMe()}
           style={({ pressed }) => [styles.nearButton, pressed ? styles.pressed : null]}
         >
-          <Ionicons name="navigate" size={16} color={colors.primary} />
+          <Icon name="navigate" size={16} color={colors.primary} />
           <Text style={styles.nearText}>{t.search.nearMe}</Text>
         </Pressable>
       </View>
@@ -278,7 +278,7 @@ export default function SearchScreen() {
               }}
               style={[styles.segment, on ? styles.segmentOn : null]}
             >
-              <Ionicons
+              <Icon
                 name={option === "list" ? "list" : "map"}
                 size={16}
                 color={on ? colors.text : colors.textMuted}
@@ -446,12 +446,12 @@ export default function SearchScreen() {
                     )}
                     {distanceKm === null ? null : (
                       <View style={styles.distanceRow}>
-                        <Ionicons name="location-outline" size={14} color={colors.primary} />
+                        <Icon name="location-outline" size={14} color={colors.primary} />
                         <Text style={styles.distance}>{formatDistance(distanceKm)}</Text>
                       </View>
                     )}
                   </View>
-                  <Ionicons name="chevron-forward" size={20} color={colors.textSubtle} />
+                  <Icon name="chevron-forward" size={20} color={colors.textSubtle} />
                 </Pressable>
               ))}
             </>
@@ -504,7 +504,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    minHeight: 40,
+    minHeight: 44,
     paddingHorizontal: spacing.lg,
     borderRadius: radius.full,
     backgroundColor: colors.primarySoft,
@@ -522,7 +522,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 6,
-    minHeight: 40,
+    minHeight: 44,
     borderRadius: radius.full,
   },
   segmentOn: { backgroundColor: colors.card, ...shadow.card },

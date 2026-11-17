@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/icon";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { tapFeedback } from "@/lib/haptics";
 import { colors, fonts, spacing } from "@/theme";
@@ -24,7 +24,7 @@ export function Checkbox({ label, checked, onChange, error }: CheckboxProps) {
         style={styles.row}
       >
         <View style={[styles.box, checked ? styles.boxChecked : null]}>
-          {checked ? <Ionicons name="checkmark" size={18} color={colors.primaryText} /> : null}
+          {checked ? <Icon name="checkmark" size={18} color={colors.primaryText} /> : null}
         </View>
         <Text style={styles.label}>{label}</Text>
       </Pressable>
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     height: 26,
     borderRadius: 8,
     borderWidth: 2,
-    borderColor: colors.border,
+    borderColor: colors.inputBorder,
     backgroundColor: colors.card,
     alignItems: "center",
     justifyContent: "center",

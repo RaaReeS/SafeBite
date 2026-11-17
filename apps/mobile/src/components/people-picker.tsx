@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/icon";
 import { StyleSheet, Text, View } from "react-native";
 import { Chip } from "@/components/ui";
 import type { Person } from "@/lib/use-people";
@@ -36,7 +36,7 @@ export function PeoplePicker({
               selected={on}
               onPress={() => onToggle(person.id)}
               icon={
-                <Ionicons
+                <Icon
                   name={on ? "checkmark" : person.id === ME ? "person-outline" : "people-outline"}
                   size={16}
                   color={on ? colors.primaryText : colors.textMuted}

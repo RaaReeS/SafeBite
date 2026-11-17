@@ -2,7 +2,7 @@ import type { Allergen } from "@safebite/core";
 import { Stack, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Linking, StyleSheet, Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/icon";
 import { AllergenGrid } from "@/components/allergen-grid";
 import { Button } from "@/components/button";
 import { Checkbox } from "@/components/checkbox";
@@ -76,7 +76,7 @@ function ConsentForm({ userId, onConsent }: { userId: string; onConsent: () => v
         <View style={styles.points}>
           {t.consent.points.map((point) => (
             <View key={point} style={styles.point}>
-              <Ionicons name="checkmark-circle" size={20} color={colors.primary} />
+              <Icon name="checkmark-circle" size={20} color={colors.primary} />
               <Text style={[typography.body, styles.flex]}>{point}</Text>
             </View>
           ))}

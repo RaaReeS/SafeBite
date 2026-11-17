@@ -1,5 +1,5 @@
 import { FILTER_DISCLAIMER } from "@safebite/core";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/icon";
 import { LinearGradient } from "expo-linear-gradient";
 import { useFocusEffect, useRouter } from "expo-router";
 import { setStatusBarStyle } from "expo-status-bar";
@@ -37,7 +37,7 @@ export default function WelcomeScreen() {
         <ScrollView contentContainerStyle={styles.content}>
           <View style={styles.hero}>
             <View style={styles.logo} importantForAccessibility="no-hide-descendants">
-              <Ionicons name="shield-checkmark" size={44} color={colors.primary} />
+              <Icon name="shield-checkmark" size={44} color={colors.primary} />
             </View>
             <Text style={styles.title} accessibilityRole="header">
               {t.common.appName}
@@ -47,7 +47,7 @@ export default function WelcomeScreen() {
               {features.map((feature) => (
                 <View key={feature.text} style={styles.feature}>
                   <View style={styles.featureIcon}>
-                    <Ionicons name={feature.icon} size={20} color={colors.primaryText} />
+                    <Icon name={feature.icon} size={20} color={colors.primaryText} />
                   </View>
                   <Text style={styles.featureText}>{feature.text}</Text>
                 </View>

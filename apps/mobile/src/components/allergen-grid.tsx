@@ -1,5 +1,5 @@
 import { ALLERGENS, ALLERGEN_LABELS, type Allergen } from "@safebite/core";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/icon";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { AllergenIcon } from "@/components/allergen-icon";
 import { tapFeedback } from "@/lib/haptics";
@@ -47,12 +47,7 @@ export function AllergenGrid({
               {ALLERGEN_LABELS.es[allergen]}
             </Text>
             {on ? (
-              <Ionicons
-                name="checkmark-circle"
-                size={20}
-                color={colors.primary}
-                style={styles.check}
-              />
+              <Icon name="checkmark-circle" size={20} color={colors.primary} style={styles.check} />
             ) : null}
           </Pressable>
         );

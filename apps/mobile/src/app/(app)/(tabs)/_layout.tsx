@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/icon";
 import { Tabs } from "expo-router";
 import type { IconName } from "@/components/button";
 import { getMessages } from "@/i18n";
@@ -42,7 +42,7 @@ export default function TabsLayout() {
             title: tab.label,
             tabBarAccessibilityLabel: t.tabs.accessibilityLabel(tab.label, index + 1, tabs.length),
             tabBarIcon: ({ focused, size }) => (
-              <Ionicons
+              <Icon
                 name={focused ? tab.iconActive : tab.icon}
                 color={focused ? colors.primary : colors.textSubtle}
                 size={size}

@@ -3,7 +3,7 @@ import { CameraView, useCameraPermissions, type BarcodeScanningResult } from "ex
 import { Stack, useFocusEffect, useIsFocused, useRouter } from "expo-router";
 import { useCallback, useRef, useState } from "react";
 import { Linking, StyleSheet, Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/icon";
 import { Button } from "@/components/button";
 import { Notice } from "@/components/notice";
 import { Screen } from "@/components/screen";
@@ -78,7 +78,7 @@ export default function ScannerScreen() {
                 <View style={[styles.corner, styles.bottomRight]} />
               </View>
               <View style={styles.hintPill}>
-                <Ionicons name="barcode-outline" size={16} color={colors.primaryText} />
+                <Icon name="barcode-outline" size={16} color={colors.primaryText} />
                 <Text style={styles.hintText}>{t.scanner.instructions}</Text>
               </View>
             </View>

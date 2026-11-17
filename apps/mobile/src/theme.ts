@@ -10,17 +10,22 @@ export const colors = {
   card: "#ffffff",
   /** Superficies hundidas (campos, chips sin marcar). */
   surface: "#eef1ef",
+  /** Separadores y bordes decorativos (no marcan un control). */
   border: "#dfe4e1",
+  /** Borde de campos y casillas: contraste 3:1 con el blanco (WCAG 1.4.11). */
+  inputBorder: "#8a93a0",
   text: "#111827",
   textMuted: "#5b6472",
-  textSubtle: "#8a93a0",
+  textSubtle: "#6b7280",
 
-  primary: "#059669",
+  // Contrastes comprobados (WCAG AA): blanco sobre primary 5,5:1; primary
+  // sobre el fondo 5,1:1; textSubtle sobre blanco 4,8:1; danger sobre dangerSoft 5,3:1.
+  primary: "#047857",
   primaryDark: "#064e3b",
   primarySoft: "#d1fae5",
   primaryText: "#ffffff",
 
-  danger: "#dc2626",
+  danger: "#b91c1c",
   dangerSoft: "#fee2e2",
   warningBackground: "#fffbeb",
   warningBorder: "#fcd34d",

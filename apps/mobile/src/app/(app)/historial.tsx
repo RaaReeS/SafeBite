@@ -6,7 +6,7 @@ import {
 } from "@safebite/core";
 import { Stack, useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/icon";
 import { Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { Button } from "@/components/button";
 import { Notice } from "@/components/notice";
@@ -137,7 +137,7 @@ function HistoryRow({
         />
       ) : (
         <View style={[styles.image, styles.noImage]}>
-          <Ionicons name="image-outline" size={26} color={colors.textSubtle} />
+          <Icon name="image-outline" size={26} color={colors.textSubtle} />
         </View>
       )}
       <View style={styles.rowText}>
@@ -151,7 +151,7 @@ function HistoryRow({
         ) : null}
         {status !== null ? <StatusBadge status={status} /> : null}
       </View>
-      <Ionicons name="chevron-forward" size={20} color={colors.textSubtle} />
+      <Icon name="chevron-forward" size={20} color={colors.textSubtle} />
     </Pressable>
   );
 }

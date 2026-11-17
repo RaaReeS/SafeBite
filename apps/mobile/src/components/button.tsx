@@ -1,9 +1,8 @@
-import { Ionicons } from "@expo/vector-icons";
-import type { ComponentProps } from "react";
+import { Icon, type IconName } from "@/components/icon";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, fonts, radius, shadow, spacing } from "@/theme";
 
-export type IconName = ComponentProps<typeof Ionicons>["name"];
+export type { IconName } from "@/components/icon";
 
 type ButtonProps = {
   label: string;
@@ -50,9 +49,7 @@ export function Button({
         <ActivityIndicator color={color} />
       ) : (
         <View style={styles.content}>
-          {icon ? (
-            <Ionicons name={icon} size={20} color={color} importantForAccessibility="no" />
-          ) : null}
+          {icon ? <Icon name={icon} size={20} color={color} /> : null}
           <Text style={[styles.label, { color }]}>{label}</Text>
         </View>
       )}

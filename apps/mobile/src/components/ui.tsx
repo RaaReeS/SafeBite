@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/icon";
 import { useEffect, useRef, type ReactNode } from "react";
 import {
   Animated,
@@ -41,7 +41,7 @@ export function SectionHeader({
           accessibilityRole="button"
           accessibilityLabel={action.label}
           onPress={action.onPress}
-          hitSlop={8}
+          style={styles.sectionActionTouch}
         >
           <Text style={styles.sectionAction}>{action.label}</Text>
         </Pressable>
@@ -67,7 +67,7 @@ export function IconBadge({
       style={[styles.iconBadge, { width: size, height: size, backgroundColor: background }]}
       importantForAccessibility="no-hide-descendants"
     >
-      <Ionicons name={icon} size={size * 0.5} color={color} />
+      <Icon name={icon} size={size * 0.5} color={color} />
     </View>
   );
 }
@@ -102,14 +102,7 @@ export function ListItem({
         ) : null}
       </View>
       {right}
-      {onPress ? (
-        <Ionicons
-          name="chevron-forward"
-          size={20}
-          color={colors.textSubtle}
-          importantForAccessibility="no"
-        />
-      ) : null}
+      {onPress ? <Icon name="chevron-forward" size={20} color={colors.textSubtle} /> : null}
     </>
   );
   if (onPress === undefined) return <View style={styles.listItem}>{content}</View>;
@@ -237,6 +230,13 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
   },
   sectionAction: { fontFamily: fonts.semibold, fontSize: 14, color: colors.primary },
+  // Zona táctil de 44 pt aunque el texto sea pequeño.
+  sectionActionTouch: {
+    minHeight: 44,
+    minWidth: 44,
+    justifyContent: "center",
+    alignItems: "flex-end",
+  },
   iconBadge: { borderRadius: radius.full, alignItems: "center", justifyContent: "center" },
   listItem: {
     flexDirection: "row",
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     backgroundColor: colors.surface,
   },
-  chipTouchable: { minHeight: 40, paddingHorizontal: spacing.lg },
+  chipTouchable: { minHeight: 44, paddingHorizontal: spacing.lg },
   chipOn: { backgroundColor: colors.primary },
   chipText: { fontFamily: fonts.medium, fontSize: 14, color: colors.text },
   chipTextOn: { color: colors.primaryText },

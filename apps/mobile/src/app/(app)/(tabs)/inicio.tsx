@@ -5,7 +5,7 @@ import {
   productDeclarations,
   type Allergen,
 } from "@safebite/core";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/icon";
 import { LinearGradient } from "expo-linear-gradient";
 import { Stack, useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
@@ -63,7 +63,7 @@ export default function HomeScreen() {
       >
         <View style={styles.heroHeader}>
           <Text style={styles.heroTitle}>{t.home.allergiesTitle}</Text>
-          <Ionicons name="shield-checkmark" size={22} color={colors.primarySoft} />
+          <Icon name="shield-checkmark" size={22} color={colors.primarySoft} />
         </View>
 
         {profileState.status === "loading" ? (
@@ -238,7 +238,7 @@ function RecentProduct({
         {entry.imageUrl !== null ? (
           <Image source={{ uri: entry.imageUrl }} style={styles.fill} resizeMode="contain" />
         ) : (
-          <Ionicons name="image-outline" size={28} color={colors.textSubtle} />
+          <Icon name="image-outline" size={28} color={colors.textSubtle} />
         )}
       </View>
       <Text style={styles.recentName} numberOfLines={2}>

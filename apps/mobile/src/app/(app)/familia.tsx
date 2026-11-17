@@ -2,7 +2,7 @@ import { ALLERGEN_LABELS } from "@safebite/core";
 import { Stack, useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/icon";
 import { Button } from "@/components/button";
 import { Checkbox } from "@/components/checkbox";
 import { Notice } from "@/components/notice";
@@ -114,7 +114,7 @@ export default function FamilyScreen() {
             </Card>
           )}
           <View style={styles.usage}>
-            <Ionicons name="star-outline" size={16} color={colors.textMuted} />
+            <Icon name="star-outline" size={16} color={colors.textMuted} />
             <Text style={typography.caption}>
               {t.family.usage(load.family.members.length, load.family.limit)}
             </Text>

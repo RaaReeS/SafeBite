@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/icon";
 import { StyleSheet, Text, View } from "react-native";
 import type { IconName } from "@/components/button";
 import { colors, fonts, radius, spacing } from "@/theme";
@@ -25,13 +25,7 @@ export function Notice({ tone = "info", text }: { tone?: Tone; text: string }) {
       accessibilityLiveRegion={tone === "error" ? "assertive" : "polite"}
       style={[styles.box, { backgroundColor: palette.background }]}
     >
-      <Ionicons
-        name={palette.icon}
-        size={20}
-        color={palette.text}
-        style={styles.icon}
-        importantForAccessibility="no"
-      />
+      <Icon name={palette.icon} size={20} color={palette.text} style={styles.icon} />
       <Text style={[styles.text, { color: palette.text }]}>{text}</Text>
     </View>
   );

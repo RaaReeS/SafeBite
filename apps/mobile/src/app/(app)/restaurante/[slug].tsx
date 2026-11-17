@@ -12,7 +12,7 @@ import {
 } from "@safebite/core";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/icon";
 import { Linking, Pressable, StyleSheet, Switch, Text, View } from "react-native";
 import { AllergenIcon } from "@/components/allergen-icon";
 import { Button } from "@/components/button";
@@ -112,7 +112,7 @@ export default function RestaurantMenuScreen() {
               {restaurant.name}
             </Text>
             <View style={styles.addressRow}>
-              <Ionicons name="location-outline" size={14} color={colors.textMuted} />
+              <Icon name="location-outline" size={14} color={colors.textMuted} />
               <Text style={[typography.caption, styles.flex]}>
                 {[restaurant.address, restaurant.city].filter(Boolean).join(" · ")}
               </Text>
@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    minHeight: 40,
+    minHeight: 44,
     paddingHorizontal: spacing.md,
     borderRadius: radius.full,
     backgroundColor: colors.surface,
