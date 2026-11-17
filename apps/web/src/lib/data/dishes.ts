@@ -1,7 +1,7 @@
 import "server-only";
 import { groupDeclarationsByDish } from "@safebite/core";
 import { notFound } from "next/navigation";
-import { getMyRestaurant } from "@/lib/data/restaurants";
+import { findMyRestaurantForDownload, getMyRestaurant } from "@/lib/data/restaurants";
 import { isUuid } from "@/lib/ids";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -76,6 +76,40 @@ export async function getMyMenuPreview(restaurantId: string) {
   const { data: dishes, error } = await supabase
     .from("dishes")
     .select("id, name, description, price_cents, category, ingredients, sort_order")
+    .eq("restaurant_id", restaurant.id)
+    .eq("is_active", true)
+    .order("sort_order");
+  if (error) throw error;
+
+  const dishIds = dishes.map((dish) => dish.id);
+  const { data: declarations, error: declarationsError } =
+    dishIds.length === 0
+      ? { data: [], error: null }
+      : await supabase
+          .from("dish_allergens")
+          .select("dish_id, allergen, level")
+          .in("dish_id", dishIds);
+  if (declarationsError) throw declarationsError;
+
+  const byDish = groupDeclarationsByDish(declarations);
+  return {
+    restaurant,
+    dishes: dishes.map((dish) => ({ ...dish, allergens: byDish.get(dish.id) ?? [] })),
+  };
+}
+
+/**
+ * Datos de la tabla de alérgenos imprimible: el restaurante y sus platos
+ * activos con lo declarado. Solo para su dueño; si no, null (la ruta da 404).
+ */
+export async function getMyAllergenTableData(restaurantId: string) {
+  const restaurant = await findMyRestaurantForDownload(restaurantId);
+  if (restaurant === null) return null;
+  const supabase = await createSupabaseServerClient();
+
+  const { data: dishes, error } = await supabase
+    .from("dishes")
+    .select("id, name, category, sort_order")
     .eq("restaurant_id", restaurant.id)
     .eq("is_active", true)
     .order("sort_order");
