@@ -8,3 +8,5 @@ ESPECIFICACION.md
 # Generado por Expo al arrancar (ignorado también por git)
 expo-env.d.ts
 .expo
+# Texto oficial de la licencia: no se reformatea
+LICENSE.md
