@@ -6,15 +6,17 @@ import {
 } from "@safebite/core";
 import { Stack, useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
+import { Icon } from "@/components/icon";
 import { Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { Button } from "@/components/button";
 import { Notice } from "@/components/notice";
 import { Screen } from "@/components/screen";
 import { StatusBadge } from "@/components/status-badge";
+import { EmptyState } from "@/components/ui";
 import { getMessages } from "@/i18n";
 import { clearHistory, getHistory, historyProduct, type HistoryEntry } from "@/lib/product-history";
 import { usePeople } from "@/lib/use-people";
-import { colors, fontSize, radius, spacing } from "@/theme";
+import { colors, fonts, radius, shadow, spacing, typography } from "@/theme";
 
 export default function HistoryScreen() {
   const t = getMessages();
@@ -57,10 +59,17 @@ export default function HistoryScreen() {
       {cleared ? <Notice tone="success" text={t.history.cleared} /> : null}
 
       {history !== null && history.length === 0 ? (
-        <>
-          <Text style={styles.muted}>{t.history.empty}</Text>
-          <Button label={t.scanner.open} onPress={() => router.replace("/escanear")} />
-        </>
+        <EmptyState
+          icon="barcode-outline"
+          title={t.history.empty}
+          action={
+            <Button
+              label={t.scanner.open}
+              icon="scan"
+              onPress={() => router.navigate("/escanear")}
+            />
+          }
+        />
       ) : null}
 
       {history !== null && history.length > 0 ? (
@@ -80,8 +89,13 @@ export default function HistoryScreen() {
               />
             ))}
           </View>
-          <Text style={styles.muted}>{t.history.note}</Text>
-          <Button label={t.history.clear} variant="danger" onPress={confirmClear} />
+          <Text style={typography.caption}>{t.history.note}</Text>
+          <Button
+            label={t.history.clear}
+            variant="danger"
+            icon="trash-outline"
+            onPress={confirmClear}
+          />
         </>
       ) : null}
     </Screen>
@@ -123,7 +137,7 @@ function HistoryRow({
         />
       ) : (
         <View style={[styles.image, styles.noImage]}>
-          <Text style={styles.noImageText}>?</Text>
+          <Icon name="image-outline" size={26} color={colors.textSubtle} />
         </View>
       )}
       <View style={styles.rowText}>
@@ -137,26 +151,26 @@ function HistoryRow({
         ) : null}
         {status !== null ? <StatusBadge status={status} /> : null}
       </View>
+      <Icon name="chevron-forward" size={20} color={colors.textSubtle} />
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  list: { gap: spacing.sm },
+  list: { gap: spacing.md },
   row: {
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.md,
     padding: spacing.md,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderRadius: radius.lg,
+    backgroundColor: colors.card,
+    ...shadow.card,
   },
-  rowPressed: { backgroundColor: colors.surface },
+  rowPressed: { opacity: 0.8 },
   rowText: { flex: 1, gap: spacing.xs },
-  image: { width: 64, height: 64, borderRadius: radius.sm, backgroundColor: colors.surface },
+  image: { width: 72, height: 72, borderRadius: radius.md, backgroundColor: colors.surface },
   noImage: { alignItems: "center", justifyContent: "center" },
-  noImageText: { fontSize: fontSize.xl, color: colors.textMuted },
-  name: { fontSize: fontSize.md, fontWeight: "600", color: colors.text },
-  muted: { fontSize: fontSize.sm, color: colors.textMuted },
+  name: { fontFamily: fonts.semibold, fontSize: 15, lineHeight: 20, color: colors.text },
+  muted: { fontFamily: fonts.regular, fontSize: 13, color: colors.textMuted },
 });

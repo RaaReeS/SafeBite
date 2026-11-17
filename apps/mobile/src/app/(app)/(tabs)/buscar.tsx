@@ -5,24 +5,17 @@ import {
   type FilterStatus,
   type SuitabilitySummary,
 } from "@safebite/core";
+import { Icon } from "@/components/icon";
 import { Stack, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  Linking,
-  Pressable,
-  StyleSheet,
-  Switch,
-  Text,
-  View,
-} from "react-native";
+import { Linking, Pressable, StyleSheet, Switch, Text, TextInput, View } from "react-native";
 import { Button } from "@/components/button";
 import { Notice } from "@/components/notice";
 import { PeoplePicker } from "@/components/people-picker";
 import { RestaurantMap } from "@/components/restaurant-map";
 import { Screen } from "@/components/screen";
-import { STATUS_STYLES } from "@/components/status-badge";
-import { TextField } from "@/components/text-field";
+import { StatusBadge } from "@/components/status-badge";
+import { Card, Divider, EmptyState, IconBadge, Skeleton } from "@/components/ui";
 import { getMessages } from "@/i18n";
 import { getCoordinatesIfAllowed, getCurrentCoordinates } from "@/lib/location";
 import { getSuitability } from "@/lib/suitability";
@@ -33,7 +26,8 @@ import {
   searchRestaurantsByCity,
   type RestaurantSummary,
 } from "@/lib/restaurants";
-import { colors, fontSize, radius, spacing } from "@/theme";
+import { tapFeedback } from "@/lib/haptics";
+import { colors, fonts, radius, shadow, spacing, typography } from "@/theme";
 
 /** Radio de "Cerca de mí". */
 const NEAR_ME_KM = 50;
@@ -220,17 +214,42 @@ export default function SearchScreen() {
   return (
     <Screen>
       <Stack.Screen options={{ title: t.search.title }} />
-      <TextField
-        label={t.search.city}
-        value={city}
-        onChangeText={setCity}
-        autoCapitalize="words"
-        returnKeyType="search"
-        onSubmitEditing={() => void searchByCity()}
-      />
-      <Button label={t.search.submit} onPress={() => void searchByCity()} />
-      <Button label={t.search.nearMe} variant="secondary" onPress={() => void searchNearMe()} />
-      <Text style={styles.privacy}>{t.search.privacy}</Text>
+
+      {/* Buscador: ciudad + «Buscar», y «Cerca de mí» debajo. */}
+      <View style={styles.searchBar}>
+        <Icon name="search" size={20} color={colors.textSubtle} />
+        <TextInput
+          accessibilityLabel={t.search.city}
+          placeholder={t.search.city}
+          placeholderTextColor={colors.textSubtle}
+          value={city}
+          onChangeText={setCity}
+          autoCapitalize="words"
+          returnKeyType="search"
+          onSubmitEditing={() => void searchByCity()}
+          style={styles.searchInput}
+        />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t.search.submit}
+          onPress={() => void searchByCity()}
+          style={({ pressed }) => [styles.searchButton, pressed ? styles.pressed : null]}
+        >
+          <Text style={styles.searchButtonText}>{t.search.submit}</Text>
+        </Pressable>
+      </View>
+      <View style={styles.nearRow}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t.search.nearMe}
+          onPress={() => void searchNearMe()}
+          style={({ pressed }) => [styles.nearButton, pressed ? styles.pressed : null]}
+        >
+          <Icon name="navigate" size={16} color={colors.primary} />
+          <Text style={styles.nearText}>{t.search.nearMe}</Text>
+        </Pressable>
+      </View>
+      <Text style={typography.caption}>{t.search.privacy}</Text>
 
       <PeoplePicker
         label={t.people.forWhomSearch}
@@ -239,24 +258,37 @@ export default function SearchScreen() {
         onToggle={people.toggle}
       />
 
+      {/* Lista | Mapa */}
       <View
-        style={styles.tabs}
+        style={styles.segmented}
         accessibilityRole="tablist"
         accessibilityLabel={t.search.viewsLabel}
       >
-        {(["list", "map"] as const).map((option) => (
-          <Pressable
-            key={option}
-            accessibilityRole="tab"
-            accessibilityState={{ selected: view === option }}
-            onPress={() => setView(option)}
-            style={[styles.tab, view === option ? styles.tabSelected : null]}
-          >
-            <Text style={[styles.tabText, view === option ? styles.tabTextSelected : null]}>
-              {t.search.views[option]}
-            </Text>
-          </Pressable>
-        ))}
+        {(["list", "map"] as const).map((option) => {
+          const on = view === option;
+          return (
+            <Pressable
+              key={option}
+              accessibilityRole="tab"
+              accessibilityLabel={t.search.views[option]}
+              accessibilityState={{ selected: on }}
+              onPress={() => {
+                tapFeedback();
+                setView(option);
+              }}
+              style={[styles.segment, on ? styles.segmentOn : null]}
+            >
+              <Icon
+                name={option === "list" ? "list" : "map"}
+                size={16}
+                color={on ? colors.text : colors.textMuted}
+              />
+              <Text style={[styles.segmentText, on ? styles.segmentTextOn : null]}>
+                {t.search.views[option]}
+              </Text>
+            </Pressable>
+          );
+        })}
       </View>
 
       {profileState.status === "ready" && (allergens === null || allergens.length === 0) ? (
@@ -265,6 +297,7 @@ export default function SearchScreen() {
           <Button
             label={t.search.configureProfile}
             variant="secondary"
+            icon="medical-outline"
             onPress={() => router.push("/alergias")}
           />
         </>
@@ -273,26 +306,37 @@ export default function SearchScreen() {
         <Notice tone="error" text={t.search.suitabilityError} />
       ) : null}
       {byRestaurant !== null && state.kind === "results" ? (
-        <View style={styles.summary}>
-          <Text style={styles.summaryText}>{t.search.canEatIn(suitableCount, results.length)}</Text>
-          <Text style={styles.muted}>{t.search.declaredNotice}</Text>
-          <View style={styles.divider} />
+        <Card>
+          <View style={styles.summaryRow}>
+            <IconBadge icon="restaurant" size={44} />
+            <Text style={[typography.heading, styles.flex]}>
+              {t.search.canEatIn(suitableCount, results.length)}
+            </Text>
+          </View>
+          <Text style={typography.caption}>{t.search.declaredNotice}</Text>
+          <Divider />
           <View style={styles.switchRow}>
-            {/* flexShrink: el texto se parte en líneas y el interruptor queda dentro. */}
-            <Text style={styles.switchLabel}>{t.search.showOthers}</Text>
+            {/* flex: el texto se parte en líneas y el interruptor queda dentro. */}
+            <Text style={[typography.body, styles.flex]}>{t.search.showOthers}</Text>
             <Switch
               value={showOthers}
               onValueChange={setShowOthers}
+              trackColor={{ true: colors.primary, false: colors.border }}
               accessibilityLabel={t.search.showOthers}
             />
           </View>
-        </View>
+        </Card>
       ) : null}
 
       {state.kind === "loading" ? (
-        <View style={styles.loading}>
-          <ActivityIndicator color={colors.primary} />
-          {state.message ? <Text style={styles.muted}>{state.message}</Text> : null}
+        <View style={styles.results} accessibilityLabel={t.common.loading}>
+          {state.message ? <Text style={typography.caption}>{state.message}</Text> : null}
+          {[0, 1, 2].map((i) => (
+            <Card key={i}>
+              <Skeleton height={18} width="60%" />
+              <Skeleton height={14} width="85%" />
+            </Card>
+          ))}
         </View>
       ) : null}
 
@@ -303,6 +347,7 @@ export default function SearchScreen() {
             <Button
               label={t.search.openSettings}
               variant="secondary"
+              icon="settings-outline"
               onPress={() => void Linking.openSettings()}
             />
           ) : null}
@@ -318,30 +363,34 @@ export default function SearchScreen() {
                 <Button
                   label={t.search.openSettings}
                   variant="secondary"
+                  icon="settings-outline"
                   onPress={() => void Linking.openSettings()}
                 />
               ) : null}
             </>
           ) : null}
-          {state.mode === "all" ? null : (
-            <Button
-              label={t.search.showAll}
-              variant="link"
-              onPress={() => {
-                setCity("");
-                void showAll();
-              }}
-            />
-          )}
-          {state.mode !== "near" && origin === null && results.length > 0 ? (
-            <Button
-              label={t.search.sortByProximity}
-              variant="link"
-              onPress={() => void sortByProximity()}
-            />
-          ) : null}
+          <View style={styles.links}>
+            {state.mode === "all" ? null : (
+              <Button
+                label={t.search.showAll}
+                variant="link"
+                onPress={() => {
+                  setCity("");
+                  void showAll();
+                }}
+              />
+            )}
+            {state.mode !== "near" && origin === null && results.length > 0 ? (
+              <Button
+                label={t.search.sortByProximity}
+                variant="link"
+                icon="navigate-outline"
+                onPress={() => void sortByProximity()}
+              />
+            ) : null}
+          </View>
           {shown.length === 0 ? (
-            <Text style={styles.text}>{emptyMessage}</Text>
+            <EmptyState icon="restaurant-outline" title={emptyMessage} />
           ) : view === "map" ? (
             <RestaurantMap
               restaurants={shown.map(({ restaurant }) => ({
@@ -354,7 +403,7 @@ export default function SearchScreen() {
             />
           ) : (
             <>
-              <Text style={styles.muted} accessibilityLiveRegion="polite">
+              <Text style={typography.label} accessibilityLiveRegion="polite">
                 {state.mode === "all" && byRestaurant === null
                   ? t.search.allRestaurants(shown.length)
                   : t.search.results(shown.length)}
@@ -363,7 +412,7 @@ export default function SearchScreen() {
               {shown.map(({ restaurant, distanceKm }) => (
                 <Pressable
                   key={restaurant.id}
-                  style={({ pressed }) => [styles.card, pressed ? styles.cardPressed : null]}
+                  style={({ pressed }) => [styles.card, pressed ? styles.pressed : null]}
                   accessibilityRole="button"
                   onPress={() =>
                     router.push({
@@ -381,40 +430,41 @@ export default function SearchScreen() {
                     .filter(Boolean)
                     .join(", ")}
                 >
-                  <Text style={styles.name}>{restaurant.name}</Text>
-                  <Text style={styles.muted}>
-                    {[restaurant.address, restaurant.city].filter(Boolean).join(" · ")}
-                  </Text>
-                  {byRestaurant === null ? null : (
-                    <View
-                      style={[
-                        styles.badge,
-                        { backgroundColor: STATUS_STYLES[statusOf(restaurant.id)].background },
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.badgeText,
-                          { color: STATUS_STYLES[statusOf(restaurant.id)].text },
-                        ]}
-                      >
-                        {`${STATUS_STYLES[statusOf(restaurant.id)].symbol}  ${statusLabel(restaurant.id)}`}
-                      </Text>
-                    </View>
-                  )}
-                  {distanceKm === null ? null : (
-                    <Text style={styles.distance}>{formatDistance(distanceKm)}</Text>
-                  )}
+                  <IconBadge icon="restaurant-outline" size={48} />
+                  <View style={styles.cardText}>
+                    <Text style={typography.heading} numberOfLines={2}>
+                      {restaurant.name}
+                    </Text>
+                    <Text style={typography.caption} numberOfLines={2}>
+                      {[restaurant.address, restaurant.city].filter(Boolean).join(" · ")}
+                    </Text>
+                    {byRestaurant === null ? null : (
+                      <StatusBadge
+                        status={statusOf(restaurant.id)}
+                        label={statusLabel(restaurant.id)}
+                      />
+                    )}
+                    {distanceKm === null ? null : (
+                      <View style={styles.distanceRow}>
+                        <Icon name="location-outline" size={14} color={colors.primary} />
+                        <Text style={styles.distance}>{formatDistance(distanceKm)}</Text>
+                      </View>
+                    )}
+                  </View>
+                  <Icon name="chevron-forward" size={20} color={colors.textSubtle} />
                 </Pressable>
               ))}
             </>
           )}
-          <Text style={styles.muted}>{t.search.missing}</Text>
-          <Button
-            label={t.search.request}
-            variant="link"
-            onPress={() => router.push("/pedir-restaurante")}
-          />
+          <Card style={styles.requestCard}>
+            <Text style={typography.caption}>{t.search.missing}</Text>
+            <Button
+              label={t.search.request}
+              variant="secondary"
+              icon="add-circle-outline"
+              onPress={() => router.push("/pedir-restaurante")}
+            />
+          </Card>
         </View>
       ) : null}
     </Screen>
@@ -422,53 +472,77 @@ export default function SearchScreen() {
 }
 
 const styles = StyleSheet.create({
-  privacy: { fontSize: fontSize.sm, color: colors.textMuted },
-  loading: { alignItems: "center", gap: spacing.sm },
-  results: { gap: spacing.md },
-  card: {
-    gap: spacing.xs,
-    padding: spacing.lg,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  cardPressed: { backgroundColor: colors.surface },
-  name: { fontSize: fontSize.lg, fontWeight: "700", color: colors.text },
-  text: { fontSize: fontSize.md, color: colors.text },
-  muted: { fontSize: fontSize.sm, color: colors.textMuted },
-  distance: { fontSize: fontSize.sm, fontWeight: "600", color: colors.primary },
-  tabs: {
-    flexDirection: "row",
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    overflow: "hidden",
-  },
-  tab: { flex: 1, alignItems: "center", paddingVertical: spacing.md, minHeight: 44 },
-  tabSelected: { backgroundColor: colors.primary },
-  tabText: { fontSize: fontSize.md, fontWeight: "600", color: colors.text },
-  tabTextSelected: { color: colors.primaryText },
-  summary: {
-    gap: spacing.sm,
-    padding: spacing.lg,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  summaryText: { fontSize: fontSize.lg, fontWeight: "700", color: colors.text },
-  divider: { height: 1, backgroundColor: colors.border, marginVertical: spacing.xs },
-  switchLabel: { flex: 1, flexShrink: 1, fontSize: fontSize.md, color: colors.text },
-  switchRow: {
+  flex: { flex: 1 },
+  pressed: { opacity: 0.8 },
+  searchBar: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    gap: spacing.md,
+    gap: spacing.sm,
+    paddingLeft: spacing.lg,
+    padding: 6,
+    borderRadius: radius.full,
+    backgroundColor: colors.card,
+    ...shadow.card,
   },
-  badge: {
-    alignSelf: "flex-start",
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
+  searchInput: {
+    flex: 1,
+    minHeight: 44,
+    fontFamily: fonts.regular,
+    fontSize: 16,
+    color: colors.text,
+  },
+  searchButton: {
+    minHeight: 44,
+    justifyContent: "center",
+    paddingHorizontal: spacing.lg,
+    borderRadius: radius.full,
+    backgroundColor: colors.primary,
+  },
+  searchButtonText: { fontFamily: fonts.semibold, fontSize: 15, color: colors.primaryText },
+  nearRow: { flexDirection: "row" },
+  nearButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    minHeight: 44,
+    paddingHorizontal: spacing.lg,
+    borderRadius: radius.full,
+    backgroundColor: colors.primarySoft,
+  },
+  nearText: { fontFamily: fonts.semibold, fontSize: 14, color: colors.primaryDark },
+  segmented: {
+    flexDirection: "row",
+    padding: 4,
+    borderRadius: radius.full,
+    backgroundColor: colors.surface,
+  },
+  segment: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    minHeight: 44,
     borderRadius: radius.full,
   },
-  badgeText: { fontSize: fontSize.sm, fontWeight: "700" },
+  segmentOn: { backgroundColor: colors.card, ...shadow.card },
+  segmentText: { fontFamily: fonts.medium, fontSize: 14, color: colors.textMuted },
+  segmentTextOn: { fontFamily: fonts.semibold, color: colors.text },
+  summaryRow: { flexDirection: "row", alignItems: "center", gap: spacing.md },
+  switchRow: { flexDirection: "row", alignItems: "center", gap: spacing.md },
+  results: { gap: spacing.md },
+  links: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
+  card: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    padding: spacing.lg,
+    borderRadius: radius.lg,
+    backgroundColor: colors.card,
+    ...shadow.card,
+  },
+  cardText: { flex: 1, gap: spacing.xs },
+  distanceRow: { flexDirection: "row", alignItems: "center", gap: 4 },
+  distance: { fontFamily: fonts.semibold, fontSize: 13, color: colors.primary },
+  requestCard: { marginTop: spacing.sm },
 });

@@ -1,16 +1,19 @@
-import { ALLERGENS, ALLERGEN_LABELS, type Allergen } from "@safebite/core";
+import type { Allergen } from "@safebite/core";
 import { Stack, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Linking, StyleSheet, Text, View } from "react-native";
+import { Linking, StyleSheet, Text, View } from "react-native";
+import { Icon } from "@/components/icon";
+import { AllergenGrid } from "@/components/allergen-grid";
 import { Button } from "@/components/button";
 import { Checkbox } from "@/components/checkbox";
 import { Notice } from "@/components/notice";
 import { Screen } from "@/components/screen";
+import { Card, IconBadge, Skeleton } from "@/components/ui";
 import { getMessages } from "@/i18n";
 import { env } from "@/lib/env";
 import { giveHealthConsent, saveMyAllergens } from "@/lib/profile";
 import { useHealthProfile } from "@/lib/use-health-profile";
-import { colors, fontSize, spacing } from "@/theme";
+import { colors, spacing, typography } from "@/theme";
 
 export default function AllergiesScreen() {
   const t = getMessages();
@@ -20,7 +23,11 @@ export default function AllergiesScreen() {
     <Screen>
       <Stack.Screen options={{ title: t.allergies.title }} />
       {state.status === "loading" ? (
-        <ActivityIndicator color={colors.primary} accessibilityLabel={t.common.loading} />
+        <View style={styles.loading} accessibilityLabel={t.common.loading}>
+          <Skeleton height={20} width="60%" />
+          <Skeleton height={64} />
+          <Skeleton height={64} />
+        </View>
       ) : null}
       {state.status === "error" ? (
         <>
@@ -60,17 +67,21 @@ function ConsentForm({ userId, onConsent }: { userId: string; onConsent: () => v
 
   return (
     <>
-      <Text style={styles.title} accessibilityRole="header">
-        {t.consent.title}
-      </Text>
-      <Text style={styles.text}>{t.consent.intro}</Text>
-      <View style={styles.points}>
-        {t.consent.points.map((point) => (
-          <Text key={point} style={styles.text}>
-            {`•  ${point}`}
-          </Text>
-        ))}
-      </View>
+      <Card>
+        <IconBadge icon="shield-checkmark-outline" size={52} />
+        <Text style={typography.title} accessibilityRole="header">
+          {t.consent.title}
+        </Text>
+        <Text style={typography.body}>{t.consent.intro}</Text>
+        <View style={styles.points}>
+          {t.consent.points.map((point) => (
+            <View key={point} style={styles.point}>
+              <Icon name="checkmark-circle" size={20} color={colors.primary} />
+              <Text style={[typography.body, styles.flex]}>{point}</Text>
+            </View>
+          ))}
+        </View>
+      </Card>
       <Button
         variant="link"
         label={t.consent.privacy}
@@ -120,26 +131,23 @@ function AllergenSelector({ initial }: { initial: Allergen[] }) {
 
   return (
     <>
-      <Text style={styles.text}>{t.allergies.description}</Text>
+      <Text style={typography.body}>{t.allergies.description}</Text>
       {error ? <Notice tone="error" text={t.allergies.saveError} /> : null}
-      <View style={styles.list}>
-        {ALLERGENS.map((allergen) => (
-          <Checkbox
-            key={allergen}
-            label={ALLERGEN_LABELS.es[allergen]}
-            checked={selected.includes(allergen)}
-            onChange={(checked) => toggle(allergen, checked)}
-          />
-        ))}
-      </View>
-      <Button label={t.allergies.save} onPress={() => void save()} loading={loading} />
+      <AllergenGrid selected={selected} onToggle={toggle} />
+      <Text style={typography.caption}>{t.allergies.selected(selected.length)}</Text>
+      <Button
+        label={t.allergies.save}
+        icon="checkmark"
+        onPress={() => void save()}
+        loading={loading}
+      />
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  title: { fontSize: fontSize.xl, fontWeight: "700", color: colors.text },
-  text: { fontSize: fontSize.md, color: colors.text },
+  flex: { flex: 1 },
+  loading: { gap: spacing.md },
   points: { gap: spacing.sm },
-  list: { gap: spacing.xs },
+  point: { flexDirection: "row", alignItems: "flex-start", gap: spacing.sm },
 });

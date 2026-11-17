@@ -1,5 +1,7 @@
+import { Icon } from "@/components/icon";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { colors, fontSize, radius, spacing } from "@/theme";
+import { tapFeedback } from "@/lib/haptics";
+import { colors, fonts, spacing } from "@/theme";
 
 type CheckboxProps = {
   label: string;
@@ -15,11 +17,14 @@ export function Checkbox({ label, checked, onChange, error }: CheckboxProps) {
         accessibilityRole="checkbox"
         accessibilityLabel={label}
         accessibilityState={{ checked }}
-        onPress={() => onChange(!checked)}
+        onPress={() => {
+          tapFeedback();
+          onChange(!checked);
+        }}
         style={styles.row}
       >
         <View style={[styles.box, checked ? styles.boxChecked : null]}>
-          {checked ? <Text style={styles.tick}>✓</Text> : null}
+          {checked ? <Icon name="checkmark" size={18} color={colors.primaryText} /> : null}
         </View>
         <Text style={styles.label}>{label}</Text>
       </Pressable>
@@ -34,18 +39,18 @@ export function Checkbox({ label, checked, onChange, error }: CheckboxProps) {
 
 const styles = StyleSheet.create({
   container: { gap: spacing.xs },
-  row: { flexDirection: "row", alignItems: "flex-start", gap: spacing.md, minHeight: 44 },
+  row: { flexDirection: "row", alignItems: "center", gap: spacing.md, minHeight: 44 },
   box: {
-    width: 24,
-    height: 24,
-    borderRadius: radius.sm,
+    width: 26,
+    height: 26,
+    borderRadius: 8,
     borderWidth: 2,
-    borderColor: colors.border,
+    borderColor: colors.inputBorder,
+    backgroundColor: colors.card,
     alignItems: "center",
     justifyContent: "center",
   },
   boxChecked: { backgroundColor: colors.primary, borderColor: colors.primary },
-  tick: { color: colors.primaryText, fontWeight: "700" },
-  label: { flex: 1, fontSize: fontSize.md, color: colors.text },
-  error: { fontSize: fontSize.sm, fontWeight: "600", color: colors.danger },
+  label: { flex: 1, fontFamily: fonts.regular, fontSize: 15, lineHeight: 21, color: colors.text },
+  error: { fontFamily: fonts.semibold, fontSize: 13, color: colors.danger, marginLeft: 38 },
 });

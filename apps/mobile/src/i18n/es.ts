@@ -10,10 +10,19 @@ export const es = {
     genericError: "Ha ocurrido un error inesperado. Inténtalo de nuevo en unos minutos.",
     tooManyAttempts: "Demasiados intentos. Espera un minuto antes de volver a probar.",
     network: "No hay conexión con el servidor. Revisa tu conexión a internet.",
+    offlineTitle: "No se puede conectar",
+    offlineText:
+      "No llegamos al servidor. Revisa tu conexión a internet (wifi o datos) y vuelve a intentarlo.",
+    retry: "Reintentar",
   },
   welcome: {
     register: "Crear cuenta",
     login: "Ya tengo cuenta",
+    features: {
+      restaurants: "Restaurantes con la carta filtrada para tus alergias",
+      scan: "Escanea productos del súper y mira si puedes tomarlos",
+      family: "Filtra a la vez para toda tu familia",
+    },
     disclaimer:
       "SafeBite muestra la información de alérgenos declarada por cada establecimiento. Confirma siempre con el establecimiento y revisa la etiqueta física.",
   },
@@ -69,9 +78,31 @@ export const es = {
     },
     logout: "Cerrar sesión",
   },
+  tabs: {
+    home: "Inicio",
+    search: "Buscar",
+    scan: "Escanear",
+    profile: "Perfil",
+    /** Nombre de la pestaña para VoiceOver/TalkBack (por defecto lo diría en inglés). */
+    accessibilityLabel: (label: string, index: number, total: number) =>
+      `${label}, pestaña ${index} de ${total}`,
+  },
+  profile: {
+    title: "Perfil",
+    allergiesHint: "Los alérgenos que debes evitar",
+    familyHint: "Filtra también para las personas con las que comes",
+    accountHint: "Email, consentimiento, contraseña y cerrar sesión",
+  },
   home: {
-    greeting: (email: string) => `Hola, ${email}`,
-    allergiesTitle: "Mis alergias",
+    greeting: (name: string) => `Hola, ${name}`,
+    subtitle: "¿Dónde comemos hoy?",
+    allergiesTitle: "Tus alergias",
+    family: (names: string) => `También filtras para: ${names}.`,
+    quickSearchHint: "Cartas filtradas y mapa",
+    quickScanHint: "Mira si puedes tomarlo",
+    recentTitle: "Escaneados recientemente",
+    seeAll: "Ver todo",
+    recentEmpty: "Aquí verás los productos que escanees.",
     noConsent: "Aún no has configurado tus alergias.",
     configure: "Configurar mis alergias",
     noAllergies: "No has marcado ninguna alergia.",
@@ -257,6 +288,8 @@ export const es = {
   },
   allergies: {
     title: "Mis alergias",
+    selected: (n: number) =>
+      n === 0 ? "No has marcado ninguno." : n === 1 ? "1 marcado." : `${n} marcados.`,
     description:
       "Marca los alérgenos que debes evitar. Las cartas se filtrarán automáticamente con esta selección.",
     save: "Guardar",

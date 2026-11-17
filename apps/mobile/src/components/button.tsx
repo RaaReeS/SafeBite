@@ -1,22 +1,36 @@
-import { ActivityIndicator, Pressable, StyleSheet, Text } from "react-native";
-import { colors, fontSize, radius, spacing } from "@/theme";
+import { Icon, type IconName } from "@/components/icon";
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import { colors, fonts, radius, shadow, spacing } from "@/theme";
+
+export type { IconName } from "@/components/icon";
 
 type ButtonProps = {
   label: string;
   onPress: () => void;
   variant?: "primary" | "secondary" | "link" | "danger";
+  /** Icono opcional a la izquierda del texto (decorativo: el texto ya lo dice). */
+  icon?: IconName;
   loading?: boolean;
   disabled?: boolean;
 };
+
+const LABEL_COLOR = {
+  primary: colors.primaryText,
+  secondary: colors.text,
+  link: colors.primary,
+  danger: colors.danger,
+} as const;
 
 export function Button({
   label,
   onPress,
   variant = "primary",
+  icon,
   loading = false,
   disabled = false,
 }: ButtonProps) {
   const inactive = disabled || loading;
+  const color = LABEL_COLOR[variant];
   return (
     <Pressable
       accessibilityRole="button"
@@ -32,9 +46,12 @@ export function Button({
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={variant === "primary" ? colors.primaryText : colors.primary} />
+        <ActivityIndicator color={color} />
       ) : (
-        <Text style={[styles.label, styles[`${variant}Label`]]}>{label}</Text>
+        <View style={styles.content}>
+          {icon ? <Icon name={icon} size={20} color={color} /> : null}
+          <Text style={[styles.label, { color }]}>{label}</Text>
+        </View>
       )}
     </Pressable>
   );
@@ -42,21 +59,22 @@ export function Button({
 
 const styles = StyleSheet.create({
   base: {
-    minHeight: 48,
-    borderRadius: radius.sm,
-    paddingHorizontal: spacing.lg,
+    minHeight: 52,
+    borderRadius: radius.full,
+    paddingHorizontal: spacing.xl,
     alignItems: "center",
     justifyContent: "center",
   },
-  primary: { backgroundColor: colors.primary },
-  secondary: { borderWidth: 1, borderColor: colors.border, backgroundColor: colors.background },
-  danger: { backgroundColor: colors.danger },
-  link: { minHeight: 44, paddingHorizontal: 0 },
-  pressed: { opacity: 0.8 },
-  inactive: { opacity: 0.6 },
-  label: { fontSize: fontSize.lg, fontWeight: "600" },
-  primaryLabel: { color: colors.primaryText },
-  secondaryLabel: { color: colors.text },
-  dangerLabel: { color: colors.primaryText },
-  linkLabel: { color: colors.primary, textDecorationLine: "underline", fontWeight: "500" },
+  content: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+  primary: { backgroundColor: colors.primary, ...shadow.card },
+  secondary: {
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  danger: { backgroundColor: colors.dangerSoft },
+  link: { minHeight: 44, paddingHorizontal: spacing.sm },
+  pressed: { opacity: 0.85, transform: [{ scale: 0.99 }] },
+  inactive: { opacity: 0.55 },
+  label: { fontFamily: fonts.semibold, fontSize: 16 },
 });

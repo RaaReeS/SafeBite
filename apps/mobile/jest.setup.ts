@@ -51,3 +51,7 @@ jest.mock("react-native-maps", () => {
     );
   return { __esModule: true, default: MapView, Marker, Callout };
 });
+
+// Las fuentes se dan por cargadas en los tests (no hay archivos de fuente).
+jest.mock("@/lib/fonts", () => ({ useAppFonts: () => true }));
+jest.mock("expo-haptics", () => ({ selectionAsync: jest.fn(async () => undefined) }));

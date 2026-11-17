@@ -1,6 +1,6 @@
 import { FILTER_STATUS_LABELS, type FilterStatus } from "@safebite/core";
 import { StyleSheet, Text, View } from "react-native";
-import { fontSize, radius, spacing } from "@/theme";
+import { fonts, radius, spacing } from "@/theme";
 
 // El estado se indica con texto y símbolo, no solo con color (daltonismo).
 export const STATUS_STYLES: Record<
@@ -9,21 +9,30 @@ export const STATUS_STYLES: Record<
 > = {
   no_apto: { symbol: "✕", background: "#b91c1c", text: "#ffffff" },
   posibles_trazas: { symbol: "!", background: "#fbbf24", text: "#18181b" },
-  sin_datos: { symbol: "?", background: "#52525b", text: "#ffffff" },
+  sin_datos: { symbol: "?", background: "#5b6472", text: "#ffffff" },
   apto: { symbol: "✓", background: "#047857", text: "#ffffff" },
 };
 
-export function StatusBadge({ status, large = false }: { status: FilterStatus; large?: boolean }) {
+/** Etiqueta de estado. `label` sustituye al texto corto (p. ej. «2 platos aptos»). */
+export function StatusBadge({
+  status,
+  large = false,
+  label,
+}: {
+  status: FilterStatus;
+  large?: boolean;
+  label?: string;
+}) {
   const style = STATUS_STYLES[status];
-  const label = FILTER_STATUS_LABELS.es[status].short;
+  const text = label ?? FILTER_STATUS_LABELS.es[status].short;
   return (
     <View
       style={[styles.badge, large ? styles.large : null, { backgroundColor: style.background }]}
       accessible
-      accessibilityLabel={label}
+      accessibilityLabel={text}
     >
       <Text style={[styles.text, large ? styles.largeText : null, { color: style.text }]}>
-        {`${style.symbol}  ${label}`}
+        {`${style.symbol}  ${text}`}
       </Text>
     </View>
   );
@@ -33,10 +42,10 @@ const styles = StyleSheet.create({
   badge: {
     alignSelf: "flex-start",
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
+    paddingVertical: 5,
     borderRadius: radius.full,
   },
-  large: { alignSelf: "stretch", paddingVertical: spacing.md, borderRadius: radius.md },
-  text: { fontSize: fontSize.sm, fontWeight: "700" },
-  largeText: { fontSize: fontSize.xl, textAlign: "center" },
+  large: { alignSelf: "stretch", paddingVertical: spacing.lg, borderRadius: radius.md },
+  text: { fontFamily: fonts.bold, fontSize: 13 },
+  largeText: { fontSize: 20, textAlign: "center" },
 });

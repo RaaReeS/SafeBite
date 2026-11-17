@@ -61,7 +61,7 @@ describe("inicio", () => {
     setProfile("2026-11-10T10:00:00Z", ["gluten", "milk"]);
     await renderSignedIn("/inicio");
     expect(
-      await screen.findByText("Tus alergias: Cereales con gluten, Leche y lácteos."),
+      await screen.findByLabelText("Tus alergias: Cereales con gluten, Leche y lácteos."),
     ).toBeTruthy();
   });
 });
@@ -148,5 +148,29 @@ describe("mi cuenta", () => {
     );
     await act(async () => emitSession(null));
     expect(await screen.findByRole("button", { name: "Crear cuenta" })).toBeTruthy();
+  });
+});
+
+describe("barra inferior", () => {
+  it("anuncia las pestañas en español y el perfil reúne alergias, familia y cuenta", async () => {
+    setProfile("2026-11-10T10:00:00Z", ["gluten"]);
+    await renderSignedIn("/inicio");
+    await screen.findByLabelText("Tus alergias: Cereales con gluten.");
+    for (const name of [
+      "Inicio, pestaña 1 de 4",
+      "Buscar, pestaña 2 de 4",
+      "Escanear, pestaña 3 de 4",
+    ]) {
+      expect(screen.getByRole("button", { name })).toBeTruthy();
+    }
+
+    await fireEvent.press(screen.getByRole("button", { name: "Perfil, pestaña 4 de 4" }));
+    expect(await screen.findByRole("button", { name: "Mi familia" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Mi cuenta" })).toBeTruthy();
+    expect(screen).toHavePathname("/perfil");
+
+    await fireEvent.press(screen.getByRole("button", { name: "Mis alergias" }));
+    expect(await screen.findByRole("checkbox", { name: "Cereales con gluten" })).toBeTruthy();
+    expect(screen).toHavePathname("/alergias");
   });
 });

@@ -97,7 +97,7 @@ beforeEach(async () => {
 describe("escáner", () => {
   it("se abre desde el inicio", async () => {
     await renderSignedIn("/inicio");
-    await screen.findByText("Tus alergias: Cereales con gluten.");
+    await screen.findByLabelText("Tus alergias: Cereales con gluten.");
     await press("Escanear producto");
     expect(await screen.findByTestId("camera")).toBeTruthy();
     expect(screen).toHavePathname("/escanear");

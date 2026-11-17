@@ -28,6 +28,23 @@ beforeEach(() => {
 });
 
 describe("acceso a la app", () => {
+  it("sin conexión al abrir, avisa tras unos segundos y deja reintentar", async () => {
+    jest.useFakeTimers();
+    try {
+      mockAuth.getSession.mockReturnValueOnce(new Promise(() => undefined));
+      await renderApp();
+      expect(screen.queryByText("No se puede conectar")).toBeNull();
+      await act(async () => jest.advanceTimersByTime(10_000));
+      expect(screen.getByText("No se puede conectar")).toBeTruthy();
+
+      await press("Reintentar");
+      expect(await screen.findByRole("button", { name: "Crear cuenta" })).toBeTruthy();
+      expect(mockAuth.getSession).toHaveBeenCalledTimes(2);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
   it("sin sesión empieza en la bienvenida", async () => {
     await renderApp();
     expect(await screen.findByRole("button", { name: "Crear cuenta" })).toBeTruthy();
@@ -37,8 +54,9 @@ describe("acceso a la app", () => {
   it("con una sesión guardada entra directamente y puede cerrar sesión", async () => {
     mockAuth.getSession.mockResolvedValue({ data: { session: fakeSession() }, error: null });
     await renderApp();
-    expect(await screen.findByText("Hola, comensal@safebite.test")).toBeTruthy();
+    expect(await screen.findByText("Hola, comensal")).toBeTruthy();
 
+    await press("Perfil, pestaña 4 de 4");
     await press("Mi cuenta");
     await screen.findByRole("button", { name: "Cerrar sesión" });
     await press("Cerrar sesión");
@@ -134,7 +152,7 @@ describe("verificación con código", () => {
       }),
     );
     await act(async () => emitSession(fakeSession("a@b.es")));
-    expect(await screen.findByText("Hola, a@b.es")).toBeTruthy();
+    expect(await screen.findByText("Hola, a")).toBeTruthy();
   });
 
   it("un código incorrecto muestra un error", async () => {
@@ -225,7 +243,7 @@ describe("recuperación de contraseña", () => {
     expect(mockAuth.updateUser).toHaveBeenCalledWith({ password: "otra-contraseña" });
 
     await act(async () => resolveUpdate({ data: {}, error: null }));
-    expect(await screen.findByText("Hola, a@b.es")).toBeTruthy();
+    expect(await screen.findByText("Hola, a")).toBeTruthy();
   });
 
   it("valida que las contraseñas coincidan antes de usar el código", async () => {
