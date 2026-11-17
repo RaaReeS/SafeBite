@@ -37,7 +37,7 @@ describe("acceso a la app", () => {
   it("con una sesión guardada entra directamente y puede cerrar sesión", async () => {
     mockAuth.getSession.mockResolvedValue({ data: { session: fakeSession() }, error: null });
     await renderApp();
-    expect(await screen.findByText("Hola, comensal@safebite.test")).toBeTruthy();
+    expect(await screen.findByText("Hola, comensal")).toBeTruthy();
 
     await press("Perfil, pestaña 4 de 4");
     await press("Mi cuenta");
@@ -135,7 +135,7 @@ describe("verificación con código", () => {
       }),
     );
     await act(async () => emitSession(fakeSession("a@b.es")));
-    expect(await screen.findByText("Hola, a@b.es")).toBeTruthy();
+    expect(await screen.findByText("Hola, a")).toBeTruthy();
   });
 
   it("un código incorrecto muestra un error", async () => {
@@ -226,7 +226,7 @@ describe("recuperación de contraseña", () => {
     expect(mockAuth.updateUser).toHaveBeenCalledWith({ password: "otra-contraseña" });
 
     await act(async () => resolveUpdate({ data: {}, error: null }));
-    expect(await screen.findByText("Hola, a@b.es")).toBeTruthy();
+    expect(await screen.findByText("Hola, a")).toBeTruthy();
   });
 
   it("valida que las contraseñas coincidan antes de usar el código", async () => {

@@ -61,7 +61,7 @@ describe("inicio", () => {
     setProfile("2026-11-10T10:00:00Z", ["gluten", "milk"]);
     await renderSignedIn("/inicio");
     expect(
-      await screen.findByText("Tus alergias: Cereales con gluten, Leche y lácteos."),
+      await screen.findByLabelText("Tus alergias: Cereales con gluten, Leche y lácteos."),
     ).toBeTruthy();
   });
 });
@@ -155,7 +155,7 @@ describe("barra inferior", () => {
   it("anuncia las pestañas en español y el perfil reúne alergias, familia y cuenta", async () => {
     setProfile("2026-11-10T10:00:00Z", ["gluten"]);
     await renderSignedIn("/inicio");
-    await screen.findByText("Tus alergias: Cereales con gluten.");
+    await screen.findByLabelText("Tus alergias: Cereales con gluten.");
     for (const name of [
       "Inicio, pestaña 1 de 4",
       "Buscar, pestaña 2 de 4",

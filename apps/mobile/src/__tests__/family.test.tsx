@@ -64,7 +64,7 @@ describe("Mi familia", () => {
   it("se abre desde el perfil y añade a alguien con la declaración de tutor", async () => {
     mockFamily.addFamilyMember.mockResolvedValue(LUCIA.id);
     await renderSignedIn("/inicio");
-    await screen.findByText("Tus alergias: Cereales con gluten.");
+    await screen.findByLabelText("Tus alergias: Cereales con gluten.");
     await press("Perfil, pestaña 4 de 4");
     await press("Mi familia");
     expect(await screen.findByText("Aún no has añadido a nadie.")).toBeTruthy();
