@@ -3,6 +3,7 @@ import type { Database } from "@safebite/core";
 import { createClient } from "@supabase/supabase-js";
 import { AppState } from "react-native";
 import { env } from "./env";
+import { createFetchWithTimeout } from "./fetch-timeout";
 import { secureSessionStorage } from "./secure-session-storage";
 
 /**
@@ -16,6 +17,8 @@ export const supabase = createClient<Database>(env.supabaseUrl, env.supabasePubl
     persistSession: true,
     detectSessionInUrl: false,
   },
+  // Sin respuesta en 20 s, la petición falla y la pantalla muestra su error.
+  global: { fetch: createFetchWithTimeout(fetch) },
 });
 
 // Refresca la sesión solo con la app en primer plano (recomendación de Supabase).

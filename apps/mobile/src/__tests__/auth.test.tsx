@@ -28,6 +28,23 @@ beforeEach(() => {
 });
 
 describe("acceso a la app", () => {
+  it("sin conexión al abrir, avisa tras unos segundos y deja reintentar", async () => {
+    jest.useFakeTimers();
+    try {
+      mockAuth.getSession.mockReturnValueOnce(new Promise(() => undefined));
+      await renderApp();
+      expect(screen.queryByText("No se puede conectar")).toBeNull();
+      await act(async () => jest.advanceTimersByTime(10_000));
+      expect(screen.getByText("No se puede conectar")).toBeTruthy();
+
+      await press("Reintentar");
+      expect(await screen.findByRole("button", { name: "Crear cuenta" })).toBeTruthy();
+      expect(mockAuth.getSession).toHaveBeenCalledTimes(2);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
   it("sin sesión empieza en la bienvenida", async () => {
     await renderApp();
     expect(await screen.findByRole("button", { name: "Crear cuenta" })).toBeTruthy();

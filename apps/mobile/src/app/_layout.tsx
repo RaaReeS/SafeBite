@@ -2,10 +2,12 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { Button } from "@/components/button";
+import { EmptyState } from "@/components/ui";
 import { getMessages } from "@/i18n";
 import { useAppFonts } from "@/lib/fonts";
 import { SessionProvider, useSession } from "@/lib/session";
-import { colors } from "@/theme";
+import { colors, spacing } from "@/theme";
 
 export default function RootLayout() {
   return (
@@ -24,8 +26,21 @@ export default function RootLayout() {
  */
 function RootNavigator() {
   const t = getMessages();
-  const { session, isLoading, isRecoveringPassword } = useSession();
+  const { session, isLoading, isRecoveringPassword, isOffline, retry } = useSession();
   const fontsReady = useAppFonts();
+
+  if (isLoading && isOffline) {
+    return (
+      <View style={styles.offline}>
+        <EmptyState
+          icon="cloud-offline-outline"
+          title={t.common.offlineTitle}
+          text={t.common.offlineText}
+          action={<Button label={t.common.retry} icon="refresh" onPress={retry} />}
+        />
+      </View>
+    );
+  }
 
   if (isLoading || !fontsReady) {
     return (
@@ -51,4 +66,10 @@ function RootNavigator() {
 
 const styles = StyleSheet.create({
   loading: { flex: 1, alignItems: "center", justifyContent: "center" },
+  offline: {
+    flex: 1,
+    justifyContent: "center",
+    padding: spacing.xl,
+    backgroundColor: colors.background,
+  },
 });

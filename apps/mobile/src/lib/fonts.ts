@@ -5,6 +5,10 @@ import {
   Inter_700Bold,
   useFonts,
 } from "@expo-google-fonts/inter";
+import { useEffect, useState } from "react";
+
+/** Si la tipografía no carga en este tiempo, la app sigue con la del sistema. */
+const FONT_TIMEOUT_MS = 4000;
 
 /**
  * Carga la tipografía Inter (los nombres coinciden con `fonts` del tema).
@@ -17,5 +21,10 @@ export function useAppFonts(): boolean {
     Inter_600SemiBold,
     Inter_700Bold,
   });
-  return loaded || error !== null;
+  const [gaveUp, setGaveUp] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setGaveUp(true), FONT_TIMEOUT_MS);
+    return () => clearTimeout(timer);
+  }, []);
+  return loaded || error !== null || gaveUp;
 }

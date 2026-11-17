@@ -10,6 +10,10 @@ export const es = {
     genericError: "Ha ocurrido un error inesperado. Inténtalo de nuevo en unos minutos.",
     tooManyAttempts: "Demasiados intentos. Espera un minuto antes de volver a probar.",
     network: "No hay conexión con el servidor. Revisa tu conexión a internet.",
+    offlineTitle: "No se puede conectar",
+    offlineText:
+      "No llegamos al servidor. Revisa tu conexión a internet (wifi o datos) y vuelve a intentarlo.",
+    retry: "Reintentar",
   },
   welcome: {
     register: "Crear cuenta",
