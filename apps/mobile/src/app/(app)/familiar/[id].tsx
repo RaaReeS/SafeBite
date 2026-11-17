@@ -1,11 +1,12 @@
-import { ALLERGENS, ALLERGEN_LABELS, type Allergen } from "@safebite/core";
+import type { Allergen } from "@safebite/core";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Alert, StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
+import { AllergenGrid } from "@/components/allergen-grid";
 import { Button } from "@/components/button";
-import { Checkbox } from "@/components/checkbox";
 import { Notice } from "@/components/notice";
 import { Screen } from "@/components/screen";
+import { Card, Skeleton } from "@/components/ui";
 import { TextField } from "@/components/text-field";
 import { getMessages } from "@/i18n";
 import {
@@ -16,7 +17,7 @@ import {
   type FamilyMember,
 } from "@/lib/family";
 import { useSession } from "@/lib/session";
-import { colors, fontSize, radius, spacing } from "@/theme";
+import { spacing, typography } from "@/theme";
 
 type Load = { kind: "loading" } | { kind: "ready"; member: FamilyMember } | { kind: "missing" };
 
@@ -106,7 +107,11 @@ export default function FamilyMemberScreen() {
   if (load.kind === "loading") {
     return (
       <Screen>
-        <ActivityIndicator color={colors.primary} accessibilityLabel={t.common.loading} />
+        <View style={styles.loading} accessibilityLabel={t.common.loading}>
+          <Skeleton height={20} width="60%" />
+          <Skeleton height={64} />
+          <Skeleton height={64} />
+        </View>
       </Screen>
     );
   }
@@ -125,27 +130,26 @@ export default function FamilyMemberScreen() {
       <Stack.Screen options={{ title: member.name }} />
       {notice ? <Notice tone={notice.tone} text={notice.text} /> : null}
 
-      <Text style={styles.title} accessibilityRole="header">
+      <Text style={typography.title} accessibilityRole="header">
         {t.family.allergiesOf(member.name)}
       </Text>
-      <View style={styles.list}>
-        {ALLERGENS.map((allergen) => (
-          <Checkbox
-            key={allergen}
-            label={ALLERGEN_LABELS.es[allergen]}
-            checked={selected.includes(allergen)}
-            onChange={(checked) =>
-              setSelected((current) =>
-                checked ? [...current, allergen] : current.filter((a) => a !== allergen),
-              )
-            }
-          />
-        ))}
-      </View>
-      <Button label={t.family.save} onPress={() => void save()} loading={busy === "save"} />
+      <AllergenGrid
+        selected={selected}
+        onToggle={(allergen, checked) =>
+          setSelected((current) =>
+            checked ? [...current, allergen] : current.filter((a) => a !== allergen),
+          )
+        }
+      />
+      <Button
+        label={t.family.save}
+        icon="checkmark"
+        onPress={() => void save()}
+        loading={busy === "save"}
+      />
 
-      <View style={styles.section}>
-        <Text style={styles.title} accessibilityRole="header">
+      <Card>
+        <Text style={typography.heading} accessibilityRole="header">
           {t.family.renameTitle}
         </Text>
         <TextField label={t.family.name} value={name} onChangeText={setName} maxLength={40} />
@@ -155,21 +159,18 @@ export default function FamilyMemberScreen() {
           onPress={() => void rename()}
           loading={busy === "rename"}
         />
-      </View>
+      </Card>
 
-      <Button label={t.family.delete} variant="danger" onPress={() => confirmDelete(member)} />
+      <Button
+        label={t.family.delete}
+        variant="danger"
+        icon="trash-outline"
+        onPress={() => confirmDelete(member)}
+      />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  title: { fontSize: fontSize.lg, fontWeight: "700", color: colors.text },
-  list: { gap: spacing.xs },
-  section: {
-    gap: spacing.md,
-    padding: spacing.lg,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
+  loading: { gap: spacing.md },
 });

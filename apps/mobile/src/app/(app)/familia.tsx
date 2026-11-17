@@ -1,16 +1,18 @@
 import { ALLERGEN_LABELS } from "@safebite/core";
 import { Stack, useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { Button } from "@/components/button";
 import { Checkbox } from "@/components/checkbox";
 import { Notice } from "@/components/notice";
 import { Screen } from "@/components/screen";
+import { Card, Divider, EmptyState, ListItem, Skeleton } from "@/components/ui";
 import { TextField } from "@/components/text-field";
 import { getMessages } from "@/i18n";
 import { addFamilyMember, getFamily, isFamilyLimitError, type Family } from "@/lib/family";
 import { useHealthProfile } from "@/lib/use-health-profile";
-import { colors, fontSize, radius, spacing } from "@/theme";
+import { colors, spacing, typography } from "@/theme";
 
 type Load = { kind: "loading" } | { kind: "ready"; family: Family } | { kind: "error" };
 
@@ -63,7 +65,7 @@ export default function FamilyScreen() {
   return (
     <Screen>
       <Stack.Screen options={{ title: t.family.title }} />
-      <Text style={styles.text}>{t.family.description}</Text>
+      <Text style={typography.body}>{t.family.description}</Text>
 
       {profileState.status === "ready" && !consent ? (
         <>
@@ -73,7 +75,11 @@ export default function FamilyScreen() {
       ) : null}
 
       {consent && load.kind === "loading" ? (
-        <ActivityIndicator color={colors.primary} accessibilityLabel={t.common.loading} />
+        <View style={styles.loading} accessibilityLabel={t.common.loading}>
+          <Skeleton height={20} width="60%" />
+          <Skeleton height={64} />
+          <Skeleton height={64} />
+        </View>
       ) : null}
       {consent && load.kind === "error" ? (
         <>
@@ -85,36 +91,38 @@ export default function FamilyScreen() {
       {consent && load.kind === "ready" ? (
         <>
           {load.family.members.length === 0 ? (
-            <Text style={styles.muted}>{t.family.empty}</Text>
+            <EmptyState icon="people-outline" title={t.family.empty} />
           ) : (
-            <View style={styles.list}>
-              {load.family.members.map((member) => (
-                <Pressable
-                  key={member.id}
-                  accessibilityRole="button"
-                  accessibilityLabel={member.name}
-                  onPress={() =>
-                    router.push({ pathname: "/familiar/[id]", params: { id: member.id } })
-                  }
-                  style={({ pressed }) => [styles.card, pressed ? styles.cardPressed : null]}
-                >
-                  <Text style={styles.name}>{member.name}</Text>
-                  <Text style={styles.muted}>
-                    {member.allergens.length === 0
-                      ? t.family.noAllergies
-                      : member.allergens.map((a) => ALLERGEN_LABELS.es[a]).join(", ")}
-                  </Text>
-                </Pressable>
+            <Card>
+              {load.family.members.map((member, index) => (
+                <View key={member.id}>
+                  {index > 0 ? <Divider /> : null}
+                  <ListItem
+                    icon="person-outline"
+                    title={member.name}
+                    subtitle={
+                      member.allergens.length === 0
+                        ? t.family.noAllergies
+                        : member.allergens.map((a) => ALLERGEN_LABELS.es[a]).join(", ")
+                    }
+                    onPress={() =>
+                      router.push({ pathname: "/familiar/[id]", params: { id: member.id } })
+                    }
+                  />
+                </View>
               ))}
-            </View>
+            </Card>
           )}
-          <Text style={styles.muted}>
-            {t.family.usage(load.family.members.length, load.family.limit)}
-          </Text>
+          <View style={styles.usage}>
+            <Ionicons name="star-outline" size={16} color={colors.textMuted} />
+            <Text style={typography.caption}>
+              {t.family.usage(load.family.members.length, load.family.limit)}
+            </Text>
+          </View>
 
           {load.family.members.length < load.family.limit ? (
-            <View style={styles.form}>
-              <Text style={styles.formTitle} accessibilityRole="header">
+            <Card>
+              <Text style={typography.heading} accessibilityRole="header">
                 {t.family.addTitle}
               </Text>
               {errors.form ? <Notice tone="error" text={errors.form} /> : null}
@@ -132,8 +140,13 @@ export default function FamilyScreen() {
                 onChange={setGuardian}
                 error={errors.guardian}
               />
-              <Button label={t.family.add} onPress={() => void add()} loading={adding} />
-            </View>
+              <Button
+                label={t.family.add}
+                icon="person-add-outline"
+                onPress={() => void add()}
+                loading={adding}
+              />
+            </Card>
           ) : (
             <Notice
               tone="info"
@@ -147,24 +160,6 @@ export default function FamilyScreen() {
 }
 
 const styles = StyleSheet.create({
-  text: { fontSize: fontSize.md, color: colors.text },
-  muted: { fontSize: fontSize.sm, color: colors.textMuted },
-  list: { gap: spacing.sm },
-  card: {
-    gap: spacing.xs,
-    padding: spacing.lg,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  cardPressed: { backgroundColor: colors.surface },
-  name: { fontSize: fontSize.lg, fontWeight: "700", color: colors.text },
-  form: {
-    gap: spacing.md,
-    padding: spacing.lg,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  formTitle: { fontSize: fontSize.lg, fontWeight: "700", color: colors.text },
+  loading: { gap: spacing.md },
+  usage: { flexDirection: "row", alignItems: "center", gap: 6 },
 });

@@ -1,15 +1,14 @@
 import { restaurantRequestSchema } from "@safebite/core";
 import { Stack } from "expo-router";
 import { useState } from "react";
-import { StyleSheet, Text } from "react-native";
 import { Button } from "@/components/button";
 import { Notice } from "@/components/notice";
 import { Screen } from "@/components/screen";
+import { Card, EmptyState } from "@/components/ui";
 import { TextField } from "@/components/text-field";
 import { getMessages } from "@/i18n";
 import { toFieldErrors } from "@/lib/forms";
 import { isTooManyRequestsError, requestRestaurant } from "@/lib/restaurants";
-import { colors, fontSize } from "@/theme";
 
 export default function RequestRestaurantScreen() {
   const t = getMessages();
@@ -46,28 +45,31 @@ export default function RequestRestaurantScreen() {
   return (
     <Screen>
       <Stack.Screen options={{ title: t.request.title }} />
-      <Text style={styles.text}>{t.request.description}</Text>
+      <EmptyState icon="storefront-outline" title={t.request.title} text={t.request.description} />
       {notice ? <Notice tone={notice.tone} text={notice.text} /> : null}
-      <TextField
-        label={t.request.name}
-        value={name}
-        onChangeText={setName}
-        maxLength={120}
-        error={fieldErrors.restaurant_name}
-      />
-      <TextField
-        label={t.request.city}
-        value={city}
-        onChangeText={setCity}
-        autoCapitalize="words"
-        maxLength={100}
-        error={fieldErrors.city}
-      />
-      <Button label={t.request.submit} onPress={() => void submit()} loading={loading} />
+      <Card>
+        <TextField
+          label={t.request.name}
+          value={name}
+          onChangeText={setName}
+          maxLength={120}
+          error={fieldErrors.restaurant_name}
+        />
+        <TextField
+          label={t.request.city}
+          value={city}
+          onChangeText={setCity}
+          autoCapitalize="words"
+          maxLength={100}
+          error={fieldErrors.city}
+        />
+        <Button
+          label={t.request.submit}
+          icon="send"
+          onPress={() => void submit()}
+          loading={loading}
+        />
+      </Card>
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  text: { fontSize: fontSize.md, color: colors.text },
-});

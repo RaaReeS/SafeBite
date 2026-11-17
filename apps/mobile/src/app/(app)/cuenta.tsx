@@ -1,16 +1,17 @@
 import { Stack } from "expo-router";
 import { useState } from "react";
-import { Alert, StyleSheet, Text } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
 import { Button } from "@/components/button";
 import { Notice } from "@/components/notice";
 import { Screen } from "@/components/screen";
+import { Card, IconBadge } from "@/components/ui";
 import { getMessages } from "@/i18n";
 import { clearHistory } from "@/lib/product-history";
 import { deleteMyAccount, withdrawHealthConsent } from "@/lib/profile";
 import { useSession } from "@/lib/session";
 import { supabase } from "@/lib/supabase";
 import { useHealthProfile } from "@/lib/use-health-profile";
-import { colors, fontSize, spacing } from "@/theme";
+import { spacing, typography } from "@/theme";
 
 /** Pide confirmación con el diálogo nativo antes de una acción irreversible. */
 function confirm(title: string, message: string, confirmLabel: string, onConfirm: () => void) {
@@ -64,38 +65,52 @@ export default function AccountScreen() {
   return (
     <Screen>
       <Stack.Screen options={{ title: t.account.title }} />
-      <Text style={styles.text}>{t.account.signedInAs(session?.user.email ?? "")}</Text>
+      <Card>
+        <View style={styles.row}>
+          <IconBadge icon="person" size={48} />
+          <Text style={[typography.body, styles.flex]}>
+            {t.account.signedInAs(session?.user.email ?? "")}
+          </Text>
+        </View>
+      </Card>
       {notice ? <Notice tone={notice.tone} text={notice.text} /> : null}
 
-      <Text style={styles.text}>
-        {hasConsent ? t.account.consentGiven : t.account.consentNotGiven}
-      </Text>
-      {hasConsent ? (
-        <Button
-          label={t.account.withdraw}
-          variant="secondary"
-          loading={busy === "withdraw"}
-          onPress={() =>
-            confirm(
-              t.account.withdrawTitle,
-              t.account.withdrawMessage,
-              t.account.withdrawConfirm,
-              () => void withdraw(),
-            )
-          }
-        />
-      ) : null}
+      <Card>
+        <View style={styles.row}>
+          <IconBadge icon="shield-checkmark-outline" />
+          <Text style={[typography.body, styles.flex]}>
+            {hasConsent ? t.account.consentGiven : t.account.consentNotGiven}
+          </Text>
+        </View>
+        {hasConsent ? (
+          <Button
+            label={t.account.withdraw}
+            variant="secondary"
+            loading={busy === "withdraw"}
+            onPress={() =>
+              confirm(
+                t.account.withdrawTitle,
+                t.account.withdrawMessage,
+                t.account.withdrawConfirm,
+                () => void withdraw(),
+              )
+            }
+          />
+        ) : null}
+      </Card>
 
       <Button
         label={t.auth.logout}
         variant="secondary"
+        icon="log-out-outline"
         loading={busy === "signout"}
         onPress={() => void signOut()}
       />
-      <Text style={styles.spacer} />
+      <View style={styles.spacer} />
       <Button
         label={t.account.delete}
         variant="danger"
+        icon="trash-outline"
         loading={busy === "delete"}
         onPress={() =>
           confirm(
@@ -111,6 +126,7 @@ export default function AccountScreen() {
 }
 
 const styles = StyleSheet.create({
-  text: { fontSize: fontSize.md, color: colors.text },
-  spacer: { height: spacing.xl },
+  flex: { flex: 1 },
+  row: { flexDirection: "row", alignItems: "center", gap: spacing.md },
+  spacer: { height: spacing.lg },
 });

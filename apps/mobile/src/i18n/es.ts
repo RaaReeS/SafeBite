@@ -279,6 +279,8 @@ export const es = {
   },
   allergies: {
     title: "Mis alergias",
+    selected: (n: number) =>
+      n === 0 ? "No has marcado ninguno." : n === 1 ? "1 marcado." : `${n} marcados.`,
     description:
       "Marca los alérgenos que debes evitar. Las cartas se filtrarán automáticamente con esta selección.",
     save: "Guardar",
