@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { ALLERGENS } from "../allergens/allergens";
 import type { AllergenDeclaration } from "../filter/evaluate";
 import {
+  buildAllergenTable,
   buildMenu,
   countByStatus,
   groupDeclarationsByDish,
@@ -267,5 +268,61 @@ describe("suitabilityByRestaurant: el mapa de restaurantes", () => {
 
   it("los restaurantes sin platos no aparecen", () => {
     expect(suitabilityByRestaurant([], free("x"), ["milk"])).toEqual({});
+  });
+});
+
+describe("buildAllergenTable: tabla imprimible de la carta", () => {
+  it("una fila por plato con los 14 alérgenos, en el orden y las categorías de la carta", () => {
+    const table = buildAllergenTable([
+      dish("postre", "Postres", 2, [{ allergen: "milk", level: "contains" }]),
+      dish("ensalada", "Entrantes", 1, allFreeFrom()),
+      dish("pan", null, 3),
+    ]);
+    expect(table.map((s) => s.category)).toEqual(["Entrantes", "Postres", null]);
+    const [ensalada] = table[0]?.rows ?? [];
+    expect(ensalada?.dish.id).toBe("ensalada");
+    expect(Object.keys(ensalada?.levels ?? {})).toEqual([...ALLERGENS]);
+    expect(Object.values(ensalada?.levels ?? {}).every((l) => l === "free_from")).toBe(true);
+
+    const postre = table[1]?.rows[0];
+    expect(postre?.levels.milk).toBe("contains");
+    expect(postre?.levels.gluten).toBeNull();
+  });
+
+  it("un plato sin declaraciones queda todo sin declarar, nunca «no contiene»", () => {
+    const [section] = buildAllergenTable([dish("pan", null, 1)]);
+    expect(Object.values(section?.rows[0]?.levels ?? {})).toEqual(ALLERGENS.map(() => null));
+  });
+
+  it("con varias declaraciones del mismo alérgeno, gana la más grave", () => {
+    const [section] = buildAllergenTable([
+      dish("x", null, 1, [
+        { allergen: "eggs", level: "free_from" },
+        { allergen: "eggs", level: "contains" },
+        { allergen: "eggs", level: "may_contain" },
+        { allergen: "fish", level: "may_contain" },
+        { allergen: "fish", level: "free_from" },
+        { allergen: "soybeans", level: "free_from" },
+        { allergen: "soybeans", level: "may_contain" },
+      ]),
+    ]);
+    const levels = section?.rows[0]?.levels;
+    expect(levels?.eggs).toBe("contains");
+    expect(levels?.fish).toBe("may_contain");
+    expect(levels?.soybeans).toBe("may_contain");
+  });
+
+  it("ignora declaraciones inválidas: el alérgeno queda sin declarar", () => {
+    const [section] = buildAllergenTable([
+      dish("x", null, 1, [
+        { allergen: "inventado", level: "contains" } as unknown as AllergenDeclaration,
+        { allergen: "milk", level: "quizas" } as unknown as AllergenDeclaration,
+      ]),
+    ]);
+    expect(Object.values(section?.rows[0]?.levels ?? {}).every((l) => l === null)).toBe(true);
+  });
+
+  it("una carta sin platos da una tabla vacía", () => {
+    expect(buildAllergenTable([])).toEqual([]);
   });
 });

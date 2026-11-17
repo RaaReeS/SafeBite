@@ -1,5 +1,5 @@
-import type { Allergen } from "../allergens/allergens";
-import type { AllergenLevel } from "../allergens/levels";
+import { ALLERGENS, isAllergen, type Allergen } from "../allergens/allergens";
+import { isAllergenLevel, type AllergenLevel } from "../allergens/levels";
 import {
   evaluateAllergens,
   type AllergenDeclaration,
@@ -163,4 +163,48 @@ export function suitabilityByRestaurant(
     summary[restaurantId] = { status, suitableDishes: counts.apto };
   }
   return summary;
+}
+
+/** Gravedad de cada nivel, para quedarse con la declaración más grave. */
+const TABLE_SEVERITY: Record<AllergenLevel, number> = { contains: 2, may_contain: 1, free_from: 0 };
+
+export type AllergenTableRow<T extends MenuDishInput> = {
+  dish: T;
+  /** Nivel declarado de cada uno de los 14 alérgenos; null = sin declarar. */
+  levels: Record<Allergen, AllergenLevel | null>;
+};
+
+export type AllergenTableSection<T extends MenuDishInput> = {
+  category: string | null;
+  rows: AllergenTableRow<T>[];
+};
+
+/**
+ * Tabla de alérgenos de la carta (platos × 14 alérgenos), para imprimir. Mismo
+ * orden y agrupación por categoría que la carta. Si un alérgeno tiene varias
+ * declaraciones, gana la más grave (como en el filtro); las inválidas se ignoran
+ * y el alérgeno queda sin declarar, nunca como "no contiene".
+ */
+export function buildAllergenTable<T extends MenuDishInput>(
+  dishes: readonly T[],
+): AllergenTableSection<T>[] {
+  return buildMenu(dishes, []).map((section) => ({
+    category: section.category,
+    rows: section.dishes.map(({ dish }) => {
+      const levels = Object.fromEntries(ALLERGENS.map((allergen) => [allergen, null])) as Record<
+        Allergen,
+        AllergenLevel | null
+      >;
+      for (const declaration of dish.allergens) {
+        const { allergen, level } = declaration as { allergen: unknown; level: unknown };
+        if (!isAllergen(allergen) || !isAllergenLevel(level)) continue;
+        const previous = levels[allergen];
+        // Stryker disable next-line EqualityOperator: misma gravedad = mismo nivel, así que `>` y `>=` son equivalentes.
+        if (previous === null || TABLE_SEVERITY[level] > TABLE_SEVERITY[previous]) {
+          levels[allergen] = level;
+        }
+      }
+      return { dish, levels };
+    }),
+  }));
 }
