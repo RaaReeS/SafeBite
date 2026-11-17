@@ -53,6 +53,9 @@ async function AdminShell({ children }: { children: ReactNode }) {
           <Link href="/admin/solicitudes" className="underline">
             {t.admin.nav.requests}
           </Link>
+          <Link href="/admin/planes" className="underline">
+            {t.admin.nav.plans}
+          </Link>
         </nav>
       </header>
       <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-4 py-8">

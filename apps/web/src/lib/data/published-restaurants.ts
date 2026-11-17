@@ -1,9 +1,5 @@
 import "server-only";
-import {
-  suitabilityByRestaurant as summarize,
-  type Allergen,
-  type SuitabilitySummary,
-} from "@safebite/core";
+
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 /**
@@ -40,16 +36,12 @@ async function fetchAllPages<T>(
   }
 }
 
-export type { SuitabilitySummary };
-
 /**
- * ¿Qué puede comer este comensal en cada restaurante? Se evalúan todos los
- * platos publicados con su perfil y el mismo filtro de core que la carta
- * (restaurantSuitability). Se calcula en el servidor y solo se le devuelve a él.
+ * Cartas públicas (platos y alérgenos declarados de los restaurantes publicados
+ * y verificados), para que el navegador calcule dónde puede comer cada grupo
+ * de personas con suitabilityByRestaurant (core). Son datos públicos.
  */
-export async function suitabilityByRestaurant(
-  profile: readonly Allergen[],
-): Promise<Record<string, SuitabilitySummary>> {
+export async function listPublicMenus() {
   const supabase = await createSupabaseServerClient();
   const [dishes, declarations] = await Promise.all([
     fetchAllPages((from, to) =>
@@ -68,6 +60,7 @@ export async function suitabilityByRestaurant(
         .range(from, to),
     ),
   ]);
-
-  return summarize(dishes, declarations, profile);
+  return { dishes, declarations };
 }
+
+export type PublicMenus = Awaited<ReturnType<typeof listPublicMenus>>;

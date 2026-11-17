@@ -14,6 +14,7 @@ export {
   mostSevereStatus,
   type FilterStatus,
 } from "./filter/status";
+export { combineProfiles } from "./filter/combine";
 export {
   evaluateAllergens,
   type AllergenDeclaration,

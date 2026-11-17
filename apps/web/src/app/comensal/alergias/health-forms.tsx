@@ -69,12 +69,25 @@ export function ConsentForm({ action }: { action: Action }) {
 }
 
 /** Los 14 alérgenos para marcar. Se guardan todos de una vez. */
-export function AllergiesForm({ action, initial }: { action: Action; initial: Allergen[] }) {
+export function AllergiesForm({
+  action,
+  initial,
+  label,
+}: {
+  action: Action;
+  initial: Allergen[];
+  /** Nombre accesible del formulario (por defecto, «Mis alergias»). */
+  label?: string;
+}) {
   const t = getMessages();
   const [state, formAction, pending] = useActionState(action, initialFormState);
 
   return (
-    <form action={formAction} aria-label={t.diner.allergies.title} className="flex flex-col gap-4">
+    <form
+      action={formAction}
+      aria-label={label ?? t.diner.allergies.title}
+      className="flex flex-col gap-4"
+    >
       <FormStatus state={state} />
       <fieldset className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <legend className="mb-2 text-sm text-zinc-700 dark:text-zinc-300">

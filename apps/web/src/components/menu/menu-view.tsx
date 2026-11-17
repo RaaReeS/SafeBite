@@ -8,6 +8,7 @@ import {
   FILTER_SOURCE_NOTICE,
   FILTER_STATUS_LABELS,
   buildMenu,
+  combineProfiles,
   countByStatus,
   formatCents,
   type Allergen,
@@ -17,6 +18,7 @@ import {
 import Link from "next/link";
 import { Fragment, useId, useState } from "react";
 import { getMessages } from "@/i18n";
+import type { Person } from "@/lib/data/health-profile";
 import type { MenuDish, MenuRestaurant } from "@/lib/data/public-menu";
 import { AllergenIcon } from "./allergen-icon";
 
@@ -24,10 +26,11 @@ type MenuViewProps = {
   restaurant: MenuRestaurant;
   dishes: MenuDish[];
   /**
-   * Perfil guardado del comensal con sesión (null o ausente: visitante anónimo
-   * o vista previa del panel). Si lo hay, la carta parte de él.
+   * Comensal con sesión: las personas para las que filtra («Yo» y su familia).
+   * null o ausente: visitante anónimo o vista previa del panel. Si las hay, la
+   * carta parte de las alergias de todas (seleccionadas por defecto).
    */
-  savedProfile?: { consentGivenAt: string | null; allergens: Allergen[] } | null;
+  diner?: { consentGiven: boolean; people: Person[] } | null;
 };
 
 function sameAllergens(a: readonly Allergen[], b: readonly Allergen[]): boolean {
@@ -42,11 +45,28 @@ function sameAllergens(a: readonly Allergen[], b: readonly Allergen[]): boolean 
  * Privacidad: las alergias seleccionadas viven solo en el estado de este
  * componente. No se guardan (ni URL, ni almacenamiento local) ni se envían.
  */
-export function MenuView({ restaurant, dishes, savedProfile = null }: MenuViewProps) {
+export function MenuView({ restaurant, dishes, diner = null }: MenuViewProps) {
   const t = getMessages();
-  const saved = savedProfile?.consentGivenAt ? savedProfile.allergens : null;
+  const people = diner?.consentGiven ? diner.people : null;
+  // Por defecto, para todas las personas: un plato apto lo es para toda la familia.
+  const [selected, setSelected] = useState<string[]>(() => people?.map((p) => p.id) ?? []);
+  const profileFor = (ids: readonly string[]) =>
+    combineProfiles((people ?? []).filter((p) => ids.includes(p.id)).map((p) => p.allergens));
+  const saved = people === null ? null : profileFor(selected);
   // Los ajustes sobre el perfil guardado son solo para esta carta: no se guardan.
   const [profile, setProfile] = useState<Allergen[]>(saved ?? []);
+
+  function togglePerson(id: string) {
+    // Siempre queda al menos una persona seleccionada.
+    const next = selected.includes(id)
+      ? selected.length === 1
+        ? selected
+        : selected.filter((other) => other !== id)
+      : [...selected, id];
+    setSelected(next);
+    setProfile(profileFor(next));
+  }
+  const selectedNames = (people ?? []).filter((p) => selected.includes(p.id)).map((p) => p.name);
   const [hideNotSuitable, setHideNotSuitable] = useState(false);
   const hideId = useId();
 
@@ -63,7 +83,7 @@ export function MenuView({ restaurant, dishes, savedProfile = null }: MenuViewPr
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-6">
       <header className="flex flex-col gap-1">
-        {savedProfile !== null ? (
+        {diner !== null ? (
           <Link href="/comensal/restaurantes" className="text-sm underline">
             {t.menu.backToSearch}
           </Link>
@@ -88,9 +108,34 @@ export function MenuView({ restaurant, dishes, savedProfile = null }: MenuViewPr
         <h2 id="allergen-filter-title" className="font-semibold">
           {t.menu.filterTitle}
         </h2>
+        {people !== null && people.length > 1 ? (
+          <fieldset className="flex flex-col gap-2">
+            <legend className="mb-1 text-sm font-medium">{t.menu.forWhom}</legend>
+            <div className="flex flex-wrap gap-2">
+              {people.map((person) => (
+                <label
+                  key={person.id}
+                  className="flex min-h-11 items-center gap-2 rounded-md border border-zinc-300 px-3 py-2 text-sm has-checked:border-emerald-700 has-checked:bg-emerald-50 dark:border-zinc-700 dark:has-checked:bg-emerald-950"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selected.includes(person.id)}
+                    onChange={() => togglePerson(person.id)}
+                    className="size-4 accent-emerald-700"
+                  />
+                  {person.name}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        ) : null}
         {saved !== null ? (
           sameAllergens(profile, saved) ? (
-            <p className="text-sm text-emerald-800 dark:text-emerald-300">{t.menu.usingProfile}</p>
+            <p className="text-sm text-emerald-800 dark:text-emerald-300">
+              {people !== null && people.length > 1
+                ? t.menu.usingProfileFor(selectedNames.join(", "))
+                : t.menu.usingProfile}
+            </p>
           ) : (
             <p className="flex flex-wrap items-center gap-x-3 text-sm">
               <span>{t.menu.adjusted}</span>
@@ -100,7 +145,7 @@ export function MenuView({ restaurant, dishes, savedProfile = null }: MenuViewPr
             </p>
           )
         ) : null}
-        {savedProfile !== null && saved === null ? (
+        {diner !== null && people === null ? (
           <p className="text-sm">
             <Link href="/comensal/alergias" className="underline">
               {t.menu.configureProfile}

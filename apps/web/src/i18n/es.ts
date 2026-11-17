@@ -103,6 +103,7 @@ export const es = {
       home: "Inicio",
       restaurants: "Restaurantes",
       allergies: "Mis alergias",
+      family: "Mi familia",
       account: "Mi cuenta",
     },
     home: {
@@ -161,6 +162,7 @@ export const es = {
       listLabel: "Lista de restaurantes",
       openMenu: "Ver la carta",
       noProfile: "Guarda tus alergias para ver en el mapa dónde puedes comer.",
+      forWhom: "¿Para quién buscas?",
       configureProfile: "Configurar mis alergias",
       canEatIn: (n: number, total: number) =>
         n === 1
@@ -202,9 +204,62 @@ export const es = {
       cancel: "Cancelar",
     },
   },
+  family: {
+    title: "Mi familia",
+    description:
+      "Guarda las alergias de las personas con las que comes (tus hijos, tu pareja…) y filtra las cartas y el mapa para todos a la vez.",
+    consentRequired:
+      "Antes de guardar las alergias de tu familia, configura las tuyas y da tu consentimiento para guardar datos de salud.",
+    empty: "Aún no has añadido a nadie.",
+    noAllergies: "Sin alergias marcadas",
+    edit: "Editar",
+    editOf: (name: string) => `Editar a ${name}`,
+    usage: (n: number, limit: number) => `${n} de ${limit} familiares en tu plan.`,
+    addTitle: "Añadir a alguien",
+    name: "Nombre o apodo",
+    nameHint: "Por ejemplo, «Lucía» o «Abuelo». No hace falta el nombre completo.",
+    nameInvalid: "Escribe un nombre de 1 a 40 caracteres.",
+    guardian:
+      "Soy su madre, padre o tutor legal, o tengo su permiso para guardar sus alergias en SafeBite.",
+    guardianRequired:
+      "Para guardar las alergias de otra persona necesitas su permiso o ser su tutor.",
+    add: "Añadir",
+    limitReached:
+      "Has llegado al número de familiares de tu plan. El plan premium permitirá hasta 10.",
+    freeFull:
+      "Con el plan gratis puedes guardar 1 familiar. El plan premium, con hasta 10, estará disponible próximamente.",
+    premiumFull: "Has llegado al máximo de 10 familiares.",
+    back: "← Mi familia",
+    allergiesOf: (name: string) => `Alergias de ${name}`,
+    allergiesSaved: "Sus alergias se han guardado.",
+    renameTitle: "Cambiar el nombre",
+    rename: "Guardar nombre",
+    renamed: "Nombre guardado.",
+    deleteTitle: "Quitar de mi familia",
+    delete: "Quitar de mi familia",
+    deleteConfirmTitle: (name: string) => `¿Quitar a ${name}?`,
+    deleteMessage: "Se borrarán su nombre y sus alergias. No se puede deshacer.",
+    deleted: "Se ha quitado de tu familia y sus datos se han borrado.",
+  },
   admin: {
     label: "Administración",
-    nav: { requests: "Solicitudes", restaurants: "Verificación de restaurantes" },
+    nav: {
+      requests: "Solicitudes",
+      restaurants: "Verificación de restaurantes",
+      plans: "Planes",
+    },
+    plans: {
+      title: "Planes de las cuentas",
+      description:
+        "Mientras no haya pagos, aquí se da o se quita el plan premium (hasta 10 familiares en lugar de 1). Escribe el email de la cuenta.",
+      formLabel: "Cambiar el plan de una cuenta",
+      email: "Email de la cuenta",
+      makePremium: "Dar premium",
+      makeFree: "Volver al plan gratis",
+      notFound: "No hay ninguna cuenta con ese email.",
+      madePremium: (email: string) => `${email} ya tiene el plan premium.`,
+      madeFree: (email: string) => `${email} vuelve al plan gratis.`,
+    },
     twoFactor: {
       title: "Verificación en dos pasos",
       why: "La cuenta de administración decide qué cartas ven las personas con alergias, así que además de la contraseña pide un código de tu móvil.",
@@ -517,6 +572,8 @@ export const es = {
     filterHint: "Tu selección no se guarda ni se envía: solo se usa en esta pantalla.",
     backToSearch: "← Restaurantes",
     usingProfile: "Filtrada con tu perfil de alergias.",
+    forWhom: "¿Para quién es?",
+    usingProfileFor: (names: string) => `Filtrada para: ${names}.`,
     adjusted: "Ajustada solo para esta carta: tu perfil guardado no cambia.",
     resetToProfile: "Volver a mi perfil",
     configureProfile: "Configura tus alergias para que las cartas se filtren solas",

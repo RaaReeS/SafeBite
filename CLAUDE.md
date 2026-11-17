@@ -43,6 +43,8 @@ Especificación completa en `ESPECIFICACION.md`. Léela antes de empezar cualqui
 - Solicitudes «Pide este restaurante»: el admin las gestiona con `admin_request_summary()` y `admin_set_request_status()`, que agrupan por restaurante y ciudad y nunca devuelven quién las pidió. Estados: `pending` y `added`. Límite: 20 por usuario en 24 h (error propio `SB429`).
 - Verificación de restaurantes: un restaurante solo es público (vistas `public_*`, app y QR) si está publicado Y `verification_status = 'verified'`. Solo el admin lo cambia (`admin_set_restaurant_verification()`, rechazo con motivo obligatorio). Cambiar nombre, ciudad o dirección lo devuelve a `pending`.
 - El admin necesita verificación en dos pasos, a elegir en `/admin/dos-pasos`: app de autenticación (TOTP de Supabase, sesión `aal2`) o código por email. La web lo exige (`requireAdmin`) y la base de datos también (`private.require_admin()`: `aal2` o sesión verificada por email en `private.admin_email_sessions`, 12 h). El código por email lo genera y envía la propia base de datos (pg_net → Brevo; Mailpit en local), nunca pasa por el cliente; 10 min, 5 intentos, 5 envíos/hora. **Decisión del usuario:** se acepta que el email es menos seguro (quien entre en el correo puede recuperar la contraseña y recibir el código). Si pierde el móvil del autenticador, se borra el factor desde el panel de Supabase (Authentication → Users).
+- Perfiles de familia (función premium, decisión del usuario; **cambio de alcance**: el cobro llegará más adelante): `family_members` y `family_member_allergens`, datos de salud de terceros solo para el titular. Alta solo con `add_family_member` (consentimiento + declaración de tutor o permiso + límite del plan, error `SB402`). `profiles.plan`: `free` = 1 familiar, `premium` = 10; solo lo cambia el admin (`/admin/planes`, `admin_set_account_plan`) hasta que haya pagos. La carta y el mapa filtran por defecto para toda la familia con `combineProfiles` (core).
+- Tablas nuevas en `public`: Supabase da permisos por defecto a `anon` y `authenticated`; hacer `revoke all` antes de conceder los necesarios (el test pgTAP de esquema lo vigila).
 - Componentes funcionales, TypeScript estricto, sin `any`.
 - Commits pequeños y descriptivos, uno por paso que funcione.
 - En tareas grandes: planificar primero, esperar confirmación y programar después.
@@ -100,4 +102,4 @@ Especificación completa en `ESPECIFICACION.md`. Léela antes de empezar cualqui
 
 ## Fuera del MVP (no implementar todavía)
 
-Traductor con cámara, verificación de protocolos de cocina, dietas médicas con datos nutricionales (diabetes, hipertensión), pagos y suscripciones.
+Traductor con cámara, verificación de protocolos de cocina, dietas médicas con datos nutricionales (diabetes, hipertensión), pagos y suscripciones (el plan premium existe, pero aún sin cobro: se asigna desde `/admin/planes`).

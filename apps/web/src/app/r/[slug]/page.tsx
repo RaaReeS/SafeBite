@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { MenuView } from "@/components/menu/menu-view";
 import { getMessages } from "@/i18n";
-import { getHealthProfileIfDiner } from "@/lib/data/health-profile";
+import { getPeopleIfDiner } from "@/lib/data/health-profile";
 import { getPublicMenu } from "@/lib/data/public-menu";
 
 // Carta pública por QR: sin registro ni sesión (con sesión de comensal, se
@@ -34,8 +34,8 @@ export default function PublicMenuPage({ params }: PageProps<"/r/[slug]">) {
 
 async function PublicMenu({ params }: Pick<PageProps<"/r/[slug]">, "params">) {
   const { slug } = await params;
-  const [menu, savedProfile] = await Promise.all([getPublicMenu(slug), getHealthProfileIfDiner()]);
+  const [menu, diner] = await Promise.all([getPublicMenu(slug), getPeopleIfDiner()]);
   if (menu === null) notFound();
-  // Con sesión de comensal, la carta parte de su perfil guardado (solo lo ve él).
-  return <MenuView restaurant={menu.restaurant} dishes={menu.dishes} savedProfile={savedProfile} />;
+  // Con sesión de comensal, la carta parte de su perfil y el de su familia (solo lo ve él).
+  return <MenuView restaurant={menu.restaurant} dishes={menu.dishes} diner={diner} />;
 }

@@ -1,8 +1,10 @@
 "use client";
 
 import {
+  combineProfiles,
   formatDistance,
   sortByDistance,
+  suitabilityByRestaurant,
   type Coordinates,
   type FilterStatus,
 } from "@safebite/core";
@@ -13,7 +15,8 @@ import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { TextField } from "@/components/ui/field";
 import { getMessages } from "@/i18n";
-import type { PublishedRestaurant, SuitabilitySummary } from "@/lib/data/published-restaurants";
+import type { Person } from "@/lib/data/health-profile";
+import type { PublicMenus, PublishedRestaurant } from "@/lib/data/published-restaurants";
 import { SUITABILITY_STYLES } from "./suitability";
 
 // MapLibre usa `window` y WebGL: el mapa solo se carga en el navegador.
@@ -36,13 +39,45 @@ function normalize(text: string): string {
 
 export function RestaurantFinder({
   restaurants,
-  suitability,
+  people,
+  menus,
 }: {
   restaurants: PublishedRestaurant[];
-  /** Resumen por restaurante con el perfil del comensal; null si no tiene alergias guardadas. */
-  suitability: Record<string, SuitabilitySummary> | null;
+  /** «Yo» y su familia, con sus alergias; null si no ha dado el consentimiento. */
+  people: Person[] | null;
+  /** Cartas públicas, para calcular aquí dónde puede comer el grupo elegido. */
+  menus: PublicMenus;
 }) {
   const t = getMessages();
+  // Por defecto, para todas las personas: un sitio apto lo es para toda la familia.
+  const [selected, setSelected] = useState<string[]>(() => people?.map((p) => p.id) ?? []);
+  const allergens = useMemo(
+    () =>
+      combineProfiles(
+        (people ?? []).filter((p) => selected.includes(p.id)).map((p) => p.allergens),
+      ),
+    [people, selected],
+  );
+  // Sin alergias que evitar no hay semáforo. El cálculo es el de core, en el navegador:
+  // las alergias no salen de aquí.
+  const suitability = useMemo(
+    () =>
+      allergens.length === 0
+        ? null
+        : suitabilityByRestaurant(menus.dishes, menus.declarations, allergens),
+    [menus, allergens],
+  );
+
+  function togglePerson(id: string) {
+    // Siempre queda al menos una persona seleccionada.
+    setSelected((current) =>
+      current.includes(id)
+        ? current.length === 1
+          ? current
+          : current.filter((other) => other !== id)
+        : [...current, id],
+    );
+  }
   const showAllId = useId();
   const [city, setCity] = useState("");
   const [showAll, setShowAll] = useState(false);
@@ -103,6 +138,27 @@ export function RestaurantFinder({
 
   return (
     <div className="flex flex-col gap-4">
+      {people !== null && people.length > 1 ? (
+        <fieldset className="flex flex-col gap-2">
+          <legend className="mb-1 text-sm font-medium">{t.diner.search.forWhom}</legend>
+          <div className="flex flex-wrap gap-2">
+            {people.map((person) => (
+              <label
+                key={person.id}
+                className="flex min-h-11 items-center gap-2 rounded-md border border-zinc-300 px-3 py-2 text-sm has-checked:border-emerald-700 has-checked:bg-emerald-50 dark:border-zinc-700 dark:has-checked:bg-emerald-950"
+              >
+                <input
+                  type="checkbox"
+                  checked={selected.includes(person.id)}
+                  onChange={() => togglePerson(person.id)}
+                  className="size-4 accent-emerald-700"
+                />
+                {person.name}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      ) : null}
       {suitability === null ? (
         <Alert tone="info">
           {t.diner.search.noProfile}{" "}
