@@ -14,6 +14,11 @@ export const es = {
   welcome: {
     register: "Crear cuenta",
     login: "Ya tengo cuenta",
+    features: {
+      restaurants: "Restaurantes con la carta filtrada para tus alergias",
+      scan: "Escanea productos del súper y mira si puedes tomarlos",
+      family: "Filtra a la vez para toda tu familia",
+    },
     disclaimer:
       "SafeBite muestra la información de alérgenos declarada por cada establecimiento. Confirma siempre con el establecimiento y revisa la etiqueta física.",
   },
