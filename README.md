@@ -1,5 +1,7 @@
 # SafeBite
 
+> **Proyecto en desarrollo.** Las funciones, el diseño y el propio nombre («SafeBite» es provisional) pueden cambiar. Todavía no está listo para un uso real.
+
 Plataforma para personas con alergias, intolerancias y dietas específicas que quieren comer fuera de casa y comprar alimentos con más tranquilidad.
 
 - **Web para restaurantes:** declaran los 14 alérgenos de cada plato (Reglamento (UE) n.º 1169/2011), publican su carta con un código QR y descargan una tabla de alérgenos imprimible.
@@ -43,6 +45,6 @@ El código de SafeBite es **visible, pero no es de código abierto**. Se publica
 
 Para un uso comercial, contacta con el autor a través de su perfil de GitHub: [@RaaReeS](https://github.com/RaaReeS).
 
-El nombre «SafeBite» y su identidad visual no forman parte de esta licencia.
+La licencia cubre el código, aunque cambie el nombre del proyecto o se añadan funciones. El nombre del proyecto y su identidad visual no forman parte de esta licencia.
 
 Copyright (c) 2026 Rares Stanescu.
