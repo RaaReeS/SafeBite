@@ -53,9 +53,28 @@ function contrast(a: string, b: string): number {
   return (high + 0.05) / (low + 0.05);
 }
 
-for (const colorScheme of ["light", "dark"] as const) {
-  test.describe(`tema en modo ${colorScheme === "light" ? "claro" : "oscuro"}`, () => {
+/**
+ * Modo del sistema y, si la hay, la elección del usuario (data-theme). Las
+ * elecciones contrarias al sistema comprueban el segundo bloque de variables.
+ */
+const CASES = [
+  { colorScheme: "light", chosen: null, name: "claro (sistema)" },
+  { colorScheme: "dark", chosen: null, name: "oscuro (sistema)" },
+  { colorScheme: "light", chosen: "dark", name: "oscuro elegido con el sistema en claro" },
+  { colorScheme: "dark", chosen: "light", name: "claro elegido con el sistema en oscuro" },
+] as const;
+
+for (const { colorScheme, chosen, name } of CASES) {
+  test.describe(`tema: ${name}`, () => {
     test.use({ colorScheme });
+    test.beforeEach(async ({ page }) => {
+      if (chosen !== null) {
+        await page.addInitScript(
+          (value) => localStorage.setItem("safebite.appearance", value),
+          chosen,
+        );
+      }
+    });
 
     test("los colores cumplen el contraste AA", async ({ page }) => {
       await page.goto("/");

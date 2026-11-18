@@ -55,3 +55,11 @@ jest.mock("react-native-maps", () => {
 // Las fuentes se dan por cargadas en los tests (no hay archivos de fuente).
 jest.mock("@/lib/fonts", () => ({ useAppFonts: () => true }));
 jest.mock("expo-haptics", () => ({ selectionAsync: jest.fn(async () => undefined) }));
+
+// Captura de pantalla para el fundido al cambiar de modo: en los tests no hay
+// pantalla, así que falla y el cambio es directo (theme.test.tsx simula el fundido).
+jest.mock("react-native-view-shot", () => ({
+  captureRef: jest.fn(async () => {
+    throw new Error("sin captura en los tests");
+  }),
+}));

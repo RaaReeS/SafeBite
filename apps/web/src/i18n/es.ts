@@ -14,6 +14,11 @@ export const es = {
     tooManyAttempts: "Demasiados intentos. Espera unos minutos antes de volver a probar.",
     loading: "Cargando…",
   },
+  appearance: {
+    title: "Apariencia",
+    button: (current: string) => `Apariencia: ${current}`,
+    options: { system: "Automático", light: "Claro", dark: "Oscuro" },
+  },
   home: {
     accountDeleted: "Tu cuenta y todos tus datos se han borrado.",
     title: "Tu carta con información de alérgenos, clara y siempre actualizada",

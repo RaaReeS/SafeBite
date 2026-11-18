@@ -1,13 +1,16 @@
 import { Stack, useRouter } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
+import { AppearancePicker } from "@/components/appearance-picker";
 import { Screen } from "@/components/screen";
 import { Card, Divider, IconBadge, ListItem } from "@/components/ui";
 import { getMessages } from "@/i18n";
 import { useSession } from "@/lib/session";
-import { spacing, typography } from "@/theme";
+import { makeStyles, spacing, useTheme } from "@/theme";
 
 /** Pestaña Perfil: todo lo que es tuyo (alergias, familia y cuenta) en un solo sitio. */
 export default function ProfileScreen() {
+  const styles = useStyles();
+  const { typography } = useTheme();
   const t = getMessages();
   const router = useRouter();
   const { session } = useSession();
@@ -44,11 +47,17 @@ export default function ProfileScreen() {
           onPress={() => router.push("/cuenta")}
         />
       </Card>
+
+      <Card>
+        <AppearancePicker />
+      </Card>
     </Screen>
   );
 }
 
-const styles = StyleSheet.create({
-  header: { flexDirection: "row", alignItems: "center", gap: spacing.md },
-  email: { flex: 1 },
-});
+const useStyles = makeStyles(() =>
+  StyleSheet.create({
+    header: { flexDirection: "row", alignItems: "center", gap: spacing.md },
+    email: { flex: 1 },
+  }),
+);

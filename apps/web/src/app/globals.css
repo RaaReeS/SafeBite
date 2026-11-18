@@ -48,8 +48,46 @@
   --shadow-raised: 0 8px 18px rgb(15 23 42 / 0.12);
 }
 
+/*
+ * Modo oscuro: si el usuario lo elige (data-theme="dark", ver
+ * components/appearance-menu.tsx) o si lo pide el sistema y no ha elegido «Claro».
+ * Los dos bloques tienen las mismas variables (e2e/theme.spec.ts lo vigila).
+ */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #0b1210;
+  --card: #141c19;
+  --surface: #1d2723;
+  --line: #2a3631;
+  --input: #6b7a73;
+  --fg: #eef2f0;
+  --muted: #a3b0aa;
+  --subtle: #8f9c96;
+
+  --primary: #047857;
+  --primary-hover: #065f46;
+  --primary-dark: #064e3b;
+  --primary-text: #34d399;
+  --primary-soft: #0f3a2c;
+  --primary-strong: #a7f3d0;
+
+  --danger: #f87171;
+  --danger-soft: #3b1414;
+  --danger-solid: #b91c1c;
+
+  --warning-bg: #2d2108;
+  --warning-fg: #fcd34d;
+  --info-bg: #0c1d3a;
+  --info-fg: #bfdbfe;
+  --success-bg: #0c2a20;
+  --success-fg: #a7f3d0;
+
+  --shadow-card: 0 4px 12px rgb(0 0 0 / 0.35);
+  --shadow-raised: 0 8px 18px rgb(0 0 0 / 0.5);
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     color-scheme: dark;
     --background: #0b1210;
     --card: #141c19;
@@ -85,7 +123,8 @@
 
 /* Al imprimir (QR, carta) siempre en claro: el papel es blanco. */
 @media print {
-  :root {
+  :root:root,
+  :root[data-theme] {
     color-scheme: light;
     --background: #ffffff;
     --card: #ffffff;
@@ -173,4 +212,17 @@ body {
   color: var(--muted);
   font-size: 1.25rem;
   padding: 0 0.4rem;
+}
+
+/* Fundido al cambiar entre claro y oscuro (components/appearance-menu.tsx). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.4s;
+  animation-timing-function: ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
 }

@@ -1,7 +1,7 @@
 import type { Allergen } from "@safebite/core";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { Alert, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Alert, Text, View } from "react-native";
 import { AllergenGrid } from "@/components/allergen-grid";
 import { Button } from "@/components/button";
 import { Notice } from "@/components/notice";
@@ -17,11 +17,13 @@ import {
   type FamilyMember,
 } from "@/lib/family";
 import { useSession } from "@/lib/session";
-import { spacing, typography } from "@/theme";
+import { makeStyles, spacing, useTheme } from "@/theme";
 
 type Load = { kind: "loading" } | { kind: "ready"; member: FamilyMember } | { kind: "missing" };
 
 export default function FamilyMemberScreen() {
+  const styles = useStyles();
+  const { typography } = useTheme();
   const t = getMessages();
   const router = useRouter();
   const { id = "" } = useLocalSearchParams<{ id: string }>();
@@ -171,6 +173,8 @@ export default function FamilyMemberScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  loading: { gap: spacing.md },
-});
+const useStyles = makeStyles(() =>
+  StyleSheet.create({
+    loading: { gap: spacing.md },
+  }),
+);

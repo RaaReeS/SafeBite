@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import type { IconName } from "@/components/button";
 import { tapFeedback } from "@/lib/haptics";
-import { colors, fonts, radius, shadow, spacing, typography } from "@/theme";
+import { fonts, makeStyles, radius, spacing, useTheme } from "@/theme";
 
 /**
  * Piezas comunes del diseño de la app. Las pantallas se construyen con estas
@@ -20,6 +20,7 @@ import { colors, fonts, radius, shadow, spacing, typography } from "@/theme";
 
 /** Tarjeta blanca con esquinas redondeadas y sombra suave. */
 export function Card({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
+  const styles = useStyles();
   return <View style={[styles.card, style]}>{children}</View>;
 }
 
@@ -31,6 +32,8 @@ export function SectionHeader({
   title: string;
   action?: { label: string; onPress: () => void };
 }) {
+  const styles = useStyles();
+  const { typography } = useTheme();
   return (
     <View style={styles.sectionHeader}>
       <Text style={typography.heading} accessibilityRole="header">
@@ -53,8 +56,8 @@ export function SectionHeader({
 /** Icono dentro de un círculo de color suave (para filas y accesos rápidos). */
 export function IconBadge({
   icon,
-  color = colors.primary,
-  background = colors.primarySoft,
+  color,
+  background,
   size = 40,
 }: {
   icon: IconName;
@@ -62,12 +65,17 @@ export function IconBadge({
   background?: string;
   size?: number;
 }) {
+  const styles = useStyles();
+  const { colors } = useTheme();
   return (
     <View
-      style={[styles.iconBadge, { width: size, height: size, backgroundColor: background }]}
+      style={[
+        styles.iconBadge,
+        { width: size, height: size, backgroundColor: background ?? colors.primarySoft },
+      ]}
       importantForAccessibility="no-hide-descendants"
     >
-      <Icon name={icon} size={size * 0.5} color={color} />
+      <Icon name={icon} size={size * 0.5} color={color ?? colors.accent} />
     </View>
   );
 }
@@ -88,6 +96,8 @@ export function ListItem({
   right?: ReactNode;
   accessibilityLabel?: string;
 }) {
+  const styles = useStyles();
+  const { colors, typography } = useTheme();
   const content = (
     <>
       {icon ? <IconBadge icon={icon} /> : null}
@@ -121,6 +131,7 @@ export function ListItem({
 
 /** Separador fino entre filas dentro de una tarjeta. */
 export function Divider() {
+  const styles = useStyles();
   return <View style={styles.divider} />;
 }
 
@@ -136,6 +147,7 @@ export function Chip({
   selected?: boolean;
   onPress?: () => void;
 }) {
+  const styles = useStyles();
   const body = (
     <>
       {icon}
@@ -178,6 +190,8 @@ export function EmptyState({
   text?: string;
   action?: ReactNode;
 }) {
+  const styles = useStyles();
+  const { typography } = useTheme();
   return (
     <View style={styles.empty}>
       <IconBadge icon={icon} size={64} />
@@ -196,6 +210,7 @@ export function Skeleton({
   height?: number;
   width?: number | `${number}%`;
 }) {
+  const styles = useStyles();
   const opacity = useRef(new Animated.Value(0.5)).current;
   useEffect(() => {
     const loop = Animated.loop(
@@ -215,53 +230,55 @@ export function Skeleton({
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.card,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-    gap: spacing.md,
-    ...shadow.card,
-  },
-  sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: spacing.sm,
-  },
-  sectionAction: { fontFamily: fonts.semibold, fontSize: 14, color: colors.primary },
-  // Zona táctil de 44 pt aunque el texto sea pequeño.
-  sectionActionTouch: {
-    minHeight: 44,
-    minWidth: 44,
-    justifyContent: "center",
-    alignItems: "flex-end",
-  },
-  iconBadge: { borderRadius: radius.full, alignItems: "center", justifyContent: "center" },
-  listItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.md,
-    minHeight: 56,
-    paddingVertical: spacing.sm,
-  },
-  listText: { flex: 1, gap: 2 },
-  pressed: { opacity: 0.7 },
-  divider: { height: StyleSheet.hairlineWidth, backgroundColor: colors.border },
-  chip: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.xs,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 6,
-    borderRadius: radius.full,
-    backgroundColor: colors.surface,
-  },
-  chipTouchable: { minHeight: 44, paddingHorizontal: spacing.lg },
-  chipOn: { backgroundColor: colors.primary },
-  chipText: { fontFamily: fonts.medium, fontSize: 14, color: colors.text },
-  chipTextOn: { color: colors.primaryText },
-  empty: { alignItems: "center", gap: spacing.md, paddingVertical: spacing.xl },
-  center: { textAlign: "center" },
-  skeleton: { borderRadius: radius.sm, backgroundColor: colors.surface },
-});
+const useStyles = makeStyles(({ colors, shadow }) =>
+  StyleSheet.create({
+    card: {
+      backgroundColor: colors.card,
+      borderRadius: radius.lg,
+      padding: spacing.lg,
+      gap: spacing.md,
+      ...shadow.card,
+    },
+    sectionHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginTop: spacing.sm,
+    },
+    sectionAction: { fontFamily: fonts.semibold, fontSize: 14, color: colors.accent },
+    // Zona táctil de 44 pt aunque el texto sea pequeño.
+    sectionActionTouch: {
+      minHeight: 44,
+      minWidth: 44,
+      justifyContent: "center",
+      alignItems: "flex-end",
+    },
+    iconBadge: { borderRadius: radius.full, alignItems: "center", justifyContent: "center" },
+    listItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: spacing.md,
+      minHeight: 56,
+      paddingVertical: spacing.sm,
+    },
+    listText: { flex: 1, gap: 2 },
+    pressed: { opacity: 0.7 },
+    divider: { height: StyleSheet.hairlineWidth, backgroundColor: colors.border },
+    chip: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: spacing.xs,
+      paddingHorizontal: spacing.md,
+      paddingVertical: 6,
+      borderRadius: radius.full,
+      backgroundColor: colors.surface,
+    },
+    chipTouchable: { minHeight: 44, paddingHorizontal: spacing.lg },
+    chipOn: { backgroundColor: colors.primary },
+    chipText: { fontFamily: fonts.medium, fontSize: 14, color: colors.text },
+    chipTextOn: { color: colors.primaryText },
+    empty: { alignItems: "center", gap: spacing.md, paddingVertical: spacing.xl },
+    center: { textAlign: "center" },
+    skeleton: { borderRadius: radius.sm, backgroundColor: colors.surface },
+  }),
+);

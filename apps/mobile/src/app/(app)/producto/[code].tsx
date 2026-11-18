@@ -9,7 +9,7 @@ import {
 } from "@safebite/core";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { Image, Linking, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Image, Linking, Text, View } from "react-native";
 import { AllergenIcon } from "@/components/allergen-icon";
 import { Button } from "@/components/button";
 import { Notice } from "@/components/notice";
@@ -21,11 +21,13 @@ import { getMessages } from "@/i18n";
 import { addToHistory } from "@/lib/product-history";
 import { lookupProduct, type ProductLookup } from "@/lib/products";
 import { usePeople } from "@/lib/use-people";
-import { colors, fonts, radius, spacing, typography } from "@/theme";
+import { fonts, makeStyles, radius, spacing, useTheme } from "@/theme";
 
 type LoadState = { kind: "loading" } | ProductLookup;
 
 export default function ProductScreen() {
+  const styles = useStyles();
+  const { typography } = useTheme();
   const t = getMessages();
   const router = useRouter();
   const { code = "" } = useLocalSearchParams<{ code: string }>();
@@ -134,6 +136,8 @@ function ProductDetails({
   people: PeopleState;
   onConfigure: () => void;
 }) {
+  const styles = useStyles();
+  const { typography } = useTheme();
   const t = getMessages();
   // Alergias de las personas elegidas («Yo» y la familia; por defecto, todas).
   const profile = people.consent ? people.allergens : [];
@@ -208,6 +212,7 @@ function ProductDetails({
 }
 
 function Reasons({ label, allergens }: { label: string; allergens: readonly Allergen[] }) {
+  const styles = useStyles();
   if (allergens.length === 0) return null;
   const names = allergens.map((a) => ALLERGEN_LABELS.es[a]).join(", ");
   return (
@@ -223,31 +228,33 @@ function Reasons({ label, allergens }: { label: string; allergens: readonly Alle
   );
 }
 
-const styles = StyleSheet.create({
-  loading: { gap: spacing.md },
-  centerText: { textAlign: "center" },
-  header: { flexDirection: "row", gap: spacing.lg, alignItems: "center" },
-  headerText: { flex: 1, gap: spacing.xs },
-  imageBox: {
-    width: 96,
-    height: 96,
-    borderRadius: radius.md,
-    backgroundColor: colors.surface,
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
-  },
-  image: { width: "100%", height: "100%" },
-  small: { fontFamily: fonts.regular, fontSize: 13, lineHeight: 19, color: colors.text },
-  reasons: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: spacing.sm },
-  reasonLabel: { fontFamily: fonts.semibold, fontSize: 13, color: colors.text },
-  reason: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 3,
-    borderRadius: radius.full,
-    backgroundColor: colors.surface,
-  },
-});
+const useStyles = makeStyles(({ colors }) =>
+  StyleSheet.create({
+    loading: { gap: spacing.md },
+    centerText: { textAlign: "center" },
+    header: { flexDirection: "row", gap: spacing.lg, alignItems: "center" },
+    headerText: { flex: 1, gap: spacing.xs },
+    imageBox: {
+      width: 96,
+      height: 96,
+      borderRadius: radius.md,
+      backgroundColor: colors.surface,
+      alignItems: "center",
+      justifyContent: "center",
+      overflow: "hidden",
+    },
+    image: { width: "100%", height: "100%" },
+    small: { fontFamily: fonts.regular, fontSize: 13, lineHeight: 19, color: colors.text },
+    reasons: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: spacing.sm },
+    reasonLabel: { fontFamily: fonts.semibold, fontSize: 13, color: colors.text },
+    reason: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 3,
+      borderRadius: radius.full,
+      backgroundColor: colors.surface,
+    },
+  }),
+);

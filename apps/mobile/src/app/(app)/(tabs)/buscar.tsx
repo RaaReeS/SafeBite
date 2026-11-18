@@ -8,7 +8,7 @@ import {
 import { Icon } from "@/components/icon";
 import { Stack, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Linking, Pressable, StyleSheet, Switch, Text, TextInput, View } from "react-native";
+import { StyleSheet, Linking, Pressable, Switch, Text, TextInput, View } from "react-native";
 import { Button } from "@/components/button";
 import { Notice } from "@/components/notice";
 import { PeoplePicker } from "@/components/people-picker";
@@ -27,7 +27,7 @@ import {
   type RestaurantSummary,
 } from "@/lib/restaurants";
 import { tapFeedback } from "@/lib/haptics";
-import { colors, fonts, radius, shadow, spacing, typography } from "@/theme";
+import { fonts, makeStyles, radius, spacing, useTheme } from "@/theme";
 
 /** Radio de "Cerca de mí". */
 const NEAR_ME_KM = 50;
@@ -71,6 +71,8 @@ function arrange(
 }
 
 export default function SearchScreen() {
+  const styles = useStyles();
+  const { colors, typography } = useTheme();
   const t = getMessages();
   const router = useRouter();
   const [city, setCity] = useState("");
@@ -245,7 +247,7 @@ export default function SearchScreen() {
           onPress={() => void searchNearMe()}
           style={({ pressed }) => [styles.nearButton, pressed ? styles.pressed : null]}
         >
-          <Icon name="navigate" size={16} color={colors.primary} />
+          <Icon name="navigate" size={16} color={colors.primaryStrong} />
           <Text style={styles.nearText}>{t.search.nearMe}</Text>
         </Pressable>
       </View>
@@ -446,7 +448,7 @@ export default function SearchScreen() {
                     )}
                     {distanceKm === null ? null : (
                       <View style={styles.distanceRow}>
-                        <Icon name="location-outline" size={14} color={colors.primary} />
+                        <Icon name="location-outline" size={14} color={colors.accent} />
                         <Text style={styles.distance}>{formatDistance(distanceKm)}</Text>
                       </View>
                     )}
@@ -471,78 +473,80 @@ export default function SearchScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  pressed: { opacity: 0.8 },
-  searchBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.sm,
-    paddingLeft: spacing.lg,
-    padding: 6,
-    borderRadius: radius.full,
-    backgroundColor: colors.card,
-    ...shadow.card,
-  },
-  searchInput: {
-    flex: 1,
-    minHeight: 44,
-    fontFamily: fonts.regular,
-    fontSize: 16,
-    color: colors.text,
-  },
-  searchButton: {
-    minHeight: 44,
-    justifyContent: "center",
-    paddingHorizontal: spacing.lg,
-    borderRadius: radius.full,
-    backgroundColor: colors.primary,
-  },
-  searchButtonText: { fontFamily: fonts.semibold, fontSize: 15, color: colors.primaryText },
-  nearRow: { flexDirection: "row" },
-  nearButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    minHeight: 44,
-    paddingHorizontal: spacing.lg,
-    borderRadius: radius.full,
-    backgroundColor: colors.primarySoft,
-  },
-  nearText: { fontFamily: fonts.semibold, fontSize: 14, color: colors.primaryDark },
-  segmented: {
-    flexDirection: "row",
-    padding: 4,
-    borderRadius: radius.full,
-    backgroundColor: colors.surface,
-  },
-  segment: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
-    minHeight: 44,
-    borderRadius: radius.full,
-  },
-  segmentOn: { backgroundColor: colors.card, ...shadow.card },
-  segmentText: { fontFamily: fonts.medium, fontSize: 14, color: colors.textMuted },
-  segmentTextOn: { fontFamily: fonts.semibold, color: colors.text },
-  summaryRow: { flexDirection: "row", alignItems: "center", gap: spacing.md },
-  switchRow: { flexDirection: "row", alignItems: "center", gap: spacing.md },
-  results: { gap: spacing.md },
-  links: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
-  card: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.md,
-    padding: spacing.lg,
-    borderRadius: radius.lg,
-    backgroundColor: colors.card,
-    ...shadow.card,
-  },
-  cardText: { flex: 1, gap: spacing.xs },
-  distanceRow: { flexDirection: "row", alignItems: "center", gap: 4 },
-  distance: { fontFamily: fonts.semibold, fontSize: 13, color: colors.primary },
-  requestCard: { marginTop: spacing.sm },
-});
+const useStyles = makeStyles(({ colors, shadow }) =>
+  StyleSheet.create({
+    flex: { flex: 1 },
+    pressed: { opacity: 0.8 },
+    searchBar: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: spacing.sm,
+      paddingLeft: spacing.lg,
+      padding: 6,
+      borderRadius: radius.full,
+      backgroundColor: colors.card,
+      ...shadow.card,
+    },
+    searchInput: {
+      flex: 1,
+      minHeight: 44,
+      fontFamily: fonts.regular,
+      fontSize: 16,
+      color: colors.text,
+    },
+    searchButton: {
+      minHeight: 44,
+      justifyContent: "center",
+      paddingHorizontal: spacing.lg,
+      borderRadius: radius.full,
+      backgroundColor: colors.primary,
+    },
+    searchButtonText: { fontFamily: fonts.semibold, fontSize: 15, color: colors.primaryText },
+    nearRow: { flexDirection: "row" },
+    nearButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      minHeight: 44,
+      paddingHorizontal: spacing.lg,
+      borderRadius: radius.full,
+      backgroundColor: colors.primarySoft,
+    },
+    nearText: { fontFamily: fonts.semibold, fontSize: 14, color: colors.primaryStrong },
+    segmented: {
+      flexDirection: "row",
+      padding: 4,
+      borderRadius: radius.full,
+      backgroundColor: colors.surface,
+    },
+    segment: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 6,
+      minHeight: 44,
+      borderRadius: radius.full,
+    },
+    segmentOn: { backgroundColor: colors.card, ...shadow.card },
+    segmentText: { fontFamily: fonts.medium, fontSize: 14, color: colors.textMuted },
+    segmentTextOn: { fontFamily: fonts.semibold, color: colors.text },
+    summaryRow: { flexDirection: "row", alignItems: "center", gap: spacing.md },
+    switchRow: { flexDirection: "row", alignItems: "center", gap: spacing.md },
+    results: { gap: spacing.md },
+    links: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
+    card: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: spacing.md,
+      padding: spacing.lg,
+      borderRadius: radius.lg,
+      backgroundColor: colors.card,
+      ...shadow.card,
+    },
+    cardText: { flex: 1, gap: spacing.xs },
+    distanceRow: { flexDirection: "row", alignItems: "center", gap: 4 },
+    distance: { fontFamily: fonts.semibold, fontSize: 13, color: colors.accent },
+    requestCard: { marginTop: spacing.sm },
+  }),
+);

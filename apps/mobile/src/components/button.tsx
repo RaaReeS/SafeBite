@@ -1,6 +1,6 @@
 import { Icon, type IconName } from "@/components/icon";
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
-import { colors, fonts, radius, shadow, spacing } from "@/theme";
+import { StyleSheet, ActivityIndicator, Pressable, Text, View } from "react-native";
+import { fonts, makeStyles, radius, spacing, useTheme, type ThemeColors } from "@/theme";
 
 export type { IconName } from "@/components/icon";
 
@@ -14,12 +14,15 @@ type ButtonProps = {
   disabled?: boolean;
 };
 
-const LABEL_COLOR = {
-  primary: colors.primaryText,
-  secondary: colors.text,
-  link: colors.primary,
-  danger: colors.danger,
-} as const;
+function labelColor(colors: ThemeColors, variant: NonNullable<ButtonProps["variant"]>): string {
+  const byVariant = {
+    primary: colors.primaryText,
+    secondary: colors.text,
+    link: colors.accent,
+    danger: colors.danger,
+  };
+  return byVariant[variant];
+}
 
 export function Button({
   label,
@@ -29,8 +32,10 @@ export function Button({
   loading = false,
   disabled = false,
 }: ButtonProps) {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const inactive = disabled || loading;
-  const color = LABEL_COLOR[variant];
+  const color = labelColor(colors, variant);
   return (
     <Pressable
       accessibilityRole="button"
@@ -57,24 +62,26 @@ export function Button({
   );
 }
 
-const styles = StyleSheet.create({
-  base: {
-    minHeight: 52,
-    borderRadius: radius.full,
-    paddingHorizontal: spacing.xl,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  content: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
-  primary: { backgroundColor: colors.primary, ...shadow.card },
-  secondary: {
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  danger: { backgroundColor: colors.dangerSoft },
-  link: { minHeight: 44, paddingHorizontal: spacing.sm },
-  pressed: { opacity: 0.85, transform: [{ scale: 0.99 }] },
-  inactive: { opacity: 0.55 },
-  label: { fontFamily: fonts.semibold, fontSize: 16 },
-});
+const useStyles = makeStyles(({ colors, shadow }) =>
+  StyleSheet.create({
+    base: {
+      minHeight: 52,
+      borderRadius: radius.full,
+      paddingHorizontal: spacing.xl,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    content: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+    primary: { backgroundColor: colors.primary, ...shadow.card },
+    secondary: {
+      backgroundColor: colors.card,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    danger: { backgroundColor: colors.dangerSoft },
+    link: { minHeight: 44, paddingHorizontal: spacing.sm },
+    pressed: { opacity: 0.85, transform: [{ scale: 0.99 }] },
+    inactive: { opacity: 0.55 },
+    label: { fontFamily: fonts.semibold, fontSize: 16 },
+  }),
+);

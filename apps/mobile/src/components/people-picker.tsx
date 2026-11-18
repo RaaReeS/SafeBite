@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { Chip } from "@/components/ui";
 import type { Person } from "@/lib/use-people";
 import { ME } from "@/lib/use-people";
-import { colors, spacing, typography } from "@/theme";
+import { makeStyles, spacing, useTheme } from "@/theme";
 
 /**
  * «¿Para quién?»: chips para elegir las personas (solo si hay más de una).
@@ -20,6 +20,8 @@ export function PeoplePicker({
   selected: readonly string[];
   onToggle: (id: string) => void;
 }) {
+  const styles = useStyles();
+  const { colors, typography } = useTheme();
   if (people === null || people.length < 2) return null;
   return (
     <View style={styles.container}>
@@ -50,7 +52,9 @@ export function PeoplePicker({
   );
 }
 
-const styles = StyleSheet.create({
-  container: { gap: spacing.sm },
-  chips: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
-});
+const useStyles = makeStyles(() =>
+  StyleSheet.create({
+    container: { gap: spacing.sm },
+    chips: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
+  }),
+);

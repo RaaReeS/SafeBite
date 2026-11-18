@@ -3,12 +3,13 @@ import { Tabs } from "expo-router";
 import type { IconName } from "@/components/button";
 import { getMessages } from "@/i18n";
 import { tapFeedback } from "@/lib/haptics";
-import { colors, fonts } from "@/theme";
+import { fonts, useTheme } from "@/theme";
 
 type Tab = { name: string; label: string; icon: IconName; iconActive: IconName };
 
 /** Barra inferior: las cuatro secciones principales de la app. */
 export default function TabsLayout() {
+  const { colors } = useTheme();
   const t = getMessages();
   const tabs: Tab[] = [
     { name: "inicio", label: t.tabs.home, icon: "home-outline", iconActive: "home" },
@@ -24,7 +25,7 @@ export default function TabsLayout() {
         headerStyle: { backgroundColor: colors.background },
         headerTitleStyle: { fontFamily: fonts.semibold, fontSize: 17, color: colors.text },
         sceneStyle: { backgroundColor: colors.background },
-        tabBarActiveTintColor: colors.primary,
+        tabBarActiveTintColor: colors.accent,
         tabBarInactiveTintColor: colors.textSubtle,
         tabBarLabelStyle: { fontFamily: fonts.medium, fontSize: 11 },
         tabBarStyle: {
@@ -44,7 +45,7 @@ export default function TabsLayout() {
             tabBarIcon: ({ focused, size }) => (
               <Icon
                 name={focused ? tab.iconActive : tab.icon}
-                color={focused ? colors.primary : colors.textSubtle}
+                color={focused ? colors.accent : colors.textSubtle}
                 size={size}
               />
             ),

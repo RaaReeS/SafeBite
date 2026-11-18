@@ -10,9 +10,11 @@ import { Screen } from "@/components/screen";
 import { TextField } from "@/components/text-field";
 import { Card, IconBadge, ListItem } from "@/components/ui";
 import { getMessages } from "@/i18n";
-import { colors, fonts, radius, spacing, typography } from "@/theme";
+import { fonts, makeStyles, radius, spacing, useTheme } from "@/theme";
 
 export default function ScannerScreen() {
+  const styles = useStyles();
+  const { colors, typography } = useTheme();
   const t = getMessages();
   const router = useRouter();
   const [permission, requestPermission] = useCameraPermissions();
@@ -138,61 +140,68 @@ export default function ScannerScreen() {
 const CORNER = 28;
 const LINE = 4;
 
-const styles = StyleSheet.create({
-  cameraFrame: {
-    height: 340,
-    overflow: "hidden",
-    borderRadius: radius.lg,
-    backgroundColor: "#0b1220",
-  },
-  overlay: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: spacing.xl,
-  },
-  target: { width: "78%", height: 150 },
-  corner: { position: "absolute", width: CORNER, height: CORNER, borderColor: colors.primaryText },
-  topLeft: {
-    top: 0,
-    left: 0,
-    borderTopWidth: LINE,
-    borderLeftWidth: LINE,
-    borderTopLeftRadius: 14,
-  },
-  topRight: {
-    top: 0,
-    right: 0,
-    borderTopWidth: LINE,
-    borderRightWidth: LINE,
-    borderTopRightRadius: 14,
-  },
-  bottomLeft: {
-    bottom: 0,
-    left: 0,
-    borderBottomWidth: LINE,
-    borderLeftWidth: LINE,
-    borderBottomLeftRadius: 14,
-  },
-  bottomRight: {
-    bottom: 0,
-    right: 0,
-    borderBottomWidth: LINE,
-    borderRightWidth: LINE,
-    borderBottomRightRadius: 14,
-  },
-  hintPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 6,
-    borderRadius: radius.full,
-    backgroundColor: "rgba(0,0,0,0.55)",
-  },
-  hintText: { fontFamily: fonts.medium, fontSize: 13, color: colors.primaryText },
-});
+const useStyles = makeStyles(({ colors }) =>
+  StyleSheet.create({
+    cameraFrame: {
+      height: 340,
+      overflow: "hidden",
+      borderRadius: radius.lg,
+      backgroundColor: colors.camera,
+    },
+    overlay: {
+      position: "absolute",
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      alignItems: "center",
+      justifyContent: "center",
+      gap: spacing.xl,
+    },
+    target: { width: "78%", height: 150 },
+    corner: {
+      position: "absolute",
+      width: CORNER,
+      height: CORNER,
+      borderColor: colors.primaryText,
+    },
+    topLeft: {
+      top: 0,
+      left: 0,
+      borderTopWidth: LINE,
+      borderLeftWidth: LINE,
+      borderTopLeftRadius: 14,
+    },
+    topRight: {
+      top: 0,
+      right: 0,
+      borderTopWidth: LINE,
+      borderRightWidth: LINE,
+      borderTopRightRadius: 14,
+    },
+    bottomLeft: {
+      bottom: 0,
+      left: 0,
+      borderBottomWidth: LINE,
+      borderLeftWidth: LINE,
+      borderBottomLeftRadius: 14,
+    },
+    bottomRight: {
+      bottom: 0,
+      right: 0,
+      borderBottomWidth: LINE,
+      borderRightWidth: LINE,
+      borderBottomRightRadius: 14,
+    },
+    hintPill: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      paddingHorizontal: spacing.md,
+      paddingVertical: 6,
+      borderRadius: radius.full,
+      backgroundColor: "rgba(0,0,0,0.55)",
+    },
+    hintText: { fontFamily: fonts.medium, fontSize: 13, color: colors.primaryText },
+  }),
+);

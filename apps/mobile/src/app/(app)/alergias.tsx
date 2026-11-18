@@ -1,7 +1,7 @@
 import type { Allergen } from "@safebite/core";
 import { Stack, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Linking, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Linking, Text, View } from "react-native";
 import { Icon } from "@/components/icon";
 import { AllergenGrid } from "@/components/allergen-grid";
 import { Button } from "@/components/button";
@@ -13,9 +13,10 @@ import { getMessages } from "@/i18n";
 import { env } from "@/lib/env";
 import { giveHealthConsent, saveMyAllergens } from "@/lib/profile";
 import { useHealthProfile } from "@/lib/use-health-profile";
-import { colors, spacing, typography } from "@/theme";
+import { makeStyles, spacing, useTheme } from "@/theme";
 
 export default function AllergiesScreen() {
+  const styles = useStyles();
   const t = getMessages();
   const { state, reload, userId } = useHealthProfile();
 
@@ -47,6 +48,8 @@ export default function AllergiesScreen() {
 
 /** Consentimiento explícito e informado para datos de salud (RGPD, art. 9). */
 function ConsentForm({ userId, onConsent }: { userId: string; onConsent: () => void }) {
+  const styles = useStyles();
+  const { colors, typography } = useTheme();
   const t = getMessages();
   const [checked, setChecked] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -76,7 +79,7 @@ function ConsentForm({ userId, onConsent }: { userId: string; onConsent: () => v
         <View style={styles.points}>
           {t.consent.points.map((point) => (
             <View key={point} style={styles.point}>
-              <Icon name="checkmark-circle" size={20} color={colors.primary} />
+              <Icon name="checkmark-circle" size={20} color={colors.accent} />
               <Text style={[typography.body, styles.flex]}>{point}</Text>
             </View>
           ))}
@@ -100,6 +103,7 @@ function ConsentForm({ userId, onConsent }: { userId: string; onConsent: () => v
 }
 
 function AllergenSelector({ initial }: { initial: Allergen[] }) {
+  const { typography } = useTheme();
   const t = getMessages();
   const router = useRouter();
   const [selected, setSelected] = useState<Allergen[]>(initial);
@@ -145,9 +149,11 @@ function AllergenSelector({ initial }: { initial: Allergen[] }) {
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  loading: { gap: spacing.md },
-  points: { gap: spacing.sm },
-  point: { flexDirection: "row", alignItems: "flex-start", gap: spacing.sm },
-});
+const useStyles = makeStyles(() =>
+  StyleSheet.create({
+    flex: { flex: 1 },
+    loading: { gap: spacing.md },
+    points: { gap: spacing.sm },
+    point: { flexDirection: "row", alignItems: "flex-start", gap: spacing.sm },
+  }),
+);

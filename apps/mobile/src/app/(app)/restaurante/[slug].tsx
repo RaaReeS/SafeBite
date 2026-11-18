@@ -13,7 +13,7 @@ import {
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/icon";
-import { Linking, Pressable, StyleSheet, Switch, Text, View } from "react-native";
+import { StyleSheet, Linking, Pressable, Switch, Text, View } from "react-native";
 import { AllergenIcon } from "@/components/allergen-icon";
 import { Button } from "@/components/button";
 import { Notice } from "@/components/notice";
@@ -25,12 +25,14 @@ import { getMessages } from "@/i18n";
 import { getMenu, type Menu, type MenuDish } from "@/lib/menu";
 import { usePeople } from "@/lib/use-people";
 import { tapFeedback } from "@/lib/haptics";
-import { colors, fonts, radius, shadow, spacing, typography } from "@/theme";
+import { fonts, makeStyles, radius, spacing, useTheme } from "@/theme";
 
 type LoadState =
   { kind: "loading" } | { kind: "ready"; menu: Menu } | { kind: "missing" | "error" };
 
 export default function RestaurantMenuScreen() {
+  const styles = useStyles();
+  const { colors, typography } = useTheme();
   const t = getMessages();
   const router = useRouter();
   const { slug = "" } = useLocalSearchParams<{ slug: string }>();
@@ -252,6 +254,7 @@ export default function RestaurantMenuScreen() {
 }
 
 function AllergenList({ label, allergens }: { label: string; allergens: readonly Allergen[] }) {
+  const styles = useStyles();
   if (allergens.length === 0) return null;
   const names = allergens.map((a) => ALLERGEN_LABELS.es[a]).join(", ");
   return (
@@ -268,6 +271,7 @@ function AllergenList({ label, allergens }: { label: string; allergens: readonly
 }
 
 function DishCard({ item, profile }: { item: EvaluatedDish<MenuDish>; profile: Allergen[] }) {
+  const styles = useStyles();
   const t = getMessages();
   const { dish, evaluation } = item;
   const filtering = profile.length > 0;
@@ -327,59 +331,61 @@ function DishCard({ item, profile }: { item: EvaluatedDish<MenuDish>; profile: A
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  loading: { gap: spacing.md },
-  headerRow: { flexDirection: "row", alignItems: "center", gap: spacing.md },
-  addressRow: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 2 },
-  text: { fontFamily: fonts.regular, fontSize: 15, lineHeight: 21, color: colors.text },
-  muted: { fontFamily: fonts.regular, fontSize: 13, lineHeight: 18, color: colors.textMuted },
-  small: { fontFamily: fonts.regular, fontSize: 13, lineHeight: 18, color: colors.text },
-  switchRow: { flexDirection: "row", alignItems: "center", gap: spacing.md },
-  chips: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
-  chip: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    minHeight: 44,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.full,
-    backgroundColor: colors.surface,
-  },
-  chipOn: { backgroundColor: colors.primary },
-  touching: { opacity: 0.8 },
-  chipText: { fontFamily: fonts.medium, fontSize: 13, color: colors.text },
-  chipTextOn: { fontFamily: fonts.semibold, color: colors.primaryText },
-  section: { gap: spacing.md, marginTop: spacing.sm },
-  card: {
-    gap: spacing.sm,
-    padding: spacing.lg,
-    borderRadius: radius.lg,
-    borderLeftWidth: 5,
-    borderLeftColor: colors.card,
-    backgroundColor: colors.card,
-    ...shadow.card,
-  },
-  cardDimmed: { opacity: 0.6 },
-  cardHeader: { flexDirection: "row", justifyContent: "space-between", gap: spacing.md },
-  dishName: {
-    flex: 1,
-    fontFamily: fonts.semibold,
-    fontSize: 17,
-    lineHeight: 22,
-    color: colors.text,
-  },
-  strike: { textDecorationLine: "line-through" },
-  price: { fontFamily: fonts.bold, fontSize: 17, color: colors.primaryDark },
-  listRow: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: spacing.sm },
-  listLabel: { fontFamily: fonts.semibold, fontSize: 13, color: colors.text },
-  listItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 3,
-    borderRadius: radius.full,
-    backgroundColor: colors.surface,
-  },
-});
+const useStyles = makeStyles(({ colors, shadow }) =>
+  StyleSheet.create({
+    flex: { flex: 1 },
+    loading: { gap: spacing.md },
+    headerRow: { flexDirection: "row", alignItems: "center", gap: spacing.md },
+    addressRow: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 2 },
+    text: { fontFamily: fonts.regular, fontSize: 15, lineHeight: 21, color: colors.text },
+    muted: { fontFamily: fonts.regular, fontSize: 13, lineHeight: 18, color: colors.textMuted },
+    small: { fontFamily: fonts.regular, fontSize: 13, lineHeight: 18, color: colors.text },
+    switchRow: { flexDirection: "row", alignItems: "center", gap: spacing.md },
+    chips: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
+    chip: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      minHeight: 44,
+      paddingHorizontal: spacing.md,
+      borderRadius: radius.full,
+      backgroundColor: colors.surface,
+    },
+    chipOn: { backgroundColor: colors.primary },
+    touching: { opacity: 0.8 },
+    chipText: { fontFamily: fonts.medium, fontSize: 13, color: colors.text },
+    chipTextOn: { fontFamily: fonts.semibold, color: colors.primaryText },
+    section: { gap: spacing.md, marginTop: spacing.sm },
+    card: {
+      gap: spacing.sm,
+      padding: spacing.lg,
+      borderRadius: radius.lg,
+      borderLeftWidth: 5,
+      borderLeftColor: colors.card,
+      backgroundColor: colors.card,
+      ...shadow.card,
+    },
+    cardDimmed: { opacity: 0.6 },
+    cardHeader: { flexDirection: "row", justifyContent: "space-between", gap: spacing.md },
+    dishName: {
+      flex: 1,
+      fontFamily: fonts.semibold,
+      fontSize: 17,
+      lineHeight: 22,
+      color: colors.text,
+    },
+    strike: { textDecorationLine: "line-through" },
+    price: { fontFamily: fonts.bold, fontSize: 17, color: colors.accent },
+    listRow: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: spacing.sm },
+    listLabel: { fontFamily: fonts.semibold, fontSize: 13, color: colors.text },
+    listItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 3,
+      borderRadius: radius.full,
+      backgroundColor: colors.surface,
+    },
+  }),
+);

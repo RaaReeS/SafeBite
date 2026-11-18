@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 import { useState } from "react";
-import { Alert, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Alert, Text, View } from "react-native";
 import { Button } from "@/components/button";
 import { Notice } from "@/components/notice";
 import { Screen } from "@/components/screen";
@@ -11,7 +11,7 @@ import { deleteMyAccount, withdrawHealthConsent } from "@/lib/profile";
 import { useSession } from "@/lib/session";
 import { supabase } from "@/lib/supabase";
 import { useHealthProfile } from "@/lib/use-health-profile";
-import { spacing, typography } from "@/theme";
+import { makeStyles, spacing, useTheme } from "@/theme";
 
 /** Pide confirmación con el diálogo nativo antes de una acción irreversible. */
 function confirm(title: string, message: string, confirmLabel: string, onConfirm: () => void) {
@@ -23,6 +23,8 @@ function confirm(title: string, message: string, confirmLabel: string, onConfirm
 }
 
 export default function AccountScreen() {
+  const styles = useStyles();
+  const { typography } = useTheme();
   const t = getMessages();
   const { session } = useSession();
   const { state, reload, userId } = useHealthProfile();
@@ -125,8 +127,10 @@ export default function AccountScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  row: { flexDirection: "row", alignItems: "center", gap: spacing.md },
-  spacer: { height: spacing.lg },
-});
+const useStyles = makeStyles(() =>
+  StyleSheet.create({
+    flex: { flex: 1 },
+    row: { flexDirection: "row", alignItems: "center", gap: spacing.md },
+    spacer: { height: spacing.lg },
+  }),
+);
