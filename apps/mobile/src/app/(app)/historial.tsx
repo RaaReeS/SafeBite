@@ -7,7 +7,7 @@ import {
 import { Stack, useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import { Icon } from "@/components/icon";
-import { Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Alert, Image, Pressable, Text, View } from "react-native";
 import { Button } from "@/components/button";
 import { Notice } from "@/components/notice";
 import { Screen } from "@/components/screen";
@@ -16,9 +16,11 @@ import { EmptyState } from "@/components/ui";
 import { getMessages } from "@/i18n";
 import { clearHistory, getHistory, historyProduct, type HistoryEntry } from "@/lib/product-history";
 import { usePeople } from "@/lib/use-people";
-import { colors, fonts, radius, shadow, spacing, typography } from "@/theme";
+import { fonts, makeStyles, radius, spacing, useTheme } from "@/theme";
 
 export default function HistoryScreen() {
+  const styles = useStyles();
+  const { typography } = useTheme();
   const t = getMessages();
   const router = useRouter();
   const people = usePeople();
@@ -111,6 +113,8 @@ function HistoryRow({
   profile: Allergen[];
   onPress: () => void;
 }) {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const t = getMessages();
   const name = entry.name ?? t.scanner.unnamed;
   const status =
@@ -156,21 +160,23 @@ function HistoryRow({
   );
 }
 
-const styles = StyleSheet.create({
-  list: { gap: spacing.md },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.md,
-    padding: spacing.md,
-    borderRadius: radius.lg,
-    backgroundColor: colors.card,
-    ...shadow.card,
-  },
-  rowPressed: { opacity: 0.8 },
-  rowText: { flex: 1, gap: spacing.xs },
-  image: { width: 72, height: 72, borderRadius: radius.md, backgroundColor: colors.surface },
-  noImage: { alignItems: "center", justifyContent: "center" },
-  name: { fontFamily: fonts.semibold, fontSize: 15, lineHeight: 20, color: colors.text },
-  muted: { fontFamily: fonts.regular, fontSize: 13, color: colors.textMuted },
-});
+const useStyles = makeStyles(({ colors, shadow }) =>
+  StyleSheet.create({
+    list: { gap: spacing.md },
+    row: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: spacing.md,
+      padding: spacing.md,
+      borderRadius: radius.lg,
+      backgroundColor: colors.card,
+      ...shadow.card,
+    },
+    rowPressed: { opacity: 0.8 },
+    rowText: { flex: 1, gap: spacing.xs },
+    image: { width: 72, height: 72, borderRadius: radius.md, backgroundColor: colors.surface },
+    noImage: { alignItems: "center", justifyContent: "center" },
+    name: { fontFamily: fonts.semibold, fontSize: 15, lineHeight: 20, color: colors.text },
+    muted: { fontFamily: fonts.regular, fontSize: 13, color: colors.textMuted },
+  }),
+);

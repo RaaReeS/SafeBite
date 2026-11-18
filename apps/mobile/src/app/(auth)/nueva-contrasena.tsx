@@ -10,9 +10,10 @@ import { getMessages } from "@/i18n";
 import { authErrorMessage, toFieldErrors } from "@/lib/forms";
 import { useSession } from "@/lib/session";
 import { supabase } from "@/lib/supabase";
-import { colors, fontSize } from "@/theme";
+import { fontSize, useTheme } from "@/theme";
 
 export default function NewPasswordScreen() {
+  const { colors } = useTheme();
   const t = getMessages();
   const { email = "" } = useLocalSearchParams<{ email?: string }>();
   const { setRecoveringPassword } = useSession();

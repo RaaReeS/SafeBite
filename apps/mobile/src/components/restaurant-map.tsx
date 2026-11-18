@@ -4,7 +4,7 @@ import MapView, { Callout, Marker, type Region } from "react-native-maps";
 import { STATUS_STYLES } from "@/components/status-badge";
 import { getMessages } from "@/i18n";
 import type { RestaurantSummary } from "@/lib/restaurants";
-import { colors, fontSize, radius, spacing } from "@/theme";
+import { fontSize, makeStyles, radius, spacing, useTheme } from "@/theme";
 
 /** España peninsular, si no hay nada que mostrar. */
 const SPAIN: Region = { latitude: 40.2, longitude: -3.7, latitudeDelta: 9, longitudeDelta: 9 };
@@ -46,6 +46,8 @@ export function RestaurantMap({
   origin: Coordinates | null;
   onOpen: (slug: string) => void;
 }) {
+  const styles = useStyles();
+  const { colors, scheme } = useTheme();
   const t = getMessages();
   const located = restaurants.filter((r): r is MapRestaurant & Coordinates =>
     isValidCoordinates(r),
@@ -57,6 +59,7 @@ export function RestaurantMap({
     <View style={styles.container}>
       <MapView
         style={styles.map}
+        userInterfaceStyle={scheme}
         region={region}
         showsUserLocation={origin !== null}
         accessibilityLabel={t.search.mapLabel}
@@ -95,12 +98,14 @@ export function RestaurantMap({
   );
 }
 
-const styles = StyleSheet.create({
-  container: { gap: spacing.sm },
-  map: { height: 420, borderRadius: radius.md },
-  callout: { maxWidth: 220, gap: 2, padding: spacing.xs },
-  calloutTitle: { fontSize: fontSize.md, fontWeight: "700", color: colors.text },
-  calloutText: { fontSize: fontSize.sm, color: colors.text },
-  calloutLink: { fontSize: fontSize.sm, fontWeight: "600", color: colors.primary },
-  note: { fontSize: fontSize.sm, color: colors.textMuted },
-});
+const useStyles = makeStyles(({ colors }) =>
+  StyleSheet.create({
+    container: { gap: spacing.sm },
+    map: { height: 420, borderRadius: radius.md },
+    callout: { maxWidth: 220, gap: 2, padding: spacing.xs },
+    calloutTitle: { fontSize: fontSize.md, fontWeight: "700", color: colors.text },
+    calloutText: { fontSize: fontSize.sm, color: colors.text },
+    calloutLink: { fontSize: fontSize.sm, fontWeight: "600", color: colors.primary },
+    note: { fontSize: fontSize.sm, color: colors.textMuted },
+  }),
+);

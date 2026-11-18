@@ -9,7 +9,7 @@ import { Icon } from "@/components/icon";
 import { LinearGradient } from "expo-linear-gradient";
 import { Stack, useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Image, Pressable, ScrollView, Text, View } from "react-native";
 import { AllergenIcon } from "@/components/allergen-icon";
 import type { IconName } from "@/components/button";
 import { Notice } from "@/components/notice";
@@ -20,11 +20,13 @@ import { getMessages } from "@/i18n";
 import { getHistory, historyProduct, type HistoryEntry } from "@/lib/product-history";
 import { useSession } from "@/lib/session";
 import { ME, usePeople } from "@/lib/use-people";
-import { colors, fonts, radius, shadow, spacing, typography } from "@/theme";
+import { fonts, makeStyles, radius, spacing, useTheme } from "@/theme";
 
 const RECENT_COUNT = 6;
 
 export default function HomeScreen() {
+  const styles = useStyles();
+  const { colors, typography } = useTheme();
   const t = getMessages();
   const router = useRouter();
   const { session } = useSession();
@@ -174,6 +176,7 @@ export default function HomeScreen() {
 
 /** Botón blanco sobre la tarjeta verde. */
 function HeroButton({ label, onPress }: { label: string; onPress: () => void }) {
+  const styles = useStyles();
   return (
     <Pressable
       accessibilityRole="button"
@@ -197,6 +200,8 @@ function QuickAction({
   hint: string;
   onPress: () => void;
 }) {
+  const styles = useStyles();
+  const { typography } = useTheme();
   return (
     <Pressable
       accessibilityRole="button"
@@ -221,6 +226,8 @@ function RecentProduct({
   profile: Allergen[];
   onPress: () => void;
 }) {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const t = getMessages();
   const name = entry.name ?? t.scanner.unnamed;
   const status =
@@ -249,66 +256,68 @@ function RecentProduct({
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  fill: { width: "100%", height: "100%" },
-  pressed: { opacity: 0.85 },
-  greeting: { gap: spacing.xs, marginTop: spacing.xl },
-  hero: { borderRadius: radius.lg, padding: spacing.xl, gap: spacing.md, ...shadow.raised },
-  heroHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  heroTitle: { fontFamily: fonts.semibold, fontSize: 15, color: colors.primarySoft },
-  heroText: { fontFamily: fonts.medium, fontSize: 17, lineHeight: 24, color: colors.primaryText },
-  heroFamily: { fontFamily: fonts.regular, fontSize: 14, color: colors.primarySoft },
-  chips: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
-  heroChip: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 6,
-    borderRadius: radius.full,
-    backgroundColor: "rgba(255,255,255,0.18)",
-  },
-  heroChipText: { fontFamily: fonts.medium, fontSize: 14, color: colors.primaryText },
-  heroButton: {
-    alignSelf: "flex-start",
-    minHeight: 44,
-    justifyContent: "center",
-    paddingHorizontal: spacing.lg,
-    borderRadius: radius.full,
-    backgroundColor: colors.card,
-    marginTop: spacing.xs,
-  },
-  heroButtonText: { fontFamily: fonts.semibold, fontSize: 15, color: colors.primaryDark },
-  quickRow: { flexDirection: "row", gap: spacing.md },
-  quick: {
-    flex: 1,
-    gap: spacing.xs,
-    padding: spacing.lg,
-    borderRadius: radius.lg,
-    backgroundColor: colors.card,
-    ...shadow.card,
-  },
-  recentEmpty: { flexDirection: "row", alignItems: "center", gap: spacing.md },
-  // La fila deslizable llega hasta los bordes de la pantalla.
-  recentScroll: { marginHorizontal: -spacing.xl },
-  recentRow: { gap: spacing.md, paddingHorizontal: spacing.xl, paddingBottom: spacing.sm },
-  recent: {
-    width: 140,
-    gap: spacing.sm,
-    padding: spacing.md,
-    borderRadius: radius.lg,
-    backgroundColor: colors.card,
-    ...shadow.card,
-  },
-  recentImage: {
-    height: 90,
-    borderRadius: radius.sm,
-    backgroundColor: colors.surface,
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
-  },
-  recentName: { fontFamily: fonts.semibold, fontSize: 14, lineHeight: 18, color: colors.text },
-  disclaimer: { textAlign: "center", marginTop: spacing.sm },
-});
+const useStyles = makeStyles(({ colors, shadow }) =>
+  StyleSheet.create({
+    flex: { flex: 1 },
+    fill: { width: "100%", height: "100%" },
+    pressed: { opacity: 0.85 },
+    greeting: { gap: spacing.xs, marginTop: spacing.xl },
+    hero: { borderRadius: radius.lg, padding: spacing.xl, gap: spacing.md, ...shadow.raised },
+    heroHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+    heroTitle: { fontFamily: fonts.semibold, fontSize: 15, color: colors.primarySoft },
+    heroText: { fontFamily: fonts.medium, fontSize: 17, lineHeight: 24, color: colors.primaryText },
+    heroFamily: { fontFamily: fonts.regular, fontSize: 14, color: colors.primarySoft },
+    chips: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
+    heroChip: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      paddingHorizontal: spacing.md,
+      paddingVertical: 6,
+      borderRadius: radius.full,
+      backgroundColor: "rgba(255,255,255,0.18)",
+    },
+    heroChipText: { fontFamily: fonts.medium, fontSize: 14, color: colors.primaryText },
+    heroButton: {
+      alignSelf: "flex-start",
+      minHeight: 44,
+      justifyContent: "center",
+      paddingHorizontal: spacing.lg,
+      borderRadius: radius.full,
+      backgroundColor: colors.card,
+      marginTop: spacing.xs,
+    },
+    heroButtonText: { fontFamily: fonts.semibold, fontSize: 15, color: colors.primaryStrong },
+    quickRow: { flexDirection: "row", gap: spacing.md },
+    quick: {
+      flex: 1,
+      gap: spacing.xs,
+      padding: spacing.lg,
+      borderRadius: radius.lg,
+      backgroundColor: colors.card,
+      ...shadow.card,
+    },
+    recentEmpty: { flexDirection: "row", alignItems: "center", gap: spacing.md },
+    // La fila deslizable llega hasta los bordes de la pantalla.
+    recentScroll: { marginHorizontal: -spacing.xl },
+    recentRow: { gap: spacing.md, paddingHorizontal: spacing.xl, paddingBottom: spacing.sm },
+    recent: {
+      width: 140,
+      gap: spacing.sm,
+      padding: spacing.md,
+      borderRadius: radius.lg,
+      backgroundColor: colors.card,
+      ...shadow.card,
+    },
+    recentImage: {
+      height: 90,
+      borderRadius: radius.sm,
+      backgroundColor: colors.surface,
+      alignItems: "center",
+      justifyContent: "center",
+      overflow: "hidden",
+    },
+    recentName: { fontFamily: fonts.semibold, fontSize: 14, lineHeight: 18, color: colors.text },
+    disclaimer: { textAlign: "center", marginTop: spacing.sm },
+  }),
+);

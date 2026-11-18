@@ -1,7 +1,7 @@
 import { Icon } from "@/components/icon";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Pressable, Text, View } from "react-native";
 import { tapFeedback } from "@/lib/haptics";
-import { colors, fonts, spacing } from "@/theme";
+import { fonts, makeStyles, spacing, useTheme } from "@/theme";
 
 type CheckboxProps = {
   label: string;
@@ -11,6 +11,8 @@ type CheckboxProps = {
 };
 
 export function Checkbox({ label, checked, onChange, error }: CheckboxProps) {
+  const styles = useStyles();
+  const { colors } = useTheme();
   return (
     <View style={styles.container}>
       <Pressable
@@ -37,20 +39,22 @@ export function Checkbox({ label, checked, onChange, error }: CheckboxProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { gap: spacing.xs },
-  row: { flexDirection: "row", alignItems: "center", gap: spacing.md, minHeight: 44 },
-  box: {
-    width: 26,
-    height: 26,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: colors.inputBorder,
-    backgroundColor: colors.card,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  boxChecked: { backgroundColor: colors.primary, borderColor: colors.primary },
-  label: { flex: 1, fontFamily: fonts.regular, fontSize: 15, lineHeight: 21, color: colors.text },
-  error: { fontFamily: fonts.semibold, fontSize: 13, color: colors.danger, marginLeft: 38 },
-});
+const useStyles = makeStyles(({ colors }) =>
+  StyleSheet.create({
+    container: { gap: spacing.xs },
+    row: { flexDirection: "row", alignItems: "center", gap: spacing.md, minHeight: 44 },
+    box: {
+      width: 26,
+      height: 26,
+      borderRadius: 8,
+      borderWidth: 2,
+      borderColor: colors.inputBorder,
+      backgroundColor: colors.card,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    boxChecked: { backgroundColor: colors.primary, borderColor: colors.primary },
+    label: { flex: 1, fontFamily: fonts.regular, fontSize: 15, lineHeight: 21, color: colors.text },
+    error: { fontFamily: fonts.semibold, fontSize: 13, color: colors.danger, marginLeft: 38 },
+  }),
+);

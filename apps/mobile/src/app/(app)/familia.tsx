@@ -12,11 +12,13 @@ import { TextField } from "@/components/text-field";
 import { getMessages } from "@/i18n";
 import { addFamilyMember, getFamily, isFamilyLimitError, type Family } from "@/lib/family";
 import { useHealthProfile } from "@/lib/use-health-profile";
-import { colors, spacing, typography } from "@/theme";
+import { makeStyles, spacing, useTheme } from "@/theme";
 
 type Load = { kind: "loading" } | { kind: "ready"; family: Family } | { kind: "error" };
 
 export default function FamilyScreen() {
+  const styles = useStyles();
+  const { colors, typography } = useTheme();
   const t = getMessages();
   const router = useRouter();
   const { state: profileState, userId } = useHealthProfile();
@@ -159,7 +161,9 @@ export default function FamilyScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  loading: { gap: spacing.md },
-  usage: { flexDirection: "row", alignItems: "center", gap: 6 },
-});
+const useStyles = makeStyles(() =>
+  StyleSheet.create({
+    loading: { gap: spacing.md },
+    usage: { flexDirection: "row", alignItems: "center", gap: 6 },
+  }),
+);

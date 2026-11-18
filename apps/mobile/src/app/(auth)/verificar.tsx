@@ -9,9 +9,10 @@ import { TextField } from "@/components/text-field";
 import { getMessages } from "@/i18n";
 import { authErrorMessage, toFieldErrors } from "@/lib/forms";
 import { supabase } from "@/lib/supabase";
-import { colors, fontSize } from "@/theme";
+import { fontSize, useTheme } from "@/theme";
 
 export default function VerifyScreen() {
+  const { colors } = useTheme();
   const t = getMessages();
   const { email = "", motivo } = useLocalSearchParams<{ email?: string; motivo?: string }>();
   const [code, setCode] = useState("");

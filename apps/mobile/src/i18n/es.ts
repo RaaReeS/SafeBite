@@ -87,6 +87,11 @@ export const es = {
     accessibilityLabel: (label: string, index: number, total: number) =>
       `${label}, pestaña ${index} de ${total}`,
   },
+  appearance: {
+    title: "Apariencia",
+    options: { system: "Automático", light: "Claro", dark: "Oscuro" },
+    hint: "«Automático» sigue la configuración de tu móvil. La elección se guarda solo en este móvil.",
+  },
   profile: {
     title: "Perfil",
     allergiesHint: "Los alérgenos que debes evitar",

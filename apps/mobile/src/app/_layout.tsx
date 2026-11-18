@@ -1,22 +1,57 @@
-import { Stack } from "expo-router";
+import {
+  DarkTheme,
+  DefaultTheme,
+  Stack,
+  ThemeProvider as NavigationThemeProvider,
+} from "expo-router";
+import type { ReactNode } from "react";
 import { StatusBar } from "expo-status-bar";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { StyleSheet, ActivityIndicator, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Button } from "@/components/button";
 import { EmptyState } from "@/components/ui";
 import { getMessages } from "@/i18n";
 import { useAppFonts } from "@/lib/fonts";
 import { SessionProvider, useSession } from "@/lib/session";
-import { colors, spacing } from "@/theme";
+import { makeStyles, spacing, ThemeProvider, useTheme } from "@/theme";
 
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <StatusBar style="dark" />
-      <SessionProvider>
-        <RootNavigator />
-      </SessionProvider>
+      <ThemeProvider>
+        <ThemedNavigation>
+          <SessionProvider>
+            <RootNavigator />
+          </SessionProvider>
+        </ThemedNavigation>
+      </ThemeProvider>
     </SafeAreaProvider>
+  );
+}
+
+/**
+ * Colores de la navegación (fondo entre pantallas, cabeceras, pestañas) y de la
+ * barra de estado según el modo claro u oscuro.
+ */
+function ThemedNavigation({ children }: { children: ReactNode }) {
+  const { scheme, colors } = useTheme();
+  const base = scheme === "dark" ? DarkTheme : DefaultTheme;
+  const navigationTheme = {
+    ...base,
+    colors: {
+      ...base.colors,
+      primary: colors.accent,
+      background: colors.background,
+      card: colors.card,
+      text: colors.text,
+      border: colors.border,
+    },
+  };
+  return (
+    <NavigationThemeProvider value={navigationTheme}>
+      <StatusBar style={scheme === "dark" ? "light" : "dark"} />
+      {children}
+    </NavigationThemeProvider>
   );
 }
 
@@ -25,6 +60,8 @@ export default function RootLayout() {
  * interfaz: la seguridad real está en Supabase (RLS), como en la web.
  */
 function RootNavigator() {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const t = getMessages();
   const { session, isLoading, isRecoveringPassword, isOffline, retry } = useSession();
   const fontsReady = useAppFonts();
@@ -45,7 +82,7 @@ function RootNavigator() {
   if (isLoading || !fontsReady) {
     return (
       <View style={styles.loading} accessibilityLabel={t.common.loading}>
-        <ActivityIndicator color={colors.primary} />
+        <ActivityIndicator color={colors.accent} />
       </View>
     );
   }
@@ -64,12 +101,19 @@ function RootNavigator() {
   );
 }
 
-const styles = StyleSheet.create({
-  loading: { flex: 1, alignItems: "center", justifyContent: "center" },
-  offline: {
-    flex: 1,
-    justifyContent: "center",
-    padding: spacing.xl,
-    backgroundColor: colors.background,
-  },
-});
+const useStyles = makeStyles(({ colors }) =>
+  StyleSheet.create({
+    loading: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: colors.background,
+    },
+    offline: {
+      flex: 1,
+      justifyContent: "center",
+      padding: spacing.xl,
+      backgroundColor: colors.background,
+    },
+  }),
+);
