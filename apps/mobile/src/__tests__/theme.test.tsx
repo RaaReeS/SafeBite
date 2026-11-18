@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react-native";
-import { Text } from "react-native";
+import { AccessibilityInfo, Text } from "react-native";
+import { captureRef } from "react-native-view-shot";
 import { AppearancePicker } from "@/components/appearance-picker";
 import { STATUS_STYLES } from "@/components/status-badge";
 import { APPEARANCE_STORAGE_KEY, palettes, ThemeProvider, useTheme } from "@/theme";
@@ -59,6 +60,11 @@ function CurrentScheme() {
 }
 
 describe("Apariencia", () => {
+  afterEach(() => {
+    jest.mocked(captureRef).mockReset();
+    jest.mocked(captureRef).mockRejectedValue(new Error("sin captura en los tests"));
+  });
+
   beforeEach(async () => {
     await AsyncStorage.clear();
   });
@@ -76,7 +82,7 @@ describe("Apariencia", () => {
     await fireEvent.press(screen.getByRole("radio", { name: "Oscuro" }));
     expect(screen.getByRole("radio", { name: "Oscuro" })).toBeChecked();
     expect(screen.getByRole("radio", { name: "Automático" })).not.toBeChecked();
-    expect(screen.getByText("modo dark")).toBeTruthy();
+    expect(await screen.findByText("modo dark")).toBeTruthy();
     await waitFor(async () =>
       expect(await AsyncStorage.getItem(APPEARANCE_STORAGE_KEY)).toBe("dark"),
     );
@@ -100,5 +106,43 @@ describe("Apariencia", () => {
       </ThemeProvider>,
     );
     await waitFor(() => expect(screen.getByRole("radio", { name: "Automático" })).toBeChecked());
+  });
+
+  it("al cambiar de modo, funde la pantalla anterior sobre la nueva", async () => {
+    jest.spyOn(AccessibilityInfo, "isReduceMotionEnabled").mockResolvedValue(false);
+    jest.mocked(captureRef).mockResolvedValue("file:///captura.png");
+    await render(
+      <ThemeProvider>
+        <AppearancePicker />
+        <CurrentScheme />
+      </ThemeProvider>,
+    );
+    // Espera a leer la preferencia guardada (al abrir no hay fundido).
+    await waitFor(() => expect(screen.getByRole("radio", { name: "Automático" })).toBeChecked());
+
+    await fireEvent.press(screen.getByRole("radio", { name: "Oscuro" }));
+    const overlay = await screen.findByTestId("theme-transition", { includeHiddenElements: true });
+    // Hasta que la captura está pintada, se siguen viendo los colores anteriores.
+    expect(screen.getByText("modo light")).toBeTruthy();
+
+    await fireEvent(overlay, "load");
+    expect(await screen.findByText("modo dark")).toBeTruthy();
+    await waitFor(() =>
+      expect(screen.queryByTestId("theme-transition", { includeHiddenElements: true })).toBeNull(),
+    );
+  });
+
+  it("con «Reducir movimiento» el cambio es directo, sin captura", async () => {
+    jest.spyOn(AccessibilityInfo, "isReduceMotionEnabled").mockResolvedValue(true);
+    await render(
+      <ThemeProvider>
+        <AppearancePicker />
+        <CurrentScheme />
+      </ThemeProvider>,
+    );
+    await waitFor(() => expect(screen.getByRole("radio", { name: "Automático" })).toBeChecked());
+    await fireEvent.press(screen.getByRole("radio", { name: "Oscuro" }));
+    expect(await screen.findByText("modo dark")).toBeTruthy();
+    expect(captureRef).not.toHaveBeenCalled();
   });
 });

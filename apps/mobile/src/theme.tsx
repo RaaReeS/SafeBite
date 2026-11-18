@@ -5,10 +5,22 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
+  type ComponentRef,
   type ReactNode,
 } from "react";
-import { useColorScheme, type TextStyle, type ViewStyle } from "react-native";
+import {
+  AccessibilityInfo,
+  Animated,
+  Easing,
+  StyleSheet,
+  useColorScheme,
+  View,
+  type TextStyle,
+  type ViewStyle,
+} from "react-native";
+import { captureRef } from "react-native-view-shot";
 
 // Sistema visual de la app: todo color, tamaño y sombra sale de aquí. Hay dos
 // paletas (claro y oscuro, las mismas que la web) y la app elige una según la
@@ -174,10 +186,19 @@ function isAppearance(value: unknown): value is Appearance {
   return value === "system" || value === "light" || value === "dark";
 }
 
-/** Elige el tema según la preferencia guardada (o el sistema) y lo da a toda la app. */
+/** Duración del fundido al cambiar entre claro y oscuro. */
+export const THEME_TRANSITION_MS = 400;
+
+/**
+ * Elige el tema según la preferencia guardada (o el sistema) y lo da a toda la
+ * app. Al cambiar de modo no salta de golpe: se captura la pantalla, se cambian
+ * los colores debajo y la captura se desvanece (un fundido de toda la app). Con
+ * «Reducir movimiento» activado, o si la captura falla, el cambio es directo.
+ */
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const system = useColorScheme();
   const [appearance, setAppearanceState] = useState<Appearance>("system");
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -185,7 +206,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       .then((stored) => {
         if (active && isAppearance(stored)) setAppearanceState(stored);
       })
-      .catch(() => undefined);
+      .catch(() => undefined)
+      .finally(() => {
+        if (active) setHydrated(true);
+      });
     return () => {
       active = false;
     };
@@ -196,14 +220,93 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     void AsyncStorage.setItem(APPEARANCE_STORAGE_KEY, next).catch(() => undefined);
   }, []);
 
-  const scheme: ColorScheme =
+  /** El modo que se quiere y el que se está viendo (distintos durante el fundido). */
+  const target: ColorScheme =
     appearance === "system" ? (system === "dark" ? "dark" : "light") : appearance;
+  const [shown, setShown] = useState<ColorScheme>(target);
+  const rootRef = useRef<ComponentRef<typeof View>>(null);
+  const pending = useRef<ColorScheme | null>(null);
+  const [snapshot, setSnapshot] = useState<string | null>(null);
+  const fade = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (target === shown || pending.current === target) return;
+    // Al abrir la app (aún leyendo la preferencia) no hay nada que fundir.
+    if (!hydrated) {
+      setShown(target);
+      return;
+    }
+    let cancelled = false;
+    pending.current = target;
+    void (async () => {
+      const reduceMotion = await AccessibilityInfo.isReduceMotionEnabled().catch(() => true);
+      const uri =
+        reduceMotion || rootRef.current === null
+          ? null
+          : await captureRef(rootRef, { format: "png", result: "tmpfile" }).catch(() => null);
+      if (cancelled) return;
+      if (uri === null) {
+        pending.current = null;
+        setShown(target);
+        return;
+      }
+      // Primero la captura encima; cuando se ha pintado (onLoad), cambian los colores.
+      fade.setValue(1);
+      setSnapshot(uri);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [target, shown, hydrated, fade]);
+
+  const startFade = useCallback(() => {
+    const next = pending.current;
+    pending.current = null;
+    if (next !== null) setShown(next);
+    Animated.timing(fade, {
+      toValue: 0,
+      duration: THEME_TRANSITION_MS,
+      easing: Easing.out(Easing.quad),
+      useNativeDriver: true,
+    }).start(() => setSnapshot(null));
+  }, [fade]);
+
+  const cancelFade = useCallback(() => {
+    const next = pending.current;
+    pending.current = null;
+    if (next !== null) setShown(next);
+    setSnapshot(null);
+  }, []);
+
   const value = useMemo(
-    () => ({ ...THEMES[scheme], appearance, setAppearance }),
-    [scheme, appearance, setAppearance],
+    () => ({ ...THEMES[shown], appearance, setAppearance }),
+    [shown, appearance, setAppearance],
   );
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+  return (
+    <ThemeContext.Provider value={value}>
+      <View style={transitionStyles.fill}>
+        <View ref={rootRef} collapsable={false} style={transitionStyles.fill}>
+          {children}
+        </View>
+        {snapshot !== null ? (
+          <Animated.Image
+            source={{ uri: snapshot }}
+            onLoad={startFade}
+            onError={cancelFade}
+            resizeMode="stretch"
+            pointerEvents="none"
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+            testID="theme-transition"
+            style={[StyleSheet.absoluteFill, { opacity: fade }]}
+          />
+        ) : null}
+      </View>
+    </ThemeContext.Provider>
+  );
 }
+
+const transitionStyles = StyleSheet.create({ fill: { flex: 1 } });
 
 /** Tema actual. Fuera del proveedor (algún test aislado), el claro. */
 export function useTheme(): ThemeContextValue {
