@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
 import { signOut } from "@/app/(auth)/actions";
 import { BottomNav, NavLinks, type NavItem } from "@/components/app-shell/nav-links";
+import { AppearanceMenu } from "@/components/appearance-menu";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
@@ -59,8 +60,9 @@ export function AppShell({
           className={`mx-auto flex w-full ${width} items-center justify-between gap-4 px-4 py-2`}
         >
           <Logo href={homeHref} area={area} />
-          <div className="flex items-center gap-3 text-sm">
+          <div className="flex items-center gap-2 text-sm">
             {email ? <span className="hidden text-muted sm:inline">{email}</span> : null}
+            <AppearanceMenu />
             <form action={signOut}>
               <Button type="submit" variant="secondary" icon="logout">
                 {t.auth.logout}

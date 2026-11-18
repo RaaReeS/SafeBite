@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { Logo, PageSkeleton } from "@/components/app-shell/app-shell";
+import { AppearanceMenu } from "@/components/appearance-menu";
 import { MenuView } from "@/components/menu/menu-view";
 import { getMessages } from "@/i18n";
 import { getPeopleIfDiner } from "@/lib/data/health-profile";
@@ -27,8 +28,9 @@ export default function PublicMenuPage({ params }: PageProps<"/r/[slug]">) {
     <div className="flex flex-1 flex-col">
       {/* Barra mínima con la marca: la carta se abre desde un QR, sin más navegación. */}
       <header className="border-b border-line bg-card/90 backdrop-blur print:hidden">
-        <div className="mx-auto flex w-full max-w-2xl px-4 py-2">
+        <div className="mx-auto flex w-full max-w-2xl items-center justify-between px-4 py-2">
           <Logo href="/" />
+          <AppearanceMenu />
         </div>
       </header>
       <main className="flex flex-1 flex-col">

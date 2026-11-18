@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { Logo } from "@/components/app-shell/app-shell";
+import { AppearanceMenu } from "@/components/appearance-menu";
 import { DeletedNotice } from "@/components/deleted-notice";
 import { ButtonLink } from "@/components/ui/button";
 import { Card, IconBadge } from "@/components/ui/card";
@@ -31,12 +32,15 @@ export default function Home() {
             <span className="rounded-full bg-card px-3 py-1 text-fg">
               <Logo href="/" />
             </span>
-            <Link
-              href="/login"
-              className={`inline-flex min-h-11 items-center rounded-full px-4 text-sm font-semibold hover:bg-white/15 ${ON_GREEN_FOCUS}`}
-            >
-              {t.home.login}
-            </Link>
+            <div className="flex items-center gap-1">
+              <AppearanceMenu onDark />
+              <Link
+                href="/login"
+                className={`inline-flex min-h-11 items-center rounded-full px-4 text-sm font-semibold hover:bg-white/15 ${ON_GREEN_FOCUS}`}
+              >
+                {t.home.login}
+              </Link>
+            </div>
           </div>
           <div className="flex max-w-2xl flex-col gap-4">
             <p className="text-sm font-semibold text-on-primary/85">
