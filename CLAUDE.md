@@ -68,7 +68,7 @@ Especificación completa en `ESPECIFICACION.md`. Léela antes de empezar cualqui
 
 - En local ningún email sale a internet: los de Auth (confirmación, recuperación) se ven en Mailpit, http://127.0.0.1:54324. La confirmación de email está activada también en local.
 - Cuentas de prueba del seed (contraseña `password123`): `restaurante@safebite.test`, `comensal@safebite.test`, `admin@safebite.test` (rol `admin`, con verificación en dos pasos; clave TOTP de pruebas `JBSWY3DPEHPK3PXP`, solo local) y `admin-nuevo@safebite.test` (admin sin autenticador, para probar el alta).
-- App móvil en un dispositivo real (Expo Go): `apps/mobile/.env.local` debe apuntar a la IP del PC en la wifi (`http://<IP>:54321`), no a `127.0.0.1`. Móvil y PC en la misma red.
+- App móvil en un dispositivo real (Expo Go): `apps/mobile/.env.local` puede apuntar a `http://127.0.0.1:54321`; en desarrollo la app sustituye las direcciones locales por la IP del PC que ve Expo Go (`src/lib/dev-host.ts`), así que funciona al cambiar de red sin tocar nada. Nunca toca direcciones de producción ni túneles. Móvil y PC en la misma red.
 - La app declara `@babel/core@7` como dependencia de desarrollo: Stryker (en core) trae Babel 8 al monorepo y Expo necesita la 7.
 
 ## Producción
