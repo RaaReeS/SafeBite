@@ -10,7 +10,7 @@ import {
   type VerificationStatus,
 } from "@/lib/data/admin-restaurants";
 import { rejectRestaurant, resetRestaurantVerification, verifyRestaurant } from "./actions";
-import { RejectForm } from "./reject-form";
+import { RejectButton } from "./reject-form";
 
 export const metadata: Metadata = { title: "Verificación de restaurantes · SafeBite" };
 
@@ -119,7 +119,7 @@ function RestaurantCard({ restaurant }: { restaurant: AdminRestaurant }) {
         </p>
       ) : null}
 
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap gap-3 border-t border-line pt-4">
         {restaurant.verification_status === "verified" ? (
           <form action={resetRestaurantVerification.bind(null, restaurant.id)}>
             <Button type="submit" variant="secondary">
@@ -129,10 +129,12 @@ function RestaurantCard({ restaurant }: { restaurant: AdminRestaurant }) {
         ) : (
           <>
             <form action={verifyRestaurant.bind(null, restaurant.id)}>
-              <Button type="submit">{labels.verify}</Button>
+              <Button type="submit" icon="checkmark">
+                {labels.verify}
+              </Button>
             </form>
             {restaurant.verification_status === "pending" ? (
-              <RejectForm
+              <RejectButton
                 action={rejectRestaurant.bind(null, restaurant.id)}
                 restaurantName={restaurant.name}
               />

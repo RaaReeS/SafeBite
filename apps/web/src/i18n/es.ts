@@ -354,6 +354,7 @@ export const es = {
       backToPending: "Volver a pendiente",
       rejectFormLabel: (name: string) => `Rechazar ${name}`,
       noteLabel: "Motivo del rechazo",
+      cancel: "Cancelar",
       noteHint: "El dueño lo verá en su panel.",
       noteRequired: "Escribe el motivo: el dueño lo verá en su panel.",
       noteTooLong: (max: number) => `El motivo puede tener como mucho ${max} caracteres.`,
