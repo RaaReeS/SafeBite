@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Worker de MapLibre copiado al compilar (código de terceros, minificado).
+    "public/vendor/**",
     // Informes generados por Playwright.
     "playwright-report/**",
     "test-results/**",

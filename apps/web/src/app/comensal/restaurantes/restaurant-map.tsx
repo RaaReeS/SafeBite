@@ -137,7 +137,7 @@ export default function RestaurantMap({
       ref={containerRef}
       role="region"
       aria-label={t.diner.search.mapLabel}
-      className="h-96 w-full overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800"
+      className="h-96 w-full overflow-hidden rounded-2xl bg-surface"
       data-testid="restaurant-map"
     />
   );

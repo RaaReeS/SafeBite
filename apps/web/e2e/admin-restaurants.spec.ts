@@ -27,10 +27,24 @@ test.describe("verificación de restaurantes (administración)", () => {
     await expect(card(admin, name)).toContainText(ownerEmail);
     await expect(card(admin, name)).toContainText("Madrid");
 
-    // Rechazar exige un motivo.
-    const reject = admin.getByRole("form", { name: `Rechazar ${name}` });
+    // Solo hay dos botones: «Verificar» y «Rechazar».
+    await expect(card(admin, name).getByRole("button")).toHaveText(["Verificar", "Rechazar"]);
+
+    // Rechazar abre una ventana que exige el motivo.
+    await card(admin, name).getByRole("button", { name: "Rechazar" }).click();
+    const dialog = admin.getByRole("dialog", { name: `Rechazar ${name}` });
+    await expect(dialog).toBeVisible();
+    const reject = dialog.getByRole("form", { name: `Rechazar ${name}` });
     await reject.getByRole("button", { name: "Rechazar" }).click();
     await expect(reject.getByText(/Escribe el motivo/)).toBeVisible();
+    await expect(dialog).toBeVisible();
+
+    // Cancelar cierra sin rechazar.
+    await dialog.getByRole("button", { name: "Cancelar" }).click();
+    await expect(dialog).toBeHidden();
+    await expect(card(admin, name)).toContainText("Pendiente de verificación");
+
+    await card(admin, name).getByRole("button", { name: "Rechazar" }).click();
 
     await reject
       .getByLabel("Motivo del rechazo")

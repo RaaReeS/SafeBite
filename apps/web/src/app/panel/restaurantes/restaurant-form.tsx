@@ -51,11 +51,13 @@ export function RestaurantForm({
   const confirmError = state.fieldErrors?.confirm_slug_change;
 
   return (
-    <form action={formAction} aria-label={t.restaurant.details} className="flex flex-col gap-4">
+    <form
+      action={formAction}
+      aria-label={t.restaurant.details}
+      className="flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-card"
+    >
       {isEdit && verified ? (
-        <p className="text-sm text-zinc-700 dark:text-zinc-300">
-          {t.verification.identityChangeWarning}
-        </p>
+        <p className="text-sm text-muted">{t.verification.identityChangeWarning}</p>
       ) : null}
       <FormStatus state={state} />
       <TextField
@@ -99,14 +101,14 @@ export function RestaurantForm({
               name="confirm_slug_change"
               type="checkbox"
               aria-invalid={confirmError ? true : undefined}
-              className="mt-1 size-4 accent-emerald-700"
+              className="mt-1 size-4 accent-primary"
             />
             <label htmlFor={confirmId} className="text-sm">
               {t.restaurant.slugChangeConfirm}
             </label>
           </div>
           {confirmError ? (
-            <p className="text-xs font-medium text-red-700 dark:text-red-400">{confirmError}</p>
+            <p className="text-sm font-semibold text-danger">{confirmError}</p>
           ) : null}
         </div>
       ) : null}

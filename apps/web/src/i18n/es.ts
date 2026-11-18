@@ -7,6 +7,8 @@ export const es = {
   common: {
     appName: "SafeBite",
     forRestaurants: "para restaurantes",
+    tagline:
+      "Cartas y productos filtrados según tus alergias, con lo que declara cada establecimiento.",
     sourceNotice: "Información declarada por el establecimiento.",
     genericError: "Ha ocurrido un error inesperado. Inténtalo de nuevo en unos minutos.",
     tooManyAttempts: "Demasiados intentos. Espera unos minutos antes de volver a probar.",
@@ -23,6 +25,16 @@ export const es = {
     dinerDescription:
       "Guarda tu perfil una vez y busca restaurantes cerca de ti con la carta filtrada para ti.",
     dinerRegister: "Crear cuenta de comensal",
+    features: {
+      qrTitle: "Carta con código QR",
+      qrText: "Tus clientes la abren desde la mesa, sin descargar nada.",
+      allergensTitle: "Los 14 alérgenos",
+      allergensText: "Declara para cada plato si contiene, puede contener trazas o no contiene.",
+      tableTitle: "Tabla imprimible",
+      tableText: "Descarga en PDF la tabla de alérgenos de tu carta para tenerla en el local.",
+    },
+    privacy: "Privacidad",
+    terms: "Términos de uso",
   },
   auth: {
     email: "Email",
@@ -106,6 +118,12 @@ export const es = {
       family: "Mi familia",
       account: "Mi cuenta",
     },
+    /** Barra inferior del móvil (poco espacio). */
+    navShort: {
+      allergies: "Alergias",
+      family: "Familia",
+      account: "Cuenta",
+    },
     home: {
       greeting: (email: string) => `Hola, ${email}`,
       intro:
@@ -118,6 +136,9 @@ export const es = {
       noAllergies: "No has marcado ninguna alergia.",
       yourAllergies: (list: string) => `Tus alergias: ${list}.`,
       edit: "Editar mis alergias",
+      family: (names: string) => `También filtras para: ${names}.`,
+      quickSearchHint: "Cartas filtradas y mapa de dónde puedes comer",
+      quickFamilyHint: "Filtra a la vez para las personas con las que comes",
     },
     consent: {
       title: "Tus datos de salud",
@@ -333,6 +354,7 @@ export const es = {
       backToPending: "Volver a pendiente",
       rejectFormLabel: (name: string) => `Rechazar ${name}`,
       noteLabel: "Motivo del rechazo",
+      cancel: "Cancelar",
       noteHint: "El dueño lo verá en su panel.",
       noteRequired: "Escribe el motivo: el dueño lo verá en su panel.",
       noteTooLong: (max: number) => `El motivo puede tener como mucho ${max} caracteres.`,
@@ -363,6 +385,7 @@ export const es = {
     },
   },
   panel: {
+    area: "Restaurantes",
     title: "Mis restaurantes",
     empty: "Aún no tienes ningún restaurante.",
     newRestaurant: "Nuevo restaurante",

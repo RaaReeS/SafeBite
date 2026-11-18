@@ -18,7 +18,7 @@ export default async function RestaurantsPage() {
 
   return (
     <>
-      <h1 className="text-2xl font-semibold">{t.diner.search.title}</h1>
+      <h1 className="text-3xl font-bold tracking-tight">{t.diner.search.title}</h1>
       <RestaurantFinder
         restaurants={restaurants}
         people={diner?.consentGiven ? diner.people : null}

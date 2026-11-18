@@ -18,17 +18,22 @@ export default async function DishesPage({ params }: PageProps<"/panel/restauran
 
   return (
     <>
-      <Link href={base} className="text-sm underline">
+      <Link
+        href={base}
+        className="inline-flex min-h-11 w-fit items-center text-sm font-semibold text-primary-text hover:underline"
+      >
         {t.dishes.backToRestaurant}
       </Link>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">{t.dishes.title}</h1>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          <h1 className="text-3xl font-bold tracking-tight">{t.dishes.title}</h1>
+          <p className="text-sm text-muted">
             {restaurant.name} · {t.dishes.count(dishes.length)}
           </p>
         </div>
-        <ButtonLink href={`${base}/platos/nuevo`}>{t.dishes.newDish}</ButtonLink>
+        <ButtonLink href={`${base}/platos/nuevo`} icon="add">
+          {t.dishes.newDish}
+        </ButtonLink>
       </div>
 
       {incomplete > 0 ? (
@@ -36,11 +41,11 @@ export default async function DishesPage({ params }: PageProps<"/panel/restauran
       ) : null}
 
       {dishes.length === 0 ? (
-        <p className="text-zinc-700 dark:text-zinc-300">{t.dishes.empty}</p>
+        <p className="text-muted">{t.dishes.empty}</p>
       ) : (
         <ol
           aria-label={t.dishes.title}
-          className="flex flex-col divide-y divide-zinc-200 rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800"
+          className="flex flex-col divide-y divide-line overflow-hidden rounded-2xl bg-card shadow-card"
         >
           {dishes.map((dish, index) => (
             <li key={dish.id} className="flex items-center gap-3 px-4 py-3">
@@ -74,14 +79,12 @@ export default async function DishesPage({ params }: PageProps<"/panel/restauran
               >
                 <span className="flex flex-col">
                   <span className="font-medium">{dish.name}</span>
-                  <span className="text-sm text-zinc-600 dark:text-zinc-400">
-                    {dish.category ?? t.dishes.noCategory}
-                  </span>
+                  <span className="text-sm text-muted">{dish.category ?? t.dishes.noCategory}</span>
                 </span>
                 <span className="flex flex-wrap items-center gap-2 text-sm">
                   <AllergenStatusBadge missing={ALLERGENS.length - declaredCount(dish)} />
                   {dish.is_active ? null : (
-                    <span className="rounded-full bg-zinc-200 px-2.5 py-0.5 text-xs font-medium text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200">
+                    <span className="inline-flex w-fit rounded-full bg-surface px-3 py-1 text-xs font-semibold text-muted">
                       {t.dishes.inactive}
                     </span>
                   )}
@@ -101,9 +104,7 @@ function AllergenStatusBadge({ missing }: { missing: number }) {
   return (
     <span
       className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-        missing === 0
-          ? "bg-emerald-100 text-emerald-900 dark:bg-emerald-900 dark:text-emerald-100"
-          : "bg-amber-100 text-amber-900 dark:bg-amber-900 dark:text-amber-100"
+        missing === 0 ? "bg-primary-soft text-primary-strong" : "bg-warning-bg text-warning-fg"
       }`}
     >
       {missing === 0 ? t.allergens.complete : t.allergens.missing(missing)}

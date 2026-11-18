@@ -13,11 +13,13 @@ import Link from "next/link";
 import { useId, useMemo, useState } from "react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Card, EmptyState, IconBadge } from "@/components/ui/card";
 import { TextField } from "@/components/ui/field";
+import { Icon } from "@/components/ui/icon";
+import { StatusBadge } from "@/components/ui/status";
 import { getMessages } from "@/i18n";
 import type { Person } from "@/lib/data/health-profile";
 import type { PublicMenus, PublishedRestaurant } from "@/lib/data/published-restaurants";
-import { SUITABILITY_STYLES } from "./suitability";
 
 // MapLibre usa `window` y WebGL: el mapa solo se carga en el navegador.
 const RestaurantMap = dynamic(() => import("./restaurant-map"), { ssr: false });
@@ -137,58 +139,8 @@ export function RestaurantFinder({
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      {people !== null && people.length > 1 ? (
-        <fieldset className="flex flex-col gap-2">
-          <legend className="mb-1 text-sm font-medium">{t.diner.search.forWhom}</legend>
-          <div className="flex flex-wrap gap-2">
-            {people.map((person) => (
-              <label
-                key={person.id}
-                className="flex min-h-11 items-center gap-2 rounded-md border border-zinc-300 px-3 py-2 text-sm has-checked:border-emerald-700 has-checked:bg-emerald-50 dark:border-zinc-700 dark:has-checked:bg-emerald-950"
-              >
-                <input
-                  type="checkbox"
-                  checked={selected.includes(person.id)}
-                  onChange={() => togglePerson(person.id)}
-                  className="size-4 accent-emerald-700"
-                />
-                {person.name}
-              </label>
-            ))}
-          </div>
-        </fieldset>
-      ) : null}
-      {suitability === null ? (
-        <Alert tone="info">
-          {t.diner.search.noProfile}{" "}
-          <Link href="/comensal/alergias" className="underline">
-            {t.diner.search.configureProfile}
-          </Link>
-        </Alert>
-      ) : (
-        <div className="flex flex-col gap-2 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
-          <p className="font-medium">
-            {t.diner.search.canEatIn(suitableCount, restaurants.length)}
-          </p>
-          <div className="flex items-center gap-2">
-            <input
-              id={showAllId}
-              type="checkbox"
-              checked={showAll}
-              onChange={(event) => setShowAll(event.target.checked)}
-              className="size-4 accent-emerald-700"
-            />
-            <label htmlFor={showAllId} className="text-sm">
-              {t.diner.search.showAll}
-            </label>
-          </div>
-          <p className="text-xs text-zinc-600 dark:text-zinc-400">
-            {t.diner.search.declaredNotice}
-          </p>
-        </div>
-      )}
-
+    <div className="flex flex-col gap-5">
+      {/* Buscador: ciudad y «Cerca de mí». */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <div className="flex-1">
           <TextField
@@ -199,67 +151,131 @@ export function RestaurantFinder({
             autoComplete="address-level2"
           />
         </div>
-        <Button variant="secondary" onClick={locate} disabled={location.status === "locating"}>
+        <Button
+          variant="secondary"
+          icon="navigate"
+          onClick={locate}
+          disabled={location.status === "locating"}
+        >
           {location.status === "locating" ? t.diner.search.locating : t.diner.search.nearMe}
         </Button>
       </div>
-      <p className="text-xs text-zinc-600 dark:text-zinc-400">{t.diner.search.privacy}</p>
+      <p className="text-sm text-muted">{t.diner.search.privacy}</p>
       {location.status === "denied" ? <Alert tone="info">{t.diner.search.denied}</Alert> : null}
       {location.status === "unavailable" ? (
         <Alert tone="info">{t.diner.search.unavailable}</Alert>
       ) : null}
 
-      <RestaurantMap
-        restaurants={results.map(({ restaurant }) => ({
-          ...restaurant,
-          status: suitability === null ? null : statusOf(restaurant.id),
-          statusLabel: suitability === null ? null : statusLabel(restaurant.id),
-        }))}
-        origin={origin}
-      />
+      {people !== null && people.length > 1 ? (
+        <fieldset className="flex flex-col gap-2">
+          <legend className="mb-1 text-sm font-semibold text-muted">
+            {t.diner.search.forWhom}
+          </legend>
+          <div className="flex flex-wrap gap-2">
+            {people.map((person) => (
+              <label
+                key={person.id}
+                className="flex min-h-11 cursor-pointer items-center gap-2 rounded-full bg-surface px-4 text-sm font-medium has-checked:bg-primary has-checked:text-on-primary has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary-text"
+              >
+                <input
+                  type="checkbox"
+                  checked={selected.includes(person.id)}
+                  onChange={() => togglePerson(person.id)}
+                  className="size-4 accent-primary-dark"
+                />
+                {person.name}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      ) : null}
 
-      <p className="text-sm font-medium" aria-live="polite">
+      {suitability === null ? (
+        <Alert tone="info">
+          {t.diner.search.noProfile}{" "}
+          <Link href="/comensal/alergias" className="font-semibold text-primary-text underline">
+            {t.diner.search.configureProfile}
+          </Link>
+        </Alert>
+      ) : (
+        <Card>
+          <div className="flex items-center gap-3">
+            <IconBadge icon="restaurant" size="lg" />
+            <p className="text-lg font-semibold">
+              {t.diner.search.canEatIn(suitableCount, restaurants.length)}
+            </p>
+          </div>
+          <p className="text-sm text-muted">{t.diner.search.declaredNotice}</p>
+          <div className="flex items-center gap-3 border-t border-line pt-3">
+            <input
+              id={showAllId}
+              type="checkbox"
+              checked={showAll}
+              onChange={(event) => setShowAll(event.target.checked)}
+              className="size-5 accent-primary"
+            />
+            <label htmlFor={showAllId} className="text-sm">
+              {t.diner.search.showAll}
+            </label>
+          </div>
+        </Card>
+      )}
+
+      <div className="overflow-hidden rounded-2xl shadow-card">
+        <RestaurantMap
+          restaurants={results.map(({ restaurant }) => ({
+            ...restaurant,
+            status: suitability === null ? null : statusOf(restaurant.id),
+            statusLabel: suitability === null ? null : statusLabel(restaurant.id),
+          }))}
+          origin={origin}
+        />
+      </div>
+
+      <p className="text-sm font-semibold text-muted" aria-live="polite">
         {origin === null
           ? t.diner.search.results(results.length)
           : `${t.diner.search.results(results.length)} · ${t.diner.search.byProximity}`}
       </p>
       {results.length === 0 ? (
-        <p className="text-zinc-700 dark:text-zinc-300">
-          {restaurants.length === 0
-            ? t.diner.search.noRestaurants
-            : city.trim() !== ""
-              ? t.diner.search.noResultsCity(city.trim())
-              : t.diner.search.noneSuitable}
-        </p>
+        <EmptyState
+          icon="restaurant"
+          title={
+            restaurants.length === 0
+              ? t.diner.search.noRestaurants
+              : city.trim() !== ""
+                ? t.diner.search.noResultsCity(city.trim())
+                : t.diner.search.noneSuitable
+          }
+        />
       ) : (
-        <ul
-          aria-label={t.diner.search.listLabel}
-          className="flex flex-col divide-y divide-zinc-200 rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800"
-        >
+        <ul aria-label={t.diner.search.listLabel} className="grid gap-3 md:grid-cols-2">
           {results.map(({ restaurant, distanceKm }) => (
             <li key={restaurant.id}>
               <Link
                 href={`/r/${restaurant.slug}`}
-                className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-900"
+                className="flex h-full items-center gap-4 rounded-2xl bg-card p-4 shadow-card transition hover:-translate-y-0.5 hover:shadow-raised focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-text"
               >
-                <span className="flex flex-col gap-1">
-                  <span className="font-medium">{restaurant.name}</span>
-                  <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                <IconBadge icon="restaurant" />
+                <span className="flex min-w-0 flex-1 flex-col gap-1.5">
+                  <span className="font-semibold">{restaurant.name}</span>
+                  <span className="text-sm text-muted">
                     {[restaurant.address, restaurant.city].filter(Boolean).join(" · ")}
                   </span>
                   {suitability !== null ? (
-                    <span
-                      className={`self-start rounded-full px-2.5 py-0.5 text-xs font-medium ${SUITABILITY_STYLES[statusOf(restaurant.id)].badge}`}
-                    >
-                      {`${SUITABILITY_STYLES[statusOf(restaurant.id)].symbol} ${statusLabel(restaurant.id)}`}
+                    <StatusBadge
+                      status={statusOf(restaurant.id)}
+                      label={statusLabel(restaurant.id)}
+                    />
+                  ) : null}
+                  {distanceKm !== null ? (
+                    <span className="inline-flex items-center gap-1 text-sm font-semibold text-primary-text">
+                      <Icon name="location" className="size-4" />
+                      {formatDistance(distanceKm)}
                     </span>
                   ) : null}
                 </span>
-                {distanceKm !== null ? (
-                  <span className="text-sm whitespace-nowrap text-zinc-600 dark:text-zinc-400">
-                    {formatDistance(distanceKm)}
-                  </span>
-                ) : null}
+                <Icon name="chevron-forward" className="size-5 text-subtle" />
               </Link>
             </li>
           ))}

@@ -28,7 +28,7 @@ test.describe("perfil de alergias del comensal en la web", () => {
 
     await page.getByRole("link", { name: "Inicio" }).click();
     await expect(
-      page.getByText("Tus alergias: Cereales con gluten, Frutos de cáscara."),
+      page.getByRole("list", { name: "Tus alergias: Cereales con gluten, Frutos de cáscara." }),
     ).toBeVisible();
   });
 

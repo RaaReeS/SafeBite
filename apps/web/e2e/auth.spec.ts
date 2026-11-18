@@ -150,7 +150,9 @@ test.describe("inicio de sesión", () => {
   test("una cuenta de comensal entra en su área y no en el panel", async ({ page }) => {
     await login(page, SEED_DINER.email, SEED_DINER.password);
     await expect(page).toHaveURL(/\/comensal$/);
-    await expect(page.getByRole("heading", { name: `Hola, ${SEED_DINER.email}` })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: `Hola, ${SEED_DINER.email.split("@")[0]}` }),
+    ).toBeVisible();
     await page.goto("/panel");
     await expect(page).toHaveURL(/\/comensal$/);
   });

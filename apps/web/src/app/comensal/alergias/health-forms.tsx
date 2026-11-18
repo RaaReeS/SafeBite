@@ -22,11 +22,11 @@ export function ConsentForm({ action }: { action: Action }) {
     <form
       action={formAction}
       aria-label={t.diner.consent.title}
-      className="flex flex-col gap-4 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800"
+      className="flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-card"
     >
       <h2 className="text-lg font-semibold">{t.diner.consent.title}</h2>
-      <p className="text-zinc-700 dark:text-zinc-300">{t.diner.consent.intro}</p>
-      <ul className="list-disc space-y-1 pl-5 text-sm text-zinc-700 dark:text-zinc-300">
+      <p className="text-muted">{t.diner.consent.intro}</p>
+      <ul className="list-disc space-y-1 pl-5 text-sm text-muted">
         {t.diner.consent.points.map((point) => (
           <li key={point}>{point}</li>
         ))}
@@ -41,22 +41,23 @@ export function ConsentForm({ action }: { action: Action }) {
             required
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? `${checkboxId}-error` : undefined}
-            className="mt-1 size-4 accent-emerald-700"
+            className="mt-1 size-4 accent-primary"
           />
           <label htmlFor={checkboxId} className="text-sm">
             {t.diner.consent.checkbox}
           </label>
         </div>
         {error ? (
-          <p
-            id={`${checkboxId}-error`}
-            className="text-xs font-medium text-red-700 dark:text-red-400"
-          >
+          <p id={`${checkboxId}-error`} className="text-sm font-semibold text-danger">
             {error}
           </p>
         ) : null}
       </div>
-      <Link href="/privacidad" target="_blank" className="text-sm underline">
+      <Link
+        href="/privacidad"
+        target="_blank"
+        className="inline-flex min-h-11 w-fit items-center text-sm font-semibold text-primary-text hover:underline"
+      >
         {t.diner.consent.privacy}
       </Link>
       <div>
@@ -90,20 +91,18 @@ export function AllergiesForm({
     >
       <FormStatus state={state} />
       <fieldset className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-        <legend className="mb-2 text-sm text-zinc-700 dark:text-zinc-300">
-          {t.diner.allergies.description}
-        </legend>
+        <legend className="mb-2 text-sm text-muted">{t.diner.allergies.description}</legend>
         {ALLERGENS.map((allergen) => (
           <label
             key={allergen}
-            className="flex items-center gap-3 rounded-md border border-zinc-300 px-3 py-2 has-checked:border-emerald-700 has-checked:bg-emerald-50 dark:border-zinc-700 dark:has-checked:bg-emerald-950"
+            className="flex min-h-14 cursor-pointer items-center gap-3 rounded-2xl bg-card px-4 py-2 shadow-card has-checked:bg-success-bg has-checked:ring-2 has-checked:ring-primary has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary-text"
           >
             <input
               type="checkbox"
               name="allergen"
               value={allergen}
               defaultChecked={initial.includes(allergen)}
-              className="size-4 accent-emerald-700"
+              className="size-4 accent-primary"
             />
             <AllergenIcon allergen={allergen} />
             <span className="text-sm">{ALLERGEN_LABELS.es[allergen]}</span>

@@ -1,7 +1,7 @@
 import { useId, type ComponentProps, type ReactNode } from "react";
 
 const CONTROL_CLASSES =
-  "w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-xs focus:border-emerald-700 focus:outline-2 focus:outline-emerald-700/30 aria-invalid:border-red-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100";
+  "min-h-11 w-full rounded-xl border-[1.5px] border-input bg-card px-4 py-2.5 text-base text-fg placeholder:text-subtle focus:border-primary-text focus:outline-2 focus:outline-primary-text/30 aria-invalid:border-danger";
 
 type FieldShellProps = {
   label: string;
@@ -17,18 +17,18 @@ function FieldShell({ label, hint, error, children }: FieldShellProps) {
   const describedBy = [hintId, errorId].filter(Boolean).join(" ") || undefined;
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm font-medium">
+    <div className="flex flex-col gap-2">
+      <label htmlFor={id} className="text-sm font-semibold">
         {label}
       </label>
       {children({ id, describedBy })}
       {hint ? (
-        <p id={hintId} className="text-xs text-zinc-600 dark:text-zinc-400">
+        <p id={hintId} className="text-sm text-muted">
           {hint}
         </p>
       ) : null}
       {error ? (
-        <p id={errorId} className="text-xs font-medium text-red-700 dark:text-red-400">
+        <p id={errorId} className="text-sm font-semibold text-danger">
           {error}
         </p>
       ) : null}

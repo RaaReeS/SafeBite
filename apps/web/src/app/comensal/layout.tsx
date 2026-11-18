@@ -1,15 +1,12 @@
-import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
-import { Button } from "@/components/ui/button";
+import { AppShell, PageSkeleton } from "@/components/app-shell/app-shell";
+import type { NavItem } from "@/components/app-shell/nav-links";
 import { getMessages } from "@/i18n";
 import { requireDiner } from "@/lib/auth";
-import { signOut } from "@/app/(auth)/actions";
 
 export default function DinerLayout({ children }: { children: ReactNode }) {
-  const t = getMessages();
-
   return (
-    <Suspense fallback={<p className="px-4 py-8">{t.common.loading}</p>}>
+    <Suspense fallback={<PageSkeleton padded />}>
       <DinerShell>{children}</DinerShell>
     </Suspense>
   );
@@ -23,47 +20,38 @@ export default function DinerLayout({ children }: { children: ReactNode }) {
 async function DinerShell({ children }: { children: ReactNode }) {
   const t = getMessages();
   const user = await requireDiner();
+  const nav: NavItem[] = [
+    { href: "/comensal", label: t.diner.nav.home, icon: "home", exact: true },
+    { href: "/comensal/restaurantes", label: t.diner.nav.restaurants, icon: "restaurant" },
+    {
+      href: "/comensal/alergias",
+      label: t.diner.nav.allergies,
+      shortLabel: t.diner.navShort.allergies,
+      icon: "medical",
+    },
+    {
+      href: "/comensal/familia",
+      label: t.diner.nav.family,
+      shortLabel: t.diner.navShort.family,
+      icon: "people",
+    },
+    {
+      href: "/comensal/cuenta",
+      label: t.diner.nav.account,
+      shortLabel: t.diner.navShort.account,
+      icon: "person",
+    },
+  ];
 
   return (
-    <div className="flex flex-1 flex-col">
-      <header className="border-b border-zinc-200 dark:border-zinc-800">
-        <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-4 py-3">
-          <Link href="/comensal" className="font-semibold text-emerald-700 dark:text-emerald-400">
-            {t.common.appName}
-          </Link>
-          <div className="flex items-center gap-3 text-sm">
-            <span className="hidden text-zinc-600 sm:inline dark:text-zinc-400">{user.email}</span>
-            <form action={signOut}>
-              <Button type="submit" variant="secondary">
-                {t.auth.logout}
-              </Button>
-            </form>
-          </div>
-        </div>
-        <nav
-          aria-label={t.diner.navLabel}
-          className="mx-auto flex w-full max-w-5xl flex-wrap gap-4 px-4 pb-3 text-sm"
-        >
-          <Link href="/comensal" className="underline">
-            {t.diner.nav.home}
-          </Link>
-          <Link href="/comensal/restaurantes" className="underline">
-            {t.diner.nav.restaurants}
-          </Link>
-          <Link href="/comensal/alergias" className="underline">
-            {t.diner.nav.allergies}
-          </Link>
-          <Link href="/comensal/familia" className="underline">
-            {t.diner.nav.family}
-          </Link>
-          <Link href="/comensal/cuenta" className="underline">
-            {t.diner.nav.account}
-          </Link>
-        </nav>
-      </header>
-      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-4 py-8">
-        <Suspense fallback={<p>{t.common.loading}</p>}>{children}</Suspense>
-      </main>
-    </div>
+    <AppShell
+      homeHref="/comensal"
+      email={user.email}
+      nav={nav}
+      navLabel={t.diner.navLabel}
+      bottomNav
+    >
+      {children}
+    </AppShell>
   );
 }

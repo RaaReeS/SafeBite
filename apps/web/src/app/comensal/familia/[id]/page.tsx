@@ -16,10 +16,13 @@ export default async function FamilyMemberPage({ params }: PageProps<"/comensal/
 
   return (
     <>
-      <Link href="/comensal/familia" className="text-sm underline">
+      <Link
+        href="/comensal/familia"
+        className="inline-flex min-h-11 w-fit items-center text-sm font-semibold text-primary-text hover:underline"
+      >
         {t.family.back}
       </Link>
-      <h1 className="text-2xl font-semibold">{member.name}</h1>
+      <h1 className="text-3xl font-bold tracking-tight">{member.name}</h1>
 
       <section className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold">{t.family.allergiesOf(member.name)}</h2>
@@ -30,14 +33,14 @@ export default async function FamilyMemberPage({ params }: PageProps<"/comensal/
         />
       </section>
 
-      <section className="flex flex-col gap-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+      <section className="flex flex-col gap-3 rounded-2xl bg-card p-5 shadow-card">
         <h2 className="text-lg font-semibold">{t.family.renameTitle}</h2>
         <RenameMemberForm action={renameFamilyMember.bind(null, member.id)} name={member.name} />
       </section>
 
-      <section className="flex flex-col gap-3 rounded-lg border border-red-200 p-4 dark:border-red-900">
+      <section className="flex flex-col gap-3 rounded-2xl bg-card p-5 shadow-card ring-1 ring-danger/30">
         <h2 className="text-lg font-semibold">{t.family.deleteTitle}</h2>
-        <p className="text-sm text-zinc-700 dark:text-zinc-300">{t.family.deleteMessage}</p>
+        <p className="text-sm text-muted">{t.family.deleteMessage}</p>
         <div>
           <ConfirmDialog
             trigger={t.family.delete}

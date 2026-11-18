@@ -33,12 +33,12 @@ export function ConfirmDialog({
       <dialog
         ref={dialogRef}
         aria-labelledby="confirm-dialog-title"
-        className="m-auto w-[min(32rem,calc(100%-2rem))] rounded-lg border border-zinc-200 bg-white p-6 text-zinc-900 shadow-xl backdrop:bg-black/40 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
+        className="m-auto w-[min(32rem,calc(100%-2rem))] rounded-2xl bg-card p-6 text-fg shadow-raised backdrop:bg-black/50"
       >
         <h2 id="confirm-dialog-title" className="text-lg font-semibold">
           {title}
         </h2>
-        <div className="mt-3 text-sm text-zinc-700 dark:text-zinc-300">{children}</div>
+        <div className="mt-3 text-sm text-muted">{children}</div>
         <div className="mt-6 flex flex-wrap justify-end gap-3">
           <Button variant="secondary" onClick={() => dialogRef.current?.close()} autoFocus>
             {cancelLabel}

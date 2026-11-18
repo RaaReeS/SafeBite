@@ -20,7 +20,7 @@ export function AddMemberForm({ action }: { action: Action }) {
     <form
       action={formAction}
       aria-label={t.family.addTitle}
-      className="flex flex-col gap-4 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800"
+      className="flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-card"
     >
       <h2 className="text-lg font-semibold">{t.family.addTitle}</h2>
       <FormStatus state={state} />
@@ -42,17 +42,14 @@ export function AddMemberForm({ action }: { action: Action }) {
             required
             aria-invalid={guardianError ? true : undefined}
             aria-describedby={guardianError ? `${guardianId}-error` : undefined}
-            className="mt-1 size-4 accent-emerald-700"
+            className="mt-1 size-4 accent-primary"
           />
           <label htmlFor={guardianId} className="text-sm">
             {t.family.guardian}
           </label>
         </div>
         {guardianError ? (
-          <p
-            id={`${guardianId}-error`}
-            className="text-xs font-medium text-red-700 dark:text-red-400"
-          >
+          <p id={`${guardianId}-error`} className="text-sm font-semibold text-danger">
             {guardianError}
           </p>
         ) : null}

@@ -39,7 +39,11 @@ export function DishForm({ action, initial, categories }: DishFormProps) {
       : (initial?.is_active ?? true);
 
   return (
-    <form action={formAction} aria-label={t.dishes.details} className="flex flex-col gap-4">
+    <form
+      action={formAction}
+      aria-label={t.dishes.details}
+      className="flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-card"
+    >
       <FormStatus state={state} />
       <TextField
         label={t.dishes.name}
@@ -94,7 +98,7 @@ export function DishForm({ action, initial, categories }: DishFormProps) {
           name="is_active"
           type="checkbox"
           defaultChecked={isActive}
-          className="size-4 accent-emerald-700"
+          className="size-4 accent-primary"
         />
         <label htmlFor={activeId} className="text-sm">
           {t.dishes.active}

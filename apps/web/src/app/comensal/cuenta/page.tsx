@@ -16,15 +16,13 @@ export default async function DinerAccountPage({ searchParams }: PageProps<"/com
 
   return (
     <>
-      <h1 className="text-2xl font-semibold">{t.diner.account.title}</h1>
+      <h1 className="text-3xl font-bold tracking-tight">{t.diner.account.title}</h1>
       {aviso === "retirado" ? <Alert tone="success">{t.diner.account.withdrawn}</Alert> : null}
-      <p className="text-zinc-700 dark:text-zinc-300">
-        {t.diner.account.signedInAs(user.email ?? "")}
-      </p>
+      <p className="text-muted">{t.diner.account.signedInAs(user.email ?? "")}</p>
 
-      <section className="flex flex-col gap-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+      <section className="flex flex-col gap-3 rounded-2xl bg-card p-5 shadow-card">
         <h2 className="text-lg font-semibold">{t.diner.account.healthTitle}</h2>
-        <p className="text-sm text-zinc-700 dark:text-zinc-300">
+        <p className="text-sm text-muted">
           {profile.consentGivenAt === null
             ? t.diner.account.consentNotGiven
             : t.diner.account.consentGiven}
@@ -44,9 +42,9 @@ export default async function DinerAccountPage({ searchParams }: PageProps<"/com
         )}
       </section>
 
-      <section className="flex flex-col gap-3 rounded-lg border border-red-200 p-4 dark:border-red-900">
+      <section className="flex flex-col gap-3 rounded-2xl bg-card p-5 shadow-card ring-1 ring-danger/30">
         <h2 className="text-lg font-semibold">{t.diner.account.deleteTitle}</h2>
-        <p className="text-sm text-zinc-700 dark:text-zinc-300">{t.diner.account.deleteMessage}</p>
+        <p className="text-sm text-muted">{t.diner.account.deleteMessage}</p>
         <div>
           <ConfirmDialog
             trigger={t.diner.account.delete}

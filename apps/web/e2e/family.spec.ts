@@ -23,7 +23,10 @@ test.describe("perfiles de familia (web)", () => {
     page,
   }) => {
     await registerDiner(page);
-    await page.getByRole("link", { name: "Mi familia" }).click();
+    await page
+      .getByRole("navigation", { name: "Secciones de tu cuenta" })
+      .getByRole("link", { name: "Mi familia" })
+      .click();
     await expect(page.getByText(/configura las tuyas y da tu consentimiento/)).toBeVisible();
     await expect(page.getByRole("form", { name: "Añadir a alguien" })).toHaveCount(0);
   });

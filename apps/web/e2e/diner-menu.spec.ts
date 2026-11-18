@@ -35,7 +35,7 @@ test.describe("carta con el perfil del comensal", () => {
     await expect(allergenButton(page, "Leche y lácteos")).toHaveAttribute("aria-pressed", "false");
     await page.goto("/comensal");
     await expect(
-      page.getByText("Tus alergias: Cereales con gluten, Frutos de cáscara."),
+      page.getByRole("list", { name: "Tus alergias: Cereales con gluten, Frutos de cáscara." }),
     ).toBeVisible();
   });
 

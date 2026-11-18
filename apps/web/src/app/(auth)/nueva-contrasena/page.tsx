@@ -11,7 +11,7 @@ export default function NewPasswordPage() {
 
   return (
     <>
-      <h1 className="text-2xl font-semibold">{t.auth.newPassword.title}</h1>
+      <h1 className="text-3xl font-bold tracking-tight">{t.auth.newPassword.title}</h1>
       <NewPasswordForm />
     </>
   );

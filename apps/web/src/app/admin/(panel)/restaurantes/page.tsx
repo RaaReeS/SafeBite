@@ -10,7 +10,7 @@ import {
   type VerificationStatus,
 } from "@/lib/data/admin-restaurants";
 import { rejectRestaurant, resetRestaurantVerification, verifyRestaurant } from "./actions";
-import { RejectForm } from "./reject-form";
+import { RejectButton } from "./reject-form";
 
 export const metadata: Metadata = { title: "Verificación de restaurantes · SafeBite" };
 
@@ -46,8 +46,8 @@ export default async function AdminRestaurantsPage({
   return (
     <>
       <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-semibold">{t.admin.restaurants.title}</h1>
-        <p className="text-zinc-700 dark:text-zinc-300">{t.admin.restaurants.description}</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t.admin.restaurants.title}</h1>
+        <p className="text-muted">{t.admin.restaurants.description}</p>
       </div>
 
       <nav aria-label={t.admin.restaurants.filterLabel} className="flex flex-wrap gap-2">
@@ -56,10 +56,10 @@ export default async function AdminRestaurantsPage({
             key={option}
             href={`/admin/restaurantes?estado=${option}`}
             aria-current={option === filter ? "page" : undefined}
-            className={`rounded-full border px-3 py-1 text-sm ${
+            className={`inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-text ${
               option === filter
-                ? "border-emerald-700 bg-emerald-700 text-white"
-                : "border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
+                ? "border-primary bg-primary text-on-primary"
+                : "border-input bg-card hover:bg-surface"
             }`}
           >
             {t.admin.restaurants.filters[option]}
@@ -68,7 +68,7 @@ export default async function AdminRestaurantsPage({
       </nav>
 
       {rows.length === 0 ? (
-        <p className="text-zinc-700 dark:text-zinc-300">{t.admin.restaurants.empty[filter]}</p>
+        <p className="text-muted">{t.admin.restaurants.empty[filter]}</p>
       ) : (
         <ul className="flex flex-col gap-4">
           {rows.map((restaurant) => (
@@ -95,7 +95,7 @@ function RestaurantCard({ restaurant }: { restaurant: AdminRestaurant }) {
   return (
     <li
       aria-label={restaurant.name}
-      className="flex flex-col gap-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800"
+      className="flex flex-col gap-3 rounded-2xl bg-card p-5 shadow-card"
     >
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="text-lg font-semibold">{restaurant.name}</h2>
@@ -106,7 +106,7 @@ function RestaurantCard({ restaurant }: { restaurant: AdminRestaurant }) {
       <dl className="grid grid-cols-1 gap-x-4 gap-y-1 text-sm sm:grid-cols-[auto_1fr]">
         {details.map(([label, value]) => (
           <div key={label} className="contents">
-            <dt className="text-zinc-600 dark:text-zinc-400">{label}</dt>
+            <dt className="text-muted">{label}</dt>
             <dd>{value ?? "—"}</dd>
           </div>
         ))}
@@ -119,7 +119,7 @@ function RestaurantCard({ restaurant }: { restaurant: AdminRestaurant }) {
         </p>
       ) : null}
 
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap gap-3 border-t border-line pt-4">
         {restaurant.verification_status === "verified" ? (
           <form action={resetRestaurantVerification.bind(null, restaurant.id)}>
             <Button type="submit" variant="secondary">
@@ -129,10 +129,12 @@ function RestaurantCard({ restaurant }: { restaurant: AdminRestaurant }) {
         ) : (
           <>
             <form action={verifyRestaurant.bind(null, restaurant.id)}>
-              <Button type="submit">{labels.verify}</Button>
+              <Button type="submit" icon="checkmark">
+                {labels.verify}
+              </Button>
             </form>
             {restaurant.verification_status === "pending" ? (
-              <RejectForm
+              <RejectButton
                 action={rejectRestaurant.bind(null, restaurant.id)}
                 restaurantName={restaurant.name}
               />

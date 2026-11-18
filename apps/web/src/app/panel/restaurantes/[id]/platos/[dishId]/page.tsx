@@ -23,18 +23,21 @@ export default async function DishPage({
 
   return (
     <>
-      <Link href={`/panel/restaurantes/${restaurant.id}/platos`} className="text-sm underline">
+      <Link
+        href={`/panel/restaurantes/${restaurant.id}/platos`}
+        className="inline-flex min-h-11 w-fit items-center text-sm font-semibold text-primary-text hover:underline"
+      >
         {t.dishes.backToDishes}
       </Link>
       <div>
-        <h1 className="text-2xl font-semibold">{dish.name}</h1>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">{restaurant.name}</p>
+        <h1 className="text-3xl font-bold tracking-tight">{dish.name}</h1>
+        <p className="text-sm text-muted">{restaurant.name}</p>
       </div>
 
       <section className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <h2 className="text-lg font-semibold">{t.allergens.title}</h2>
-          <p className="text-sm text-zinc-700 dark:text-zinc-300">{t.allergens.description}</p>
+          <p className="text-sm text-muted">{t.allergens.description}</p>
         </div>
         <AllergenEditor
           action={saveDishAllergens.bind(null, restaurant.id, dish.id)}
@@ -58,9 +61,9 @@ export default async function DishPage({
         />
       </section>
 
-      <section className="flex flex-col gap-3 rounded-lg border border-red-200 p-4 dark:border-red-900">
+      <section className="flex flex-col gap-3 rounded-2xl bg-card p-5 shadow-card ring-1 ring-danger/30">
         <h2 className="text-lg font-semibold">{t.dishes.delete}</h2>
-        <p className="text-sm text-zinc-700 dark:text-zinc-300">{t.dishes.deleteDescription}</p>
+        <p className="text-sm text-muted">{t.dishes.deleteDescription}</p>
         <div>
           <ConfirmDialog
             trigger={t.dishes.delete}

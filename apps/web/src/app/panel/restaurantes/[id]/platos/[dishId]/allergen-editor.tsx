@@ -1,5 +1,6 @@
 "use client";
 
+import { AllergenIcon } from "@/components/menu/allergen-icon";
 import {
   ALLERGENS,
   ALLERGEN_LABELS,
@@ -21,10 +22,14 @@ type Choices = Record<Allergen, Choice>;
 const CHOICES: readonly Choice[] = [...ALLERGEN_LEVELS, UNDECLARED];
 
 const CHOICE_CLASSES: Record<Choice, string> = {
-  contains: "peer-checked:bg-red-700 peer-checked:text-white peer-checked:border-red-700",
-  may_contain: "peer-checked:bg-amber-500 peer-checked:text-zinc-950 peer-checked:border-amber-500",
-  free_from: "peer-checked:bg-emerald-700 peer-checked:text-white peer-checked:border-emerald-700",
-  undeclared: "peer-checked:bg-zinc-700 peer-checked:text-white peer-checked:border-zinc-700",
+  contains:
+    "peer-checked:bg-status-no-apto peer-checked:text-on-status peer-checked:border-transparent",
+  may_contain:
+    "peer-checked:bg-status-trazas peer-checked:text-on-status-trazas peer-checked:border-transparent",
+  free_from:
+    "peer-checked:bg-status-apto peer-checked:text-on-status peer-checked:border-transparent",
+  undeclared:
+    "peer-checked:bg-status-sin-datos peer-checked:text-on-status peer-checked:border-transparent",
 };
 
 function toChoices(declarations: readonly { allergen: Allergen; level: AllergenLevel }[]): Choices {
@@ -73,12 +78,15 @@ export function AllergenEditor({ action, declarations }: AllergenEditorProps) {
           {undeclared.length > 0 ? ` · ${t.allergens.missing(undeclared.length)}` : ""}
         </p>
 
-        <div className="flex flex-col divide-y divide-zinc-200 rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
+        <div className="flex flex-col divide-y divide-line overflow-hidden rounded-2xl bg-card shadow-card">
           {ALLERGENS.map((allergen) => (
             <fieldset key={allergen} className="px-4 py-3">
               {/* float: el legend se comporta como un bloque normal dentro del fieldset. */}
-              <legend className="float-left w-full pb-2 text-sm font-medium sm:w-56 sm:pb-0 sm:pt-1">
-                {labels[allergen]}
+              <legend className="float-left w-full pb-2 text-sm font-semibold sm:w-60 sm:pb-0 sm:pt-1.5">
+                <span className="inline-flex items-center gap-2">
+                  <AllergenIcon allergen={allergen} className="size-5 text-primary-text" />
+                  {labels[allergen]}
+                </span>
               </legend>
               <div className="flex flex-wrap gap-1.5">
                 {CHOICES.map((choice) => (
@@ -92,7 +100,7 @@ export function AllergenEditor({ action, declarations }: AllergenEditorProps) {
                       className="peer sr-only"
                     />
                     <span
-                      className={`inline-block rounded-md border border-zinc-300 px-2.5 py-1 text-xs font-medium peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-emerald-700 dark:border-zinc-700 ${CHOICE_CLASSES[choice]}`}
+                      className={`inline-flex min-h-9 cursor-pointer items-center rounded-full border border-input px-3 text-xs font-semibold peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-primary-text ${CHOICE_CLASSES[choice]}`}
                     >
                       {t.allergens.levels[choice]}
                     </span>
@@ -122,12 +130,12 @@ export function AllergenEditor({ action, declarations }: AllergenEditorProps) {
       <dialog
         ref={dialogRef}
         aria-labelledby="bulk-free-from-title"
-        className="m-auto w-[min(32rem,calc(100%-2rem))] rounded-lg border border-zinc-200 bg-white p-6 text-zinc-900 shadow-xl backdrop:bg-black/40 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
+        className="m-auto w-[min(32rem,calc(100%-2rem))] rounded-2xl bg-card p-6 text-fg shadow-raised backdrop:bg-black/50"
       >
         <h2 id="bulk-free-from-title" className="text-lg font-semibold">
           {t.allergens.bulkTitle}
         </h2>
-        <div className="mt-3 flex flex-col gap-3 text-sm text-zinc-700 dark:text-zinc-300">
+        <div className="mt-3 flex flex-col gap-3 text-sm text-muted">
           <p>{t.allergens.bulkIntro}</p>
           <ul className="list-disc pl-6">
             {undeclared.map((allergen) => (

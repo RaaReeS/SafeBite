@@ -5,15 +5,17 @@ import { getMessages } from "@/i18n";
 export type VerificationStatus = Database["public"]["Enums"]["restaurant_verification_status"];
 
 const BADGE_CLASSES: Record<VerificationStatus, string> = {
-  pending: "bg-amber-100 text-amber-900 dark:bg-amber-900 dark:text-amber-100",
-  verified: "bg-emerald-100 text-emerald-900 dark:bg-emerald-900 dark:text-emerald-100",
-  rejected: "bg-red-100 text-red-900 dark:bg-red-900 dark:text-red-100",
+  pending: "bg-warning-bg text-warning-fg",
+  verified: "bg-primary-soft text-primary-strong",
+  rejected: "bg-danger-soft text-danger",
 };
 
 export function VerificationBadge({ status }: { status: VerificationStatus }) {
   const t = getMessages();
   return (
-    <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${BADGE_CLASSES[status]}`}>
+    <span
+      className={`inline-flex w-fit rounded-full px-3 py-1 text-xs font-semibold ${BADGE_CLASSES[status]}`}
+    >
       {t.verification.badge[status]}
     </span>
   );

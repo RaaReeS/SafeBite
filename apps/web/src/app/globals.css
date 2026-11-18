@@ -1,45 +1,176 @@
 @import "tailwindcss";
 
+/*
+ * Colores de SafeBite: los mismos que la app (apps/mobile/src/theme.ts), con su
+ * versión oscura. Las páginas usan solo estas variables (bg-card, text-muted…),
+ * nunca colores sueltos. Contraste WCAG AA comprobado en e2e/theme.spec.ts.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  color-scheme: light;
+  --background: #f5f7f6;
+  --card: #ffffff;
+  --surface: #eef1ef;
+  --line: #dfe4e1;
+  --input: #8a93a0;
+  --fg: #111827;
+  --muted: #5b6472;
+  --subtle: #6b7280;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* primary: fondos con texto blanco; primary-text: enlaces y textos en verde. */
+  --primary: #047857;
+  --primary-hover: #065f46;
+  --primary-dark: #064e3b;
+  --primary-text: #047857;
+  --primary-soft: #d1fae5;
+  --primary-strong: #064e3b;
+  --on-primary: #ffffff;
+
+  --danger: #b91c1c;
+  --danger-soft: #fee2e2;
+  --danger-solid: #b91c1c;
+
+  --warning-bg: #fffbeb;
+  --warning-fg: #78350f;
+  --info-bg: #eff6ff;
+  --info-fg: #1e3a8a;
+  --success-bg: #ecfdf5;
+  --success-fg: #065f46;
+
+  /* Semáforo del filtro: siempre con símbolo y texto, no solo color. */
+  --status-apto: #047857;
+  --status-no-apto: #b91c1c;
+  --status-trazas: #fbbf24;
+  --status-sin-datos: #5b6472;
+  --on-status: #ffffff;
+  --on-status-trazas: #18181b;
+
+  --shadow-card: 0 4px 12px rgb(15 23 42 / 0.06);
+  --shadow-raised: 0 8px 18px rgb(15 23 42 / 0.12);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    color-scheme: dark;
+    --background: #0b1210;
+    --card: #141c19;
+    --surface: #1d2723;
+    --line: #2a3631;
+    --input: #6b7a73;
+    --fg: #eef2f0;
+    --muted: #a3b0aa;
+    --subtle: #8f9c96;
+
+    --primary: #047857;
+    --primary-hover: #065f46;
+    --primary-dark: #064e3b;
+    --primary-text: #34d399;
+    --primary-soft: #0f3a2c;
+    --primary-strong: #a7f3d0;
+
+    --danger: #f87171;
+    --danger-soft: #3b1414;
+    --danger-solid: #b91c1c;
+
+    --warning-bg: #2d2108;
+    --warning-fg: #fcd34d;
+    --info-bg: #0c1d3a;
+    --info-fg: #bfdbfe;
+    --success-bg: #0c2a20;
+    --success-fg: #a7f3d0;
+
+    --shadow-card: 0 4px 12px rgb(0 0 0 / 0.35);
+    --shadow-raised: 0 8px 18px rgb(0 0 0 / 0.5);
+  }
+}
+
+/* Al imprimir (QR, carta) siempre en claro: el papel es blanco. */
+@media print {
+  :root {
+    color-scheme: light;
+    --background: #ffffff;
+    --card: #ffffff;
+    --surface: #eef1ef;
+    --line: #dfe4e1;
+    --fg: #111827;
+    --muted: #5b6472;
+    --primary-text: #047857;
+    --shadow-card: none;
+    --shadow-raised: none;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-card: var(--card);
+  --color-surface: var(--surface);
+  --color-line: var(--line);
+  --color-input: var(--input);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-text: var(--primary-text);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-strong: var(--primary-strong);
+  --color-on-primary: var(--on-primary);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-solid: var(--danger-solid);
+  --color-warning-bg: var(--warning-bg);
+  --color-warning-fg: var(--warning-fg);
+  --color-info-bg: var(--info-bg);
+  --color-info-fg: var(--info-fg);
+  --color-success-bg: var(--success-bg);
+  --color-success-fg: var(--success-fg);
+  --color-status-apto: var(--status-apto);
+  --color-status-no-apto: var(--status-no-apto);
+  --color-status-trazas: var(--status-trazas);
+  --color-status-sin-datos: var(--status-sin-datos);
+  --color-on-status: var(--on-status);
+  --color-on-status-trazas: var(--on-status-trazas);
+  --shadow-card: var(--shadow-card);
+  --shadow-raised: var(--shadow-raised);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+/*
+ * Foco con teclado siempre visible y con el color del tema, también en
+ * enlaces y controles sin estilo propio (las clases de cada pieza mandan).
+ */
+@layer base {
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--primary-text);
+    outline-offset: 2px;
   }
 }
 
 body {
   background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--fg);
+  font-family: var(--font-sans);
 }
 
 /*
- * Ficha de un restaurante en el mapa (MapLibre). Tiene sus propios colores: con
- * el modo oscuro, heredaría el texto claro de la página sobre el fondo blanco.
+ * Ficha de un restaurante en el mapa (MapLibre): usa los colores del tema para
+ * leerse bien en claro y en oscuro.
  */
 .safebite-popup .maplibregl-popup-content {
-  background: #ffffff;
-  color: #18181b;
+  background: var(--card);
+  color: var(--fg);
   font-size: 0.9375rem;
   line-height: 1.45;
   padding: 0.75rem 2rem 0.75rem 0.875rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 16px rgb(0 0 0 / 0.2);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-raised);
+}
+.safebite-popup .maplibregl-popup-tip {
+  border-top-color: var(--card);
+  border-bottom-color: var(--card);
 }
 .safebite-popup .maplibregl-popup-close-button {
-  color: #3f3f46;
+  color: var(--muted);
   font-size: 1.25rem;
   padding: 0 0.4rem;
 }

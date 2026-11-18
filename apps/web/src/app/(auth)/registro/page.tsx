@@ -11,13 +11,13 @@ export default function RegisterPage() {
   return (
     <>
       <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-semibold">{t.auth.register.title}</h1>
-        <p className="text-sm text-zinc-700 dark:text-zinc-300">{t.auth.register.description}</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t.auth.register.title}</h1>
+        <p className="text-sm text-muted">{t.auth.register.description}</p>
       </div>
       <RegisterForm />
       <p className="text-sm">
         {t.auth.register.hasAccount}{" "}
-        <Link href="/login" className="underline">
+        <Link href="/login" className="font-semibold text-primary-text underline">
           {t.auth.register.login}
         </Link>
       </p>
