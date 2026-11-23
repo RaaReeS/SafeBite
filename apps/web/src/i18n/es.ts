@@ -54,6 +54,7 @@ export const es = {
       "Los alérgenos marcados como «Propuesto» se han leído automáticamente de tu carta. No cuentan hasta que los revises y pulses «Guardar alérgenos».",
     suggested: "Propuesto",
     prepare: {
+      noFiles: "Elige al menos una foto o un PDF de la carta.",
       tooManyPages: "Como mucho 5 páginas: sube menos fotos o un PDF más corto.",
       unsupported: "Sube fotos (JPG, PNG o WebP) o un PDF.",
       unreadable: "No hemos podido abrir el archivo. Prueba con otra foto o PDF.",

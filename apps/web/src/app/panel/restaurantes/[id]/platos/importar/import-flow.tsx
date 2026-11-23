@@ -7,7 +7,7 @@ import {
   type AllergenSuggestion,
   type ImportedDish,
 } from "@safebite/core";
-import { useId, useState, useTransition } from "react";
+import { useId, useRef, useState, useTransition } from "react";
 import { AllergenIcon } from "@/components/menu/allergen-icon";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -55,13 +55,20 @@ function emptyToNull(value: string): string | null {
 export function ImportFlow({ restaurantId }: { restaurantId: string }) {
   const t = getMessages().menuImport;
   const [stage, setStage] = useState<Stage>({ kind: "select" });
-  const [files, setFiles] = useState<File[]>([]);
+  // Los archivos se leen del campo al pulsar «Leer la carta» (no del estado):
+  // así funciona aunque se elijan antes de que la página termine de cargar.
+  const fileInput = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [saving, startSaving] = useTransition();
   const inputId = useId();
 
   async function read() {
+    const files = Array.from(fileInput.current?.files ?? []);
+    if (files.length === 0) {
+      setError(t.prepare.noFiles);
+      return;
+    }
     setError(null);
     setStage({ kind: "reading" });
     let images: string[];
@@ -226,13 +233,7 @@ export function ImportFlow({ restaurantId }: { restaurantId: string }) {
           <Button type="submit" icon="add" disabled={saving}>
             {t.add(included.length)}
           </Button>
-          <Button
-            variant="secondary"
-            onClick={() => {
-              setFiles([]);
-              setStage({ kind: "select" });
-            }}
-          >
+          <Button variant="secondary" onClick={() => setStage({ kind: "select" })}>
             {t.startOver}
           </Button>
         </div>
@@ -253,13 +254,13 @@ export function ImportFlow({ restaurantId }: { restaurantId: string }) {
           type="file"
           accept={ACCEPT}
           multiple
-          onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
+          ref={fileInput}
           className="block w-full rounded-xl border-[1.5px] border-dashed border-input bg-surface p-4 text-sm file:mr-4 file:rounded-full file:border-0 file:bg-primary file:px-4 file:py-2 file:font-semibold file:text-on-primary"
         />
         <p className="text-sm text-muted">{t.fileHint}</p>
       </div>
       <div>
-        <Button icon="scan" disabled={files.length === 0} onClick={() => void read()}>
+        <Button icon="scan" onClick={() => void read()}>
           {t.read}
         </Button>
       </div>
