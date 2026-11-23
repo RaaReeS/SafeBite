@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MAX_PRICE_CENTS, parsePrice } from "./price";
+import { isUnusualPrice, MAX_PRICE_CENTS, parsePrice, UNUSUAL_PRICE_CENTS } from "./price";
 
 describe("parsePrice", () => {
   it.each([
@@ -56,5 +56,19 @@ describe("parsePrice", () => {
     expect(parsePrice(100_000)).toBe(10_000_000);
     expect(parsePrice(100_000.01)).toBeNull();
     expect(parsePrice("100000,01")).toBeNull();
+  });
+});
+
+describe("isUnusualPrice", () => {
+  it("avisa de los precios de más de 200 € (posibles céntimos leídos como euros)", () => {
+    expect(isUnusualPrice(UNUSUAL_PRICE_CENTS + 1)).toBe(true);
+    expect(isUnusualPrice(125_000)).toBe(true);
+  });
+
+  it("no avisa hasta 200 € ni sin precio", () => {
+    expect(UNUSUAL_PRICE_CENTS).toBe(20_000);
+    expect(isUnusualPrice(UNUSUAL_PRICE_CENTS)).toBe(false);
+    expect(isUnusualPrice(1250)).toBe(false);
+    expect(isUnusualPrice(null)).toBe(false);
   });
 });
