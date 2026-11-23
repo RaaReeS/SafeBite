@@ -25,6 +25,10 @@ const nextConfig: NextConfig = {
     return [{ source: "/:path*", headers: SECURITY_HEADERS }];
   },
   cacheComponents: true,
+  experimental: {
+    // Importar la carta envía hasta 5 páginas (~750 KB cada una). Vercel corta a 4,5 MB.
+    serverActions: { bodySizeLimit: "4mb" },
+  },
   partialPrefetching: true,
   // @safebite/core se consume como código TypeScript sin compilar.
   transpilePackages: ["@safebite/core"],

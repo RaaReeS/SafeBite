@@ -14,6 +14,19 @@ export const es = {
     tooManyAttempts: "Demasiados intentos. Espera unos minutos antes de volver a probar.",
     loading: "Cargando…",
   },
+  menuImport: {
+    errors: {
+      invalidFiles:
+        "No hemos podido preparar la carta. Sube de 1 a 5 fotos (JPG, PNG o WebP) o un PDF de hasta 5 páginas.",
+      dailyLimit:
+        "Has leído 5 cartas en las últimas 24 horas. Vuelve a intentarlo mañana o añade los platos a mano.",
+      unavailable:
+        "Ahora mismo no podemos leer la carta. Inténtalo más tarde o añade los platos a mano.",
+      noDishes:
+        "No hemos encontrado platos en la carta. Prueba con una foto más nítida o añade los platos a mano.",
+      generic: "Ha ocurrido un error. Inténtalo de nuevo en unos minutos.",
+    },
+  },
   appearance: {
     title: "Apariencia",
     button: (current: string) => `Apariencia: ${current}`,
