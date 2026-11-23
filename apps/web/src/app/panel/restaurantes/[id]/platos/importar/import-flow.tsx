@@ -3,6 +3,7 @@
 import {
   ALLERGEN_LABELS,
   centsToPriceInput,
+  isUnusualPrice,
   parsePrice,
   type AllergenSuggestion,
   type ImportedDish,
@@ -201,6 +202,10 @@ export function ImportFlow({ restaurantId }: { restaurantId: string }) {
     const dishes = stage.dishes;
     const included = dishes.filter((dish) => dish.include);
     const missingName = included.some((dish) => dish.name.trim() === "");
+    /** Precio escrito pero que no se entiende (vacío sí vale: «sin precio»). */
+    const badPrice = (dish: ReviewDish) =>
+      dish.price.trim() !== "" && parsePrice(dish.price) === null;
+    const anyBadPrice = included.some(badPrice);
 
     const update = (key: number, patch: Partial<ReviewDish>) =>
       setStage({
@@ -210,7 +215,7 @@ export function ImportFlow({ restaurantId }: { restaurantId: string }) {
 
     function save() {
       setSubmitted(true);
-      if (included.length === 0 || missingName) return;
+      if (included.length === 0 || missingName || anyBadPrice) return;
       setSaveError(null);
       startSaving(async () => {
         let result: Awaited<ReturnType<typeof createImportedDishes>>;
@@ -278,6 +283,8 @@ export function ImportFlow({ restaurantId }: { restaurantId: string }) {
                         value={dish.price}
                         inputMode="decimal"
                         onChange={(event) => update(dish.key, { price: event.target.value })}
+                        error={submitted && badPrice(dish) ? t.priceInvalid : undefined}
+                        hint={isUnusualPrice(parsePrice(dish.price)) ? t.priceUnusual : undefined}
                       />
                     </div>
                     <TextField

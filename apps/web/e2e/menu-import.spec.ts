@@ -149,6 +149,43 @@ test.describe("importar la carta", () => {
     await expect(page.getByText(/Ahora mismo no podemos leer la carta/)).toBeVisible();
   });
 
+  test("un precio mal escrito se marca y no se guarda hasta corregirlo", async ({ page }) => {
+    await registerOwner(page);
+    const { url } = await createRestaurant(page);
+    await readMenu(page, url);
+    await expect(reviewForm(page)).toBeVisible();
+    await dishGroup(page, "Ensalada verde").getByLabel("Añadir «Ensalada verde»").uncheck();
+    const price = dishGroup(page, "Gambas al ajillo").getByLabel("Precio (€)");
+
+    await price.fill("doce euros");
+    await reviewForm(page).getByRole("button", { name: "Añadir 1 plato" }).click();
+    await expect(dishGroup(page, "Gambas al ajillo")).toContainText(/Escribe un precio válido/);
+    await expect(page).toHaveURL(/\/platos\/importar$/);
+
+    await price.fill("");
+    await expect(dishGroup(page, "Gambas al ajillo")).not.toContainText(/Escribe un precio válido/);
+    await reviewForm(page).getByRole("button", { name: "Añadir 1 plato" }).click();
+    await expect(page).toHaveURL(/\/platos\?importados=1$/);
+  });
+
+  test("un precio muy alto avisa por si eran céntimos", async ({ page }) => {
+    await registerOwner(page);
+    const { url } = await createRestaurant(page);
+    await readMenu(page, url);
+    await expect(reviewForm(page)).toBeVisible();
+    const gambas = dishGroup(page, "Gambas al ajillo");
+    await expect(gambas).not.toContainText(/parece muy alto/);
+    await gambas.getByLabel("Precio (€)").fill("1250");
+    await expect(gambas).toContainText(/parece muy alto/);
+    // Solo avisa: se puede guardar igual.
+    await dishGroup(page, "Ensalada verde").getByLabel("Añadir «Ensalada verde»").uncheck();
+    await reviewForm(page).getByRole("button", { name: "Añadir 1 plato" }).click();
+    await expect(page).toHaveURL(/\/platos\?importados=1$/);
+    await expect(page.getByRole("listitem").filter({ hasText: "Gambas al ajillo" })).toContainText(
+      "1250,00",
+    );
+  });
+
   test("lee un PDF y no admite más de 5 páginas", async ({ page }) => {
     await registerOwner(page);
     const { url } = await createRestaurant(page);

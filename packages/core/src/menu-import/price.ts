@@ -33,3 +33,13 @@ export function parsePrice(value: unknown): number | null {
   const simple = SIMPLE.exec(text)?.[0];
   return simple === undefined ? null : eurosToCents(Number(simple.replace(",", ".")));
 }
+
+/**
+ * A partir de 200 € la revisión avisa: suele ser un precio en céntimos leído
+ * como euros («12,50» → 1250 €). Solo avisa; el restaurante decide.
+ */
+export const UNUSUAL_PRICE_CENTS = 20_000;
+
+export function isUnusualPrice(cents: number | null): boolean {
+  return cents !== null && cents > UNUSUAL_PRICE_CENTS;
+}

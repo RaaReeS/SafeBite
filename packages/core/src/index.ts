@@ -103,7 +103,13 @@ export {
   parseMenuResponse,
   type ImportedDish,
 } from "./menu-import/normalize";
-export { MAX_PRICE_CENTS, parsePrice } from "./menu-import/price";
+export { extractMenuJson } from "./menu-import/json";
+export {
+  isUnusualPrice,
+  MAX_PRICE_CENTS,
+  parsePrice,
+  UNUSUAL_PRICE_CENTS,
+} from "./menu-import/price";
 export {
   mergeSuggestions,
   suggestAllergens,
