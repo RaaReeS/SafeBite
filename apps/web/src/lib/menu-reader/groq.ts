@@ -13,7 +13,7 @@ const TIMEOUT_MS = 45_000;
  * nada: el restaurante revisa todo y los alérgenos solo son una propuesta.
  */
 const INSTRUCTIONS = `Eres un asistente que lee cartas de restaurantes en España.
-Te paso una página de la carta. Devuelve SOLO un objeto JSON con esta forma:
+Te paso una página de la carta (una imagen) o su texto. Devuelve SOLO un objeto JSON con esta forma:
 {"dishes":[{"name":string,"description":string|null,"price":string|number|null,"category":string|null,"ingredients":string|null,"allergens":[{"allergen":string,"level":"contains"|"may_contain"}]}]}
 
 Reglas:
@@ -43,7 +43,11 @@ function extractJson(content: string): unknown {
   }
 }
 
-async function readPage(image: string, apiKey: string, model: string): Promise<unknown[]> {
+type UserContent =
+  string | ({ type: "text"; text: string } | { type: "image_url"; image_url: { url: string } })[];
+
+/** Una petición a Groq con una página (imagen) o el texto de la carta. */
+async function ask(content: UserContent, apiKey: string, model: string): Promise<unknown[]> {
   let response: Response;
   try {
     response = await fetch(GROQ_URL, {
@@ -55,13 +59,7 @@ async function readPage(image: string, apiKey: string, model: string): Promise<u
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: INSTRUCTIONS },
-          {
-            role: "user",
-            content: [
-              { type: "text", text: "Lee esta página de la carta." },
-              { type: "image_url", image_url: { url: image } },
-            ],
-          },
+          { role: "user", content },
         ],
       }),
       signal: AbortSignal.timeout(TIMEOUT_MS),
@@ -78,9 +76,9 @@ async function readPage(image: string, apiKey: string, model: string): Promise<u
   } catch (error) {
     throw new MenuReaderError(`Respuesta de Groq ilegible: ${String(error)}`);
   }
-  const content = body.choices?.[0]?.message?.content;
-  if (typeof content !== "string") throw new MenuReaderError("Respuesta de Groq sin contenido");
-  const parsed = extractJson(content);
+  const answer = body.choices?.[0]?.message?.content;
+  if (typeof answer !== "string") throw new MenuReaderError("Respuesta de Groq sin contenido");
+  const parsed = extractJson(answer);
   const dishes =
     typeof parsed === "object" && parsed !== null && "dishes" in parsed ? parsed.dishes : [];
   return Array.isArray(dishes) ? dishes : [];
@@ -95,6 +93,28 @@ export const groqMenuReader: MenuReader = {
     const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) throw new MenuReaderError("Falta GROQ_API_KEY");
     const model = process.env.GROQ_MODEL || DEFAULT_MODEL;
-    return readPages(images, (image) => readPage(image, apiKey, model));
+    return readPages(images, (image) =>
+      ask(
+        [
+          { type: "text", text: "Lee esta página de la carta." },
+          { type: "image_url", image_url: { url: image } },
+        ],
+        apiKey,
+        model,
+      ),
+    );
+  },
+  async readText(text) {
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) throw new MenuReaderError("Falta GROQ_API_KEY");
+    const model = process.env.GROQ_MODEL || DEFAULT_MODEL;
+    const dishes = await ask(
+      `Este es el texto de la carta (copiado de su web; puede traer menús o textos que no son platos):
+
+${text}`,
+      apiKey,
+      model,
+    );
+    return { dishes };
   },
 };

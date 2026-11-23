@@ -30,6 +30,8 @@ const nextConfig: NextConfig = {
     serverActions: { bodySizeLimit: "4mb" },
   },
   partialPrefetching: true,
+  // PDF.js se carga tal cual en el servidor (texto de los PDF de las cartas).
+  serverExternalPackages: ["pdfjs-dist"],
   // @safebite/core se consume como código TypeScript sin compilar.
   transpilePackages: ["@safebite/core"],
   turbopack: {

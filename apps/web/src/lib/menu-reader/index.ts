@@ -14,7 +14,10 @@ export { MenuReaderError } from "./errors";
  * un lector simulado y no se llama a nadie.
  */
 export interface MenuReader {
+  /** Páginas de la carta como imágenes (data URL). */
   read(images: string[]): Promise<unknown>;
+  /** Texto de la carta (pegado o sacado de su web o de un PDF). */
+  readText(text: string): Promise<unknown>;
 }
 
 /**

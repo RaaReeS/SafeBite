@@ -41,8 +41,8 @@ export default defineConfig({
   webServer: {
     command: `pnpm build && pnpm start -p ${PORT}`,
     url: `http://localhost:${PORT}`,
-    // Geocodificador y lector de cartas simulados: los tests nunca llaman a Nominatim ni a Groq.
-    env: { GEOCODER: "fake", MENU_READER: "fake" },
+    // Geocodificador, lector y descargador de cartas simulados: los tests no salen a internet.
+    env: { GEOCODER: "fake", MENU_READER: "fake", MENU_URL_FETCH: "fake" },
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
   },

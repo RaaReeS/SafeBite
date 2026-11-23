@@ -45,7 +45,8 @@ const FAKE_DISHES = [
 /**
  * Lector simulado para los tests (MENU_READER=fake): cada página devuelve la
  * misma carta y nunca se llama a ningún servicio. Una página de 3×3 píxeles
- * simula que el servicio no responde; una de 4×4, un error inesperado.
+ * simula que el servicio no responde; una de 4×4, un error inesperado. Un
+ * texto con «FALLO», que el servicio no responde.
  */
 export const fakeMenuReader: MenuReader = {
   async read(images) {
@@ -59,5 +60,11 @@ export const fakeMenuReader: MenuReader = {
       }
       return FAKE_DISHES;
     });
+  },
+  async readText(text) {
+    if (text.includes("FALLO")) {
+      throw new MenuReaderError("Lector simulado: fallo pedido por el test");
+    }
+    return { dishes: FAKE_DISHES };
   },
 };
