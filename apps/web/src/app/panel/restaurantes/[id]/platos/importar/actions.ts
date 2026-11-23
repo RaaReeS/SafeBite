@@ -1,12 +1,25 @@
 "use server";
 
-import { normalizeImportedDish, parseMenuResponse, type ImportedDish } from "@safebite/core";
+import {
+  checkMenuUrl,
+  htmlToText,
+  normalizeImportedDish,
+  parseMenuResponse,
+  type ImportedDish,
+} from "@safebite/core";
 import { notFound, redirect } from "next/navigation";
 import { getMessages } from "@/i18n";
 import { requireRestaurantOwner } from "@/lib/auth";
 import { isUuid } from "@/lib/ids";
 import { MAX_IMAGE_BYTES, MAX_PAGES, PAGE_FIELD } from "@/lib/menu-import/limits";
-import { MenuReaderError, getMenuReader } from "@/lib/menu-reader";
+import {
+  fetchMenuUrl,
+  MenuFetchError,
+  type FetchedMenu,
+  type MenuFetchFailure,
+} from "@/lib/menu-import/fetch-menu-url";
+import { pdfText } from "@/lib/menu-import/pdf-text";
+import { MenuReaderError, getMenuReader, type MenuReader } from "@/lib/menu-reader";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 // Entrada no fiable: se vuelve a comprobar la sesión, el restaurante y todo lo
@@ -52,16 +65,20 @@ async function toDataUrl(page: File): Promise<string> {
  * Lee la carta (1-5 páginas en JPEG) y devuelve los platos propuestos. No crea
  * nada: el restaurante los revisa antes. Cuenta para el límite diario.
  */
-export async function readMenu(restaurantId: string, formData: unknown): Promise<ReadMenuState> {
-  const t = getMessages().menuImport;
-  const user = await requireRestaurantOwner();
-  const supabase = await createSupabaseServerClient();
-  await assertOwnRestaurant(supabase, restaurantId, user.id);
-  const pages = pagesOf(formData);
-  if (pages === null) return { status: "error", message: t.errors.invalidFiles };
-  const images = await Promise.all(pages.map(toDataUrl));
+/** Lo que devuelve quien prepara la lectura: la respuesta del lector o un error ya explicado. */
+type Produced = { raw: unknown } | Extract<ReadMenuState, { status: "error" }>;
 
-  // Cuenta como intento; solo pasa a lectura buena si el servicio lee la carta.
+/**
+ * Pasos comunes de las tres formas de importar: cuenta el intento (límite
+ * diario), lee, marca la lectura como buena y valida los platos. Si algo falla
+ * antes de leer, el intento no gasta las 5 lecturas buenas.
+ */
+async function runRead(
+  supabase: Supabase,
+  restaurantId: string,
+  produce: (reader: MenuReader) => Promise<Produced>,
+): Promise<ReadMenuState> {
+  const t = getMessages().menuImport;
   const { data: importId, error } = await supabase.rpc("register_menu_import", {
     p_restaurant_id: restaurantId,
   });
@@ -72,9 +89,9 @@ export async function readMenu(restaurantId: string, formData: unknown): Promise
     };
   }
 
-  let raw: unknown;
+  let produced: Produced;
   try {
-    raw = await getMenuReader().read(images);
+    produced = await produce(getMenuReader());
   } catch (readerError) {
     if (readerError instanceof MenuReaderError) {
       console.error("Lectura de carta:", readerError.message);
@@ -82,13 +99,111 @@ export async function readMenu(restaurantId: string, formData: unknown): Promise
     }
     throw readerError;
   }
+  if (!("raw" in produced)) return produced;
+
   const { error: completeError } = await supabase.rpc("complete_menu_import", {
     p_import_id: importId,
   });
   if (completeError) return { status: "error", message: t.errors.generic };
-  const dishes = parseMenuResponse(raw);
+  const dishes = parseMenuResponse(produced.raw);
   if (dishes.length === 0) return { status: "error", message: t.errors.noDishes };
   return { status: "ok", dishes };
+}
+
+/** Comprueba la sesión y que el restaurante es del usuario (404 si no). */
+async function ownRestaurant(restaurantId: string): Promise<Supabase> {
+  const user = await requireRestaurantOwner();
+  const supabase = await createSupabaseServerClient();
+  await assertOwnRestaurant(supabase, restaurantId, user.id);
+  return supabase;
+}
+
+/**
+ * Lee la carta (1-5 páginas en JPEG) y devuelve los platos propuestos. No crea
+ * nada: el restaurante los revisa antes.
+ */
+export async function readMenu(restaurantId: string, formData: unknown): Promise<ReadMenuState> {
+  const t = getMessages().menuImport;
+  const supabase = await ownRestaurant(restaurantId);
+  const pages = pagesOf(formData);
+  if (pages === null) return { status: "error", message: t.errors.invalidFiles };
+  const images = await Promise.all(pages.map(toDataUrl));
+  return runRead(supabase, restaurantId, async (reader) => ({ raw: await reader.read(images) }));
+}
+
+/** Texto pegado o sacado de la web o del PDF: de 20 a 30 000 caracteres. */
+const MIN_TEXT = 20;
+const MAX_TEXT = 30_000;
+
+/** Lee la carta a partir de su texto, pegado por el restaurante. */
+export async function readMenuFromText(
+  restaurantId: string,
+  text: unknown,
+): Promise<ReadMenuState> {
+  const t = getMessages().menuImport;
+  const supabase = await ownRestaurant(restaurantId);
+  const trimmed = typeof text === "string" ? text.trim() : "";
+  if (trimmed.length < MIN_TEXT || trimmed.length > MAX_TEXT) {
+    return { status: "error", message: t.errors.textLength };
+  }
+  return runRead(supabase, restaurantId, async (reader) => ({
+    raw: await reader.readText(trimmed),
+  }));
+}
+
+type LinkMessage = Exclude<
+  keyof ReturnType<typeof getMessages>["menuImport"]["link"],
+  "label" | "hint"
+>;
+
+const FETCH_MESSAGES: Record<MenuFetchFailure, LinkMessage> = {
+  invalid: "invalid",
+  private: "private",
+  unreachable: "unreachable",
+  tooLarge: "tooLarge",
+  unsupported: "unsupported",
+  redirects: "unreachable",
+};
+
+/**
+ * Lee la carta desde un enlace (página web, PDF o imagen). La descarga tiene
+ * protecciones contra SSRF (fetchMenuUrl). Una página sin texto (hecha con
+ * JavaScript) o un PDF escaneado se explican sin gastar lecturas buenas.
+ */
+export async function readMenuFromUrl(restaurantId: string, url: unknown): Promise<ReadMenuState> {
+  const t = getMessages().menuImport;
+  const supabase = await ownRestaurant(restaurantId);
+  if (typeof url !== "string" || url.length > 2000) {
+    return { status: "error", message: t.link.invalid };
+  }
+  // Un enlace mal escrito o interno ni siquiera cuenta como intento.
+  const checked = checkMenuUrl(url);
+  if (!checked.ok) {
+    return {
+      status: "error",
+      message: checked.reason === "private" ? t.link.private : t.link.invalid,
+    };
+  }
+  return runRead(supabase, restaurantId, async (reader) => {
+    let fetched: FetchedMenu;
+    try {
+      fetched = await fetchMenuUrl(checked.url);
+    } catch (fetchError) {
+      if (fetchError instanceof MenuFetchError) {
+        return { status: "error", message: t.link[FETCH_MESSAGES[fetchError.reason]] };
+      }
+      throw fetchError;
+    }
+    if (fetched.kind === "image") return { raw: await reader.read([fetched.dataUrl]) };
+    const text = fetched.kind === "pdf" ? await pdfText(fetched.data) : htmlToText(fetched.html);
+    if (text.length < MIN_TEXT) {
+      return {
+        status: "error",
+        message: fetched.kind === "pdf" ? t.link.scannedPdf : t.link.noText,
+      };
+    }
+    return { raw: await reader.readText(text.slice(0, MAX_TEXT)) };
+  });
 }
 
 /** Como mucho, platos creados de una vez (5 páginas de carta caben de sobra). */

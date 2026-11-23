@@ -20,6 +20,10 @@ export const es = {
     intro:
       "Sube fotos o un PDF de tu carta y leeremos los platos por ti. Después podrás revisarlos y corregirlos antes de añadirlos.",
     fileLabel: "Fotos o PDF de la carta",
+    dropHere: "Arrastra aquí las fotos o el PDF de la carta, o elígelos:",
+    dropNow: "Suelta los archivos aquí",
+    chosen: "Archivos elegidos",
+    remove: (name: string) => `Quitar ${name}`,
     fileHint:
       "De 1 a 5 fotos (JPG, PNG o WebP) o un PDF de hasta 5 páginas. No guardamos los archivos.",
     read: "Leer la carta",
@@ -59,6 +63,27 @@ export const es = {
       unsupported: "Sube fotos (JPG, PNG o WebP) o un PDF.",
       unreadable: "No hemos podido abrir el archivo. Prueba con otra foto o PDF.",
     },
+    tabsLabel: "Cómo quieres importar la carta",
+    tabs: { files: "Fotos o PDF", link: "Enlace", text: "Pegar texto" },
+    link: {
+      label: "Enlace de la carta",
+      hint: "La dirección de la página de tu web con la carta, de un PDF o de una imagen. Por ejemplo: https://tubar.es/carta",
+      invalid: "Escribe una dirección web completa que empiece por https:// (o http://).",
+      private: "Esa dirección no es una página pública de internet.",
+      unreachable:
+        "No hemos podido abrir ese enlace. Comprueba que la dirección es correcta y que la página es pública.",
+      tooLarge:
+        "Lo que hay en ese enlace es demasiado grande (más de 5 MB). Descárgalo y súbelo como archivo.",
+      unsupported: "Ese enlace no es una página web, un PDF ni una imagen.",
+      noText:
+        "No hemos encontrado el texto de la carta en esa página (algunas webs lo cargan de una forma que no podemos leer). Copia la carta de tu web y usa «Pegar texto».",
+      scannedPdf:
+        "Ese PDF es un escaneo y no tiene texto. Descárgalo y súbelo en «Fotos o PDF»: así lo leemos como imagen.",
+    },
+    text: {
+      label: "Texto de la carta",
+      hint: "Copia la carta de tu web (o de donde la tengas) y pégala aquí. No hace falta que esté ordenada.",
+    },
     errors: {
       invalidFiles:
         "No hemos podido preparar la carta. Sube de 1 a 5 fotos (JPG, PNG o WebP) o un PDF de hasta 5 páginas.",
@@ -69,6 +94,8 @@ export const es = {
       noDishes:
         "No hemos encontrado platos en la carta. Prueba con una foto más nítida o añade los platos a mano.",
       generic: "Ha ocurrido un error. Inténtalo de nuevo en unos minutos.",
+      textLength:
+        "Pega el texto de la carta (al menos unas líneas y como mucho 30 000 caracteres).",
       createFailed:
         "No se han podido añadir los platos. Revisa que todos tengan nombre e inténtalo de nuevo.",
     },

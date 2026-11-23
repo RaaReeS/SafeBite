@@ -7,16 +7,23 @@ import {
   type AllergenSuggestion,
   type ImportedDish,
 } from "@safebite/core";
-import { useId, useRef, useState, useTransition } from "react";
+import { useEffect, useId, useRef, useState, useTransition } from "react";
 import { AllergenIcon } from "@/components/menu/allergen-icon";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, Skeleton } from "@/components/ui/card";
+import { Icon } from "@/components/ui/icon";
 import { TextAreaField, TextField } from "@/components/ui/field";
 import { getMessages } from "@/i18n";
 import { PAGE_FIELD } from "@/lib/menu-import/limits";
 import { ACCEPT, PrepareError, prepareImages } from "@/lib/menu-import/prepare-images";
-import { createImportedDishes, readMenu } from "./actions";
+import {
+  createImportedDishes,
+  readMenu,
+  readMenuFromText,
+  readMenuFromUrl,
+  type ReadMenuState,
+} from "./actions";
 
 type ReviewDish = {
   key: number;
@@ -28,6 +35,10 @@ type ReviewDish = {
   ingredients: string;
   suggestions: AllergenSuggestion[];
 };
+
+type Source = "files" | "link" | "text";
+
+const SOURCES: Source[] = ["files", "link", "text"];
 
 type Stage = { kind: "select" } | { kind: "reading" } | { kind: "review"; dishes: ReviewDish[] };
 
@@ -59,39 +70,68 @@ export function ImportFlow({ restaurantId }: { restaurantId: string }) {
   // Los archivos se leen del campo al pulsar «Leer la carta» (no del estado):
   // así funciona aunque se elijan antes de que la página termine de cargar.
   const fileInput = useRef<HTMLInputElement>(null);
+  const [dragging, setDragging] = useState(false);
+  const [source, setSource] = useState<Source>("files");
+  const [link, setLink] = useState("");
+  const [pasted, setPasted] = useState("");
+  /** Archivos elegidos. Arrastrar o elegir más los suma; cada uno se puede quitar. */
+  const [chosen, setChosen] = useState<File[]>([]);
+  const addFiles = (files: FileList | null) => {
+    const added = Array.from(files ?? []);
+    if (added.length === 0) return;
+    setChosen((current) => [
+      ...current,
+      // Sin repetir el mismo archivo si se elige dos veces.
+      ...added.filter(
+        (file) =>
+          !current.some(
+            (other) =>
+              other.name === file.name &&
+              other.size === file.size &&
+              other.lastModified === file.lastModified,
+          ),
+      ),
+    ]);
+  };
+  const removeFile = (index: number) =>
+    setChosen((current) => current.filter((_, position) => position !== index));
+
+  // El campo de archivos refleja siempre la lista (por si se lee de él).
+  const adopted = useRef(false);
+  useEffect(() => {
+    const input = fileInput.current;
+    if (input === null) return;
+    // Al cargar, los archivos elegidos antes de que la página respondiera se
+    // quedan en el campo: se adoptan en la lista en vez de borrarlos.
+    if (!adopted.current) {
+      adopted.current = true;
+      if (chosen.length === 0 && (input.files?.length ?? 0) > 0) {
+        setChosen(Array.from(input.files ?? []));
+        return;
+      }
+    }
+    const transfer = new DataTransfer();
+    for (const file of chosen) transfer.items.add(file);
+    input.files = transfer.files;
+  }, [chosen]);
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saving, startSaving] = useTransition();
   const inputId = useId();
 
-  async function read() {
-    const files = Array.from(fileInput.current?.files ?? []);
-    if (files.length === 0) {
-      setError(t.prepare.noFiles);
-      return;
-    }
+  /** Lee con la acción que toca; ante cualquier fallo, aviso y de vuelta a elegir. */
+  async function run(load: () => Promise<ReadMenuState | null>) {
     setError(null);
     setStage({ kind: "reading" });
-    const formData = new FormData();
+    let result: ReadMenuState | null;
     try {
-      for (const page of await prepareImages(files))
-        formData.append(PAGE_FIELD, page, "pagina.jpg");
-    } catch (prepareError) {
-      setError(
-        prepareError instanceof PrepareError
-          ? t.prepare[prepareError.reason]
-          : t.prepare.unreadable,
-      );
-      setStage({ kind: "select" });
-      return;
-    }
-    let result: Awaited<ReturnType<typeof readMenu>>;
-    try {
-      result = await readMenu(restaurantId, formData);
+      result = await load();
     } catch {
       // Fallo inesperado (red, tiempo agotado, servidor): nunca se queda cargando.
-      setError(t.errors.unavailable);
+      result = { status: "error", message: t.errors.unavailable };
+    }
+    if (result === null) {
       setStage({ kind: "select" });
       return;
     }
@@ -102,6 +142,45 @@ export function ImportFlow({ restaurantId }: { restaurantId: string }) {
     }
     setSubmitted(false);
     setStage({ kind: "review", dishes: toReview(result.dishes) });
+  }
+
+  function readFiles() {
+    // La lista de la página; si se eligieron antes de que cargara, el propio campo.
+    const files = chosen.length > 0 ? chosen : Array.from(fileInput.current?.files ?? []);
+    if (files.length === 0) {
+      setError(t.prepare.noFiles);
+      return;
+    }
+    void run(async () => {
+      const formData = new FormData();
+      try {
+        for (const page of await prepareImages(files)) {
+          formData.append(PAGE_FIELD, page, "pagina.jpg");
+        }
+      } catch (prepareError) {
+        setError(
+          prepareError instanceof PrepareError
+            ? t.prepare[prepareError.reason]
+            : t.prepare.unreadable,
+        );
+        return null;
+      }
+      return readMenu(restaurantId, formData);
+    });
+  }
+
+  function read() {
+    if (source === "files") {
+      readFiles();
+    } else if (source === "link") {
+      if (link.trim() === "") {
+        setError(t.link.invalid);
+        return;
+      }
+      void run(() => readMenuFromUrl(restaurantId, link.trim()));
+    } else {
+      void run(() => readMenuFromText(restaurantId, pasted));
+    }
   }
 
   if (stage.kind === "reading") {
@@ -253,7 +332,13 @@ export function ImportFlow({ restaurantId }: { restaurantId: string }) {
           <Button type="submit" icon="add" disabled={saving}>
             {t.add(included.length)}
           </Button>
-          <Button variant="secondary" onClick={() => setStage({ kind: "select" })}>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setChosen([]);
+              setStage({ kind: "select" });
+            }}
+          >
             {t.startOver}
           </Button>
         </div>
@@ -264,23 +349,142 @@ export function ImportFlow({ restaurantId }: { restaurantId: string }) {
   return (
     <Card>
       <p className="text-sm text-muted">{t.intro}</p>
+      <div
+        role="tablist"
+        aria-label={t.tabsLabel}
+        className="flex flex-wrap gap-1 rounded-full bg-surface p-1"
+      >
+        {SOURCES.map((option) => (
+          <button
+            key={option}
+            type="button"
+            role="tab"
+            id={`${inputId}-tab-${option}`}
+            aria-selected={source === option}
+            aria-controls={`${inputId}-panel-${option}`}
+            onClick={() => {
+              setSource(option);
+              setError(null);
+            }}
+            className={`inline-flex min-h-11 flex-1 items-center justify-center rounded-full px-4 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-text ${
+              source === option ? "bg-card text-fg shadow-card" : "text-muted hover:text-fg"
+            }`}
+          >
+            {t.tabs[option]}
+          </button>
+        ))}
+      </div>
       {error ? <Alert tone="error">{error}</Alert> : null}
-      <div className="flex flex-col gap-2">
+
+      <div
+        role="tabpanel"
+        id={`${inputId}-panel-link`}
+        aria-labelledby={`${inputId}-tab-link`}
+        hidden={source !== "link"}
+      >
+        <TextField
+          label={t.link.label}
+          hint={t.link.hint}
+          type="url"
+          inputMode="url"
+          placeholder="https://"
+          value={link}
+          maxLength={2000}
+          onChange={(event) => setLink(event.target.value)}
+        />
+      </div>
+
+      <div
+        role="tabpanel"
+        id={`${inputId}-panel-text`}
+        aria-labelledby={`${inputId}-tab-text`}
+        hidden={source !== "text"}
+      >
+        <TextAreaField
+          label={t.text.label}
+          hint={t.text.hint}
+          rows={10}
+          maxLength={30_000}
+          value={pasted}
+          onChange={(event) => setPasted(event.target.value)}
+        />
+      </div>
+
+      <div
+        role="tabpanel"
+        id={`${inputId}-panel-files`}
+        aria-labelledby={`${inputId}-tab-files`}
+        hidden={source !== "files"}
+        className="flex flex-col gap-2"
+      >
         <label htmlFor={inputId} className="text-sm font-semibold">
           {t.fileLabel}
         </label>
-        <input
-          id={inputId}
-          type="file"
-          accept={ACCEPT}
-          multiple
-          ref={fileInput}
-          className="block w-full rounded-xl border-[1.5px] border-dashed border-input bg-surface p-4 text-sm file:mr-4 file:rounded-full file:border-0 file:bg-primary file:px-4 file:py-2 file:font-semibold file:text-on-primary"
-        />
+        {/* Zona para arrastrar las fotos o el PDF; el campo de archivos sigue
+            dentro (teclado, lectores de pantalla y «Elegir archivos»). */}
+        <div
+          data-testid="menu-dropzone"
+          data-dragging={dragging}
+          onDragEnter={(event) => {
+            event.preventDefault();
+            setDragging(true);
+          }}
+          onDragOver={(event) => {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = "copy";
+          }}
+          onDragLeave={(event) => {
+            // Solo al salir de la zona, no al pasar por encima de lo que contiene.
+            if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+              setDragging(false);
+            }
+          }}
+          onDrop={(event) => {
+            event.preventDefault();
+            setDragging(false);
+            addFiles(event.dataTransfer.files);
+          }}
+          className={`flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed p-6 text-center transition ${
+            dragging ? "border-primary-text bg-primary-soft" : "border-input bg-surface"
+          }`}
+        >
+          <Icon name="document" className="size-8 text-primary-text" />
+          <p className="text-sm font-semibold">{dragging ? t.dropNow : t.dropHere}</p>
+          <input
+            id={inputId}
+            type="file"
+            accept={ACCEPT}
+            multiple
+            ref={fileInput}
+            onChange={(event) => addFiles(event.target.files)}
+            className="block w-full max-w-sm text-sm file:mr-4 file:rounded-full file:border-0 file:bg-primary file:px-4 file:py-2 file:font-semibold file:text-on-primary"
+          />
+        </div>
+        {chosen.length > 0 ? (
+          <ul aria-label={t.chosen} className="flex flex-wrap gap-2">
+            {chosen.map((file, index) => (
+              <li
+                key={`${file.name}-${file.size}-${file.lastModified}`}
+                className="inline-flex items-center gap-1.5 rounded-full bg-surface py-1 pr-1 pl-3 text-sm"
+              >
+                <Icon name="document" className="size-4 text-muted" />
+                {file.name}
+                <button
+                  type="button"
+                  aria-label={t.remove(file.name)}
+                  onClick={() => removeFile(index)}
+                  className="inline-flex size-8 items-center justify-center rounded-full text-muted hover:bg-danger-soft hover:text-danger focus-visible:outline-2 focus-visible:outline-primary-text"
+                >
+                  <Icon name="close" className="size-5" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : null}
         <p className="text-sm text-muted">{t.fileHint}</p>
       </div>
       <div>
-        <Button icon="scan" onClick={() => void read()}>
+        <Button icon="scan" onClick={read}>
           {t.read}
         </Button>
       </div>
