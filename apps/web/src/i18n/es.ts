@@ -48,6 +48,9 @@ export const es = {
     noSuggestions: "Sin alérgenos propuestos: decláralos tú en cada plato.",
     levels: { contains: "contiene", may_contain: "puede contener trazas" },
     nameRequired: "Escribe el nombre del plato.",
+    priceInvalid: "Escribe un precio válido, por ejemplo 12,50 (o déjalo vacío).",
+    priceUnusual:
+      "Este precio parece muy alto: comprueba que no eran céntimos (12,50 €, no 1250 €).",
     noneIncluded: "Marca al menos un plato para añadirlo.",
     add: (n: number) => (n === 1 ? "Añadir 1 plato" : `Añadir ${n} platos`),
     startOver: "Elegir otros archivos",

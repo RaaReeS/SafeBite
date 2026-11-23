@@ -1,5 +1,5 @@
 import "server-only";
-import { ALLERGENS } from "@safebite/core";
+import { ALLERGENS, extractMenuJson } from "@safebite/core";
 import { MenuReaderError } from "./errors";
 import { readPages, type MenuReader } from "./index";
 
@@ -14,12 +14,12 @@ const TIMEOUT_MS = 45_000;
  */
 const INSTRUCTIONS = `Eres un asistente que lee cartas de restaurantes en España.
 Te paso una página de la carta (una imagen) o su texto. Devuelve SOLO un objeto JSON con esta forma:
-{"dishes":[{"name":string,"description":string|null,"price":string|number|null,"category":string|null,"ingredients":string|null,"allergens":[{"allergen":string,"level":"contains"|"may_contain"}]}]}
+{"dishes":[{"name":string,"description":string|null,"price":string|null,"category":string|null,"ingredients":string|null,"allergens":[{"allergen":string,"level":"contains"|"may_contain"}]}]}
 
 Reglas:
 - Un elemento por cada plato o bebida que aparezca en la página. No inventes platos ni precios.
 - "name": el nombre tal como aparece. "description": el texto que lo describe, si lo hay.
-- "price": el precio en euros tal como aparece (por ejemplo "12,50 €"); null si no hay o hay varios.
+- "price": SIEMPRE un texto, el precio en euros copiado tal como aparece, con su coma o punto (por ejemplo "12,50 €"); nunca lo conviertas a céntimos ni a número. null si no hay o hay varios.
 - "category": la sección de la carta en la que está (por ejemplo "Entrantes"), si la hay.
 - "ingredients": solo si la carta los enumera.
 - "allergens": alérgenos que el plato contiene casi con seguridad por su nombre, descripción o ingredientes. Usa SOLO estos códigos: ${ALLERGENS.join(", ")}.
@@ -27,21 +27,6 @@ Reglas:
 - Si la página no es una carta o no tiene platos, devuelve {"dishes":[]}.`;
 
 type GroqResponse = { choices?: { message?: { content?: unknown } }[] };
-
-/**
- * El JSON de la respuesta, aunque el modelo añada texto alrededor. Si no se
- * puede leer, esa página se queda sin platos (las demás siguen).
- */
-function extractJson(content: string): unknown {
-  const start = content.indexOf("{");
-  const end = content.lastIndexOf("}");
-  if (start === -1 || end < start) return null;
-  try {
-    return JSON.parse(content.slice(start, end + 1));
-  } catch {
-    return null;
-  }
-}
 
 type UserContent =
   string | ({ type: "text"; text: string } | { type: "image_url"; image_url: { url: string } })[];
@@ -78,10 +63,8 @@ async function ask(content: UserContent, apiKey: string, model: string): Promise
   }
   const answer = body.choices?.[0]?.message?.content;
   if (typeof answer !== "string") throw new MenuReaderError("Respuesta de Groq sin contenido");
-  const parsed = extractJson(answer);
-  const dishes =
-    typeof parsed === "object" && parsed !== null && "dishes" in parsed ? parsed.dishes : [];
-  return Array.isArray(dishes) ? dishes : [];
+  // La carta aunque venga con texto alrededor; sin carta, ningún plato.
+  return extractMenuJson(answer)?.dishes ?? [];
 }
 
 /**
