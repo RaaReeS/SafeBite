@@ -54,7 +54,7 @@
 
 ---
 
-### Tarea 1: Lógica de importación en `core`
+### Task 1: Lógica de importación en `core`
 
 **Archivos:**
 
@@ -100,7 +100,7 @@
       (cobertura 100 %) y `pnpm test:mutation` (100 %) pasan.
 - [ ] Commit.
 
-### Tarea 2: Base de datos
+### Task 2: Base de datos
 
 **Archivos:**
 
@@ -131,7 +131,7 @@
   - `menu_imports` no es legible por `anon`.
 - [ ] `pnpm db:reset`, `pnpm db:test` y `pnpm db:types`. Commit.
 
-### Tarea 3: Lector y acciones del servidor (web)
+### Task 3: Lector y acciones del servidor (web)
 
 **Archivos:**
 
@@ -169,7 +169,7 @@
 
 - [ ] Typecheck y lint. Commit (se prueba en la tarea 5).
 
-### Tarea 4: Pantallas (web)
+### Task 4: Pantallas (web)
 
 **Archivos:**
 
@@ -198,7 +198,7 @@
 
 - [ ] Typecheck, lint y capturas en claro, oscuro y móvil. Commit.
 
-### Tarea 5: Tests e2e y documentación
+### Task 5: Tests e2e y documentación
 
 **Archivos:**
 
