@@ -10,6 +10,7 @@
     "src/allergens/**/*.ts",
     "src/menu/**/*.ts",
     "src/products/**/*.ts",
+    "src/menu-import/**/*.ts",
     "!src/**/*.test.ts",
     "!src/allergens/icons.ts"
   ],

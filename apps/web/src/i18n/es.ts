@@ -14,6 +14,92 @@ export const es = {
     tooManyAttempts: "Demasiados intentos. Espera unos minutos antes de volver a probar.",
     loading: "Cargando…",
   },
+  menuImport: {
+    open: "Importar desde la carta",
+    title: "Importar desde la carta",
+    intro:
+      "Sube fotos o un PDF de tu carta y leeremos los platos por ti. Después podrás revisarlos y corregirlos antes de añadirlos.",
+    fileLabel: "Fotos o PDF de la carta",
+    dropHere: "Arrastra aquí las fotos o el PDF de la carta, o elígelos:",
+    dropNow: "Suelta los archivos aquí",
+    chosen: "Archivos elegidos",
+    remove: (name: string) => `Quitar ${name}`,
+    fileHint:
+      "De 1 a 5 fotos (JPG, PNG o WebP) o un PDF de hasta 5 páginas. No guardamos los archivos.",
+    read: "Leer la carta",
+    reading: "Leyendo la carta… Puede tardar unos segundos.",
+    reviewLabel: "Platos leídos de la carta",
+    reviewTitle: "Revisa los platos",
+    reviewIntro: (n: number) =>
+      `Hemos encontrado ${n === 1 ? "1 plato" : `${n} platos`}. Corrige lo que haga falta y desmarca los que no quieras añadir.`,
+    responsibility:
+      "Alérgenos propuestos automáticamente: revisa cada uno antes de guardar. Tú eres responsable de la información (Reglamento UE 1169/2011).",
+    dishLegend: (n: number, name: string) => `Plato ${n}: ${name}`,
+    include: (name: string) => `Añadir «${name}»`,
+    untitled: "plato sin nombre",
+    fields: {
+      name: "Nombre",
+      price: "Precio (€)",
+      category: "Categoría",
+      description: "Descripción",
+      ingredients: "Ingredientes",
+    },
+    suggestedTitle: "Alérgenos propuestos (sin confirmar)",
+    noSuggestions: "Sin alérgenos propuestos: decláralos tú en cada plato.",
+    levels: { contains: "contiene", may_contain: "puede contener trazas" },
+    nameRequired: "Escribe el nombre del plato.",
+    noneIncluded: "Marca al menos un plato para añadirlo.",
+    add: (n: number) => (n === 1 ? "Añadir 1 plato" : `Añadir ${n} platos`),
+    startOver: "Elegir otros archivos",
+    imported: (n: number) =>
+      `${n === 1 ? "Se ha añadido 1 plato" : `Se han añadido ${n} platos`}. Hasta que revises sus alérgenos, tus clientes verán «sin datos».`,
+    toReview: "Alérgenos por revisar",
+    editorNotice:
+      "Los alérgenos marcados como «Propuesto» se han leído automáticamente de tu carta. No cuentan hasta que los revises y pulses «Guardar alérgenos».",
+    suggested: "Propuesto",
+    prepare: {
+      noFiles: "Elige al menos una foto o un PDF de la carta.",
+      tooManyPages: "Como mucho 5 páginas: sube menos fotos o un PDF más corto.",
+      unsupported: "Sube fotos (JPG, PNG o WebP) o un PDF.",
+      unreadable: "No hemos podido abrir el archivo. Prueba con otra foto o PDF.",
+    },
+    tabsLabel: "Cómo quieres importar la carta",
+    tabs: { files: "Fotos o PDF", link: "Enlace", text: "Pegar texto" },
+    link: {
+      label: "Enlace de la carta",
+      hint: "La dirección de la página de tu web con la carta, de un PDF o de una imagen. Por ejemplo: https://tubar.es/carta",
+      invalid: "Escribe una dirección web completa que empiece por https:// (o http://).",
+      private: "Esa dirección no es una página pública de internet.",
+      unreachable:
+        "No hemos podido abrir ese enlace. Comprueba que la dirección es correcta y que la página es pública.",
+      tooLarge:
+        "Lo que hay en ese enlace es demasiado grande (más de 5 MB). Descárgalo y súbelo como archivo.",
+      unsupported: "Ese enlace no es una página web, un PDF ni una imagen.",
+      noText:
+        "No hemos encontrado el texto de la carta en esa página (algunas webs lo cargan de una forma que no podemos leer). Copia la carta de tu web y usa «Pegar texto».",
+      scannedPdf:
+        "Ese PDF es un escaneo y no tiene texto. Descárgalo y súbelo en «Fotos o PDF»: así lo leemos como imagen.",
+    },
+    text: {
+      label: "Texto de la carta",
+      hint: "Copia la carta de tu web (o de donde la tengas) y pégala aquí. No hace falta que esté ordenada.",
+    },
+    errors: {
+      invalidFiles:
+        "No hemos podido preparar la carta. Sube de 1 a 5 fotos (JPG, PNG o WebP) o un PDF de hasta 5 páginas.",
+      dailyLimit:
+        "Has leído 5 cartas en las últimas 24 horas. Vuelve a intentarlo mañana o añade los platos a mano.",
+      unavailable:
+        "Ahora mismo no podemos leer la carta. Inténtalo más tarde o añade los platos a mano.",
+      noDishes:
+        "No hemos encontrado platos en la carta. Prueba con una foto más nítida o añade los platos a mano.",
+      generic: "Ha ocurrido un error. Inténtalo de nuevo en unos minutos.",
+      textLength:
+        "Pega el texto de la carta (al menos unas líneas y como mucho 30 000 caracteres).",
+      createFailed:
+        "No se han podido añadir los platos. Revisa que todos tengan nombre e inténtalo de nuevo.",
+    },
+  },
   appearance: {
     title: "Apariencia",
     button: (current: string) => `Apariencia: ${current}`,

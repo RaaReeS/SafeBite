@@ -4,14 +4,19 @@ import Link from "next/link";
 import { Alert } from "@/components/ui/alert";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { getMessages } from "@/i18n";
-import { declaredCount, listMyDishes } from "@/lib/data/dishes";
+import { declaredCount, listMyDishes, suggestionsOf } from "@/lib/data/dishes";
 import { moveDish } from "./actions";
 
 export const metadata: Metadata = { title: "Platos · SafeBite" };
 
-export default async function DishesPage({ params }: PageProps<"/panel/restaurantes/[id]/platos">) {
+export default async function DishesPage({
+  params,
+  searchParams,
+}: PageProps<"/panel/restaurantes/[id]/platos">) {
   const t = getMessages();
   const { id } = await params;
+  const { importados } = await searchParams;
+  const imported = Number(importados);
   const { restaurant, dishes } = await listMyDishes(id);
   const base = `/panel/restaurantes/${restaurant.id}`;
   const incomplete = dishes.filter((dish) => declaredCount(dish) < ALLERGENS.length).length;
@@ -31,10 +36,19 @@ export default async function DishesPage({ params }: PageProps<"/panel/restauran
             {restaurant.name} · {t.dishes.count(dishes.length)}
           </p>
         </div>
-        <ButtonLink href={`${base}/platos/nuevo`} icon="add">
-          {t.dishes.newDish}
-        </ButtonLink>
+        <div className="flex flex-wrap gap-3">
+          <ButtonLink href={`${base}/platos/importar`} variant="secondary" icon="document">
+            {t.menuImport.open}
+          </ButtonLink>
+          <ButtonLink href={`${base}/platos/nuevo`} icon="add">
+            {t.dishes.newDish}
+          </ButtonLink>
+        </div>
       </div>
+
+      {Number.isInteger(imported) && imported > 0 ? (
+        <Alert tone="success">{t.menuImport.imported(imported)}</Alert>
+      ) : null}
 
       {incomplete > 0 ? (
         <Alert tone="warning">{t.allergens.incompleteSummary(incomplete)}</Alert>
@@ -83,6 +97,11 @@ export default async function DishesPage({ params }: PageProps<"/panel/restauran
                 </span>
                 <span className="flex flex-wrap items-center gap-2 text-sm">
                   <AllergenStatusBadge missing={ALLERGENS.length - declaredCount(dish)} />
+                  {suggestionsOf(dish).length > 0 ? (
+                    <span className="inline-flex w-fit rounded-full bg-warning-bg px-3 py-1 text-xs font-semibold text-warning-fg">
+                      {t.menuImport.toReview}
+                    </span>
+                  ) : null}
                   {dish.is_active ? null : (
                     <span className="inline-flex w-fit rounded-full bg-surface px-3 py-1 text-xs font-semibold text-muted">
                       {t.dishes.inactive}

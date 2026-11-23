@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { getMessages } from "@/i18n";
-import { getMyDish, listMyCategories, listMyDishAllergens } from "@/lib/data/dishes";
+import { getMyDish, listMyCategories, listMyDishAllergens, suggestionsOf } from "@/lib/data/dishes";
 import { deleteDish, saveDishAllergens, updateDish } from "../actions";
 import { DishForm } from "../dish-form";
 import { AllergenEditor } from "./allergen-editor";
@@ -42,6 +42,7 @@ export default async function DishPage({
         <AllergenEditor
           action={saveDishAllergens.bind(null, restaurant.id, dish.id)}
           declarations={declarations}
+          suggestions={suggestionsOf(dish)}
         />
       </section>
 

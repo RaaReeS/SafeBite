@@ -96,3 +96,19 @@ export {
   type OffLookup,
   type OffProduct,
 } from "./products/open-food-facts";
+export { ALLERGEN_KEYWORDS } from "./menu-import/dictionary";
+export {
+  DISH_LIMITS,
+  normalizeImportedDish,
+  parseMenuResponse,
+  type ImportedDish,
+} from "./menu-import/normalize";
+export { MAX_PRICE_CENTS, parsePrice } from "./menu-import/price";
+export {
+  mergeSuggestions,
+  suggestAllergens,
+  type AllergenSuggestion,
+  type SuggestedLevel,
+} from "./menu-import/suggest";
+export { htmlToText } from "./menu-import/html";
+export { checkMenuUrl, isPublicAddress, type MenuUrlCheck } from "./menu-import/url";
