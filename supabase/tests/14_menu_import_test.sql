@@ -2,7 +2,7 @@
 -- y límite de lecturas al día por restaurante.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(14);
+select plan(17);
 
 insert into auth.users (id, raw_user_meta_data) values
   ('aaaaaaaa-1414-0000-0000-000000000000', '{"role": "restaurant_owner", "accepted_terms": true}'),
@@ -48,15 +48,30 @@ select is(
    where id = 'aaaaaaaa-1414-2222-0000-000000000000'),
   2, 'El dueño guarda los alérgenos propuestos de su plato');
 
--- Cinco lecturas al día; la sexta, SB429.
+-- Los intentos que fallan (sin completar) no gastan las 5 lecturas buenas.
 select lives_ok($$ select public.register_menu_import('aaaaaaaa-1414-1111-0000-000000000000') $$,
-  'El dueño registra una lectura de su carta');
+  'El dueño registra un intento de leer su carta');
 select public.register_menu_import('aaaaaaaa-1414-1111-0000-000000000000')
-  from generate_series(1, 4);
+  from generate_series(1, 6);
+select is((select count(*)::int from public.menu_imports), 7,
+  'Siete intentos fallidos no llegan al límite de lecturas buenas');
+
+-- Cinco lecturas buenas; la siguiente, SB429.
+select public.complete_menu_import(public.register_menu_import('aaaaaaaa-1414-1111-0000-000000000000'))
+  from generate_series(1, 5);
 select throws_ok($$ select public.register_menu_import('aaaaaaaa-1414-1111-0000-000000000000') $$,
-  'SB429', null, 'La sexta lectura en 24 horas se rechaza');
-select is((select count(*)::int from public.menu_imports), 5,
-  'El dueño ve sus lecturas (y no se ha guardado la rechazada)');
+  'SB429', null, 'Tras 5 lecturas buenas en 24 horas, se rechaza');
+select is((select count(*)::int from public.menu_imports where succeeded), 5,
+  'El dueño ve sus lecturas buenas (y no se ha guardado la rechazada)');
+
+-- Tope de intentos: 15 en total aunque fallen.
+reset role;
+delete from public.menu_imports;
+set local role authenticated;
+select public.register_menu_import('aaaaaaaa-1414-1111-0000-000000000000')
+  from generate_series(1, 15);
+select throws_ok($$ select public.register_menu_import('aaaaaaaa-1414-1111-0000-000000000000') $$,
+  'SB429', null, 'Como mucho 15 intentos en 24 horas');
 
 -- Otro dueño no toca el plato ni lee la carta de un restaurante ajeno.
 set local request.jwt.claims = '{"sub": "bbbbbbbb-1414-0000-0000-000000000000", "role": "authenticated"}';
@@ -65,6 +80,9 @@ update public.dishes set allergen_suggestions = '[]'
 select throws_ok($$ select public.register_menu_import('aaaaaaaa-1414-1111-0000-000000000000') $$,
   '42501', null, 'Otro dueño no puede leer la carta de un restaurante ajeno');
 select is((select count(*)::int from public.menu_imports), 0, 'ni ve sus lecturas');
+select throws_ok(
+  $$ select public.complete_menu_import((select id from public.menu_imports limit 1)) $$,
+  '42501', null, 'ni marcar sus lecturas');
 
 -- Un comensal tampoco.
 set local request.jwt.claims = '{"sub": "cccccccc-1414-0000-0000-000000000000", "role": "authenticated"}';

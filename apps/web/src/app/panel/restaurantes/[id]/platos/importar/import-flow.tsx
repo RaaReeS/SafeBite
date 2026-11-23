@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card, Skeleton } from "@/components/ui/card";
 import { TextAreaField, TextField } from "@/components/ui/field";
 import { getMessages } from "@/i18n";
+import { PAGE_FIELD } from "@/lib/menu-import/limits";
 import { ACCEPT, PrepareError, prepareImages } from "@/lib/menu-import/prepare-images";
 import { createImportedDishes, readMenu } from "./actions";
 
@@ -60,6 +61,7 @@ export function ImportFlow({ restaurantId }: { restaurantId: string }) {
   const fileInput = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [saving, startSaving] = useTransition();
   const inputId = useId();
 
@@ -71,9 +73,10 @@ export function ImportFlow({ restaurantId }: { restaurantId: string }) {
     }
     setError(null);
     setStage({ kind: "reading" });
-    let images: string[];
+    const formData = new FormData();
     try {
-      images = await prepareImages(files);
+      for (const page of await prepareImages(files))
+        formData.append(PAGE_FIELD, page, "pagina.jpg");
     } catch (prepareError) {
       setError(
         prepareError instanceof PrepareError
@@ -83,7 +86,15 @@ export function ImportFlow({ restaurantId }: { restaurantId: string }) {
       setStage({ kind: "select" });
       return;
     }
-    const result = await readMenu(restaurantId, images);
+    let result: Awaited<ReturnType<typeof readMenu>>;
+    try {
+      result = await readMenu(restaurantId, formData);
+    } catch {
+      // Fallo inesperado (red, tiempo agotado, servidor): nunca se queda cargando.
+      setError(t.errors.unavailable);
+      setStage({ kind: "select" });
+      return;
+    }
     if (result.status === "error") {
       setError(result.message);
       setStage({ kind: "select" });
@@ -121,18 +132,26 @@ export function ImportFlow({ restaurantId }: { restaurantId: string }) {
     function save() {
       setSubmitted(true);
       if (included.length === 0 || missingName) return;
+      setSaveError(null);
       startSaving(async () => {
-        await createImportedDishes(
-          restaurantId,
-          included.map((dish) => ({
-            name: dish.name.trim(),
-            description: emptyToNull(dish.description),
-            priceCents: parsePrice(dish.price),
-            category: emptyToNull(dish.category),
-            ingredients: emptyToNull(dish.ingredients),
-            suggestions: dish.suggestions,
-          })),
-        );
+        let result: Awaited<ReturnType<typeof createImportedDishes>>;
+        try {
+          result = await createImportedDishes(
+            restaurantId,
+            included.map((dish) => ({
+              name: dish.name.trim(),
+              description: emptyToNull(dish.description),
+              priceCents: parsePrice(dish.price),
+              category: emptyToNull(dish.category),
+              ingredients: emptyToNull(dish.ingredients),
+              suggestions: dish.suggestions,
+            })),
+          );
+        } catch {
+          setSaveError(t.errors.createFailed);
+          return;
+        }
+        setSaveError(result.message);
       });
     }
 
@@ -229,6 +248,7 @@ export function ImportFlow({ restaurantId }: { restaurantId: string }) {
         </ul>
 
         {submitted && included.length === 0 ? <Alert tone="error">{t.noneIncluded}</Alert> : null}
+        {saveError ? <Alert tone="error">{saveError}</Alert> : null}
         <div className="flex flex-wrap gap-3">
           <Button type="submit" icon="add" disabled={saving}>
             {t.add(included.length)}

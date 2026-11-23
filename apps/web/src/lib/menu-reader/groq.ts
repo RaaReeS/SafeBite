@@ -1,11 +1,12 @@
 import "server-only";
 import { ALLERGENS } from "@safebite/core";
 import { MenuReaderError } from "./errors";
-import type { MenuReader } from "./index";
+import { readPages, type MenuReader } from "./index";
 
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 const DEFAULT_MODEL = "qwen/qwen3.6-27b";
-const TIMEOUT_MS = 60_000;
+/** Por debajo de los 60 s que Vercel da a la función (maxDuration), con margen. */
+const TIMEOUT_MS = 45_000;
 
 /**
  * Instrucciones para el modelo. Solo lo que aparece en la carta; ante la duda,
@@ -27,15 +28,18 @@ Reglas:
 
 type GroqResponse = { choices?: { message?: { content?: unknown } }[] };
 
-/** El JSON de la respuesta, aunque el modelo añada texto alrededor. */
+/**
+ * El JSON de la respuesta, aunque el modelo añada texto alrededor. Si no se
+ * puede leer, esa página se queda sin platos (las demás siguen).
+ */
 function extractJson(content: string): unknown {
   const start = content.indexOf("{");
   const end = content.lastIndexOf("}");
-  if (start === -1 || end < start) throw new MenuReaderError("El modelo no ha devuelto JSON");
+  if (start === -1 || end < start) return null;
   try {
     return JSON.parse(content.slice(start, end + 1));
   } catch {
-    throw new MenuReaderError("El modelo ha devuelto un JSON roto");
+    return null;
   }
 }
 
@@ -68,7 +72,12 @@ async function readPage(image: string, apiKey: string, model: string): Promise<u
   if (!response.ok) {
     throw new MenuReaderError(`Groq ha respondido ${response.status}`);
   }
-  const body = (await response.json()) as GroqResponse;
+  let body: GroqResponse;
+  try {
+    body = (await response.json()) as GroqResponse;
+  } catch (error) {
+    throw new MenuReaderError(`Respuesta de Groq ilegible: ${String(error)}`);
+  }
   const content = body.choices?.[0]?.message?.content;
   if (typeof content !== "string") throw new MenuReaderError("Respuesta de Groq sin contenido");
   const parsed = extractJson(content);
@@ -86,7 +95,6 @@ export const groqMenuReader: MenuReader = {
     const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) throw new MenuReaderError("Falta GROQ_API_KEY");
     const model = process.env.GROQ_MODEL || DEFAULT_MODEL;
-    const pages = await Promise.all(images.map((image) => readPage(image, apiKey, model)));
-    return { dishes: pages.flat() };
+    return readPages(images, (image) => readPage(image, apiKey, model));
   },
 };

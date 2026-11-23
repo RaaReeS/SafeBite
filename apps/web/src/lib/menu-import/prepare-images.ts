@@ -1,4 +1,4 @@
-import { MAX_IMAGE_CHARS, MAX_IMAGE_SIDE, MAX_PAGES } from "./limits";
+import { MAX_IMAGE_BYTES, MAX_IMAGE_SIDE, MAX_PAGES } from "./limits";
 
 /** Tipos de imagen admitidos (además de PDF). */
 export const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
@@ -16,8 +16,12 @@ function scaleFor(width: number, height: number): number {
   return Math.min(1, MAX_IMAGE_SIDE / Math.max(width, height));
 }
 
+function canvasToJpeg(canvas: HTMLCanvasElement, quality: number): Promise<Blob | null> {
+  return new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", quality));
+}
+
 /** JPEG que cabe en el límite: baja la calidad (y si hace falta, el tamaño) hasta que quepa. */
-function toJpeg(source: CanvasImageSource, width: number, height: number): string {
+async function toJpeg(source: CanvasImageSource, width: number, height: number): Promise<Blob> {
   let side = 1;
   for (let attempt = 0; attempt < 6; attempt += 1) {
     const canvas = document.createElement("canvas");
@@ -30,15 +34,15 @@ function toJpeg(source: CanvasImageSource, width: number, height: number): strin
     context.fillRect(0, 0, canvas.width, canvas.height);
     context.drawImage(source, 0, 0, canvas.width, canvas.height);
     for (const quality of [0.8, 0.65, 0.5]) {
-      const data = canvas.toDataURL("image/jpeg", quality);
-      if (data.length <= MAX_IMAGE_CHARS) return data;
+      const blob = await canvasToJpeg(canvas, quality);
+      if (blob !== null && blob.size <= MAX_IMAGE_BYTES) return blob;
     }
     side *= 0.75;
   }
   throw new PrepareError("unreadable");
 }
 
-async function imageToJpeg(file: File): Promise<string> {
+async function imageToJpeg(file: File): Promise<Blob> {
   let bitmap: ImageBitmap;
   try {
     bitmap = await createImageBitmap(file);
@@ -46,12 +50,12 @@ async function imageToJpeg(file: File): Promise<string> {
     throw new PrepareError("unreadable");
   }
   const scale = scaleFor(bitmap.width, bitmap.height);
-  const jpeg = toJpeg(bitmap, bitmap.width * scale, bitmap.height * scale);
+  const jpeg = await toJpeg(bitmap, bitmap.width * scale, bitmap.height * scale);
   bitmap.close();
   return jpeg;
 }
 
-async function pdfToJpegs(file: File, room: number): Promise<string[]> {
+async function pdfToJpegs(file: File, room: number): Promise<Blob[]> {
   const pdfjs = await import("pdfjs-dist");
   pdfjs.GlobalWorkerOptions.workerSrc = "/vendor/pdf.worker.min.mjs";
   const task = pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()) });
@@ -65,7 +69,7 @@ async function pdfToJpegs(file: File, room: number): Promise<string[]> {
     await task.destroy();
     throw new PrepareError("tooManyPages");
   }
-  const pages: string[] = [];
+  const pages: Blob[] = [];
   for (let number = 1; number <= pdf.numPages; number += 1) {
     const page = await pdf.getPage(number);
     const base = page.getViewport({ scale: 1 });
@@ -75,7 +79,7 @@ async function pdfToJpegs(file: File, room: number): Promise<string[]> {
     canvas.height = Math.round(viewport.height);
     await page.render({ canvas, viewport }).promise;
     const scale = scaleFor(canvas.width, canvas.height);
-    pages.push(toJpeg(canvas, canvas.width * scale, canvas.height * scale));
+    pages.push(await toJpeg(canvas, canvas.width * scale, canvas.height * scale));
   }
   await task.destroy();
   return pages;
@@ -83,12 +87,12 @@ async function pdfToJpegs(file: File, room: number): Promise<string[]> {
 
 /**
  * Prepara la carta para enviarla: cada página del PDF y cada foto pasan a JPEG
- * de 1600 px como máximo y menos de ~750 KB. Todo en el navegador: no se guarda
+ * de 1600 px como máximo y menos de 700 KB. Todo en el navegador: no se guarda
  * nada. Más de 5 páginas en total o un formato no admitido, error.
  */
-export async function prepareImages(files: readonly File[]): Promise<string[]> {
+export async function prepareImages(files: readonly File[]): Promise<Blob[]> {
   if (files.length === 0) throw new PrepareError("unsupported");
-  const images: string[] = [];
+  const images: Blob[] = [];
   for (const file of files) {
     const room = MAX_PAGES - images.length;
     if (room <= 0) throw new PrepareError("tooManyPages");

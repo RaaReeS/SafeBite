@@ -6,9 +6,10 @@ import {
   verifyRestaurantAsAdmin,
 } from "./helpers";
 
-// El lector de cartas es el simulado (MENU_READER=fake): siempre lee «Gambas
-// al ajillo» (12,50 €, propone crustáceos) y «Ensalada verde» (8 €), y una
-// imagen de 3×3 píxeles simula que el servicio no responde.
+// El lector de cartas es el simulado (MENU_READER=fake): en cada página lee
+// «Gambas al ajillo» (12,50 €, propone crustáceos) y «Ensalada verde» (8 €).
+// Una página de 3×3 píxeles simula que el servicio no responde, y una de 4×4,
+// un error inesperado del servidor.
 
 const FIXTURES = "e2e/fixtures";
 
@@ -116,6 +117,82 @@ test.describe("importar la carta", () => {
     await expect(page.getByText(/Ahora mismo no podemos leer la carta/)).toBeVisible();
     await page.goto(`${url}/platos`);
     await expect(page.getByText("Aún no has añadido platos a esta carta.")).toBeVisible();
+  });
+
+  test("si una página falla, se conservan los platos de las demás", async ({ page }) => {
+    await registerOwner(page);
+    const { url } = await createRestaurant(page);
+    await page.goto(`${url}/platos/importar`);
+    await page
+      .getByLabel("Fotos o PDF de la carta")
+      .setInputFiles([`${FIXTURES}/carta.png`, `${FIXTURES}/fallo.png`]);
+    await page.getByRole("button", { name: "Leer la carta" }).click();
+    await expect(reviewForm(page)).toBeVisible();
+    await expect(dishGroup(page, "Gambas al ajillo")).toBeVisible();
+  });
+
+  test("un error inesperado del servidor no deja la página cargando", async ({ page }) => {
+    await registerOwner(page);
+    const { url } = await createRestaurant(page);
+    await readMenu(page, url, "error-inesperado.png");
+    await expect(page.getByText(/Ahora mismo no podemos leer la carta/)).toBeVisible();
+    await expect(page.getByRole("button", { name: "Leer la carta" })).toBeVisible();
+  });
+
+  test("cinco páginas muy detalladas caben en una lectura", async ({ page }) => {
+    await registerOwner(page);
+    const { url } = await createRestaurant(page);
+    await page.goto(`${url}/platos/importar`);
+    // Fotos de ruido (lo más difícil de comprimir): el peor caso de tamaño.
+    const noise = await page.evaluate(() => {
+      const canvas = document.createElement("canvas");
+      canvas.width = 1600;
+      canvas.height = 1600;
+      const context = canvas.getContext("2d");
+      if (context === null) return "";
+      const image = context.createImageData(1600, 1600);
+      for (let i = 0; i < image.data.length; i += 1) image.data[i] = Math.random() * 256;
+      context.putImageData(image, 0, 0);
+      return canvas.toDataURL("image/png").split(",")[1] ?? "";
+    });
+    const buffer = Buffer.from(noise, "base64");
+    await page
+      .getByLabel("Fotos o PDF de la carta")
+      .setInputFiles(
+        [1, 2, 3, 4, 5].map((n) => ({ name: `pagina-${n}.png`, mimeType: "image/png", buffer })),
+      );
+    await page.getByRole("button", { name: "Leer la carta" }).click();
+    await expect(reviewForm(page)).toBeVisible({ timeout: 30_000 });
+  });
+
+  test("una lectura que falla no gasta el límite diario", async ({ page }) => {
+    await registerOwner(page);
+    const { url } = await createRestaurant(page);
+    for (let i = 0; i < 5; i += 1) {
+      await readMenu(page, url, "fallo.png");
+      await expect(page.getByText(/Ahora mismo no podemos leer la carta/)).toBeVisible();
+    }
+    await readMenu(page, url);
+    await expect(reviewForm(page)).toBeVisible();
+  });
+
+  test("si no se pueden crear los platos, lo explica sin perder la revisión", async ({ page }) => {
+    await registerOwner(page);
+    const { url } = await createRestaurant(page);
+    await readMenu(page, url);
+    // Se manipula la petición para que ningún plato sea válido (sin nombre).
+    await page.route("**/platos/importar", async (route) => {
+      const request = route.request();
+      const body = request.postData();
+      if (request.method() === "POST" && body?.includes("Gambas al ajillo")) {
+        await route.continue({ postData: body.replaceAll(/"name":"[^"]*"/g, '"name":""') });
+      } else {
+        await route.continue();
+      }
+    });
+    await reviewForm(page).getByRole("button", { name: "Añadir 2 platos" }).click();
+    await expect(page.getByText(/No se han podido añadir los platos/)).toBeVisible();
+    await expect(reviewForm(page)).toBeVisible();
   });
 
   test("como mucho 5 lecturas al día por restaurante", async ({ page }) => {

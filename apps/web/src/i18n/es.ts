@@ -69,6 +69,8 @@ export const es = {
       noDishes:
         "No hemos encontrado platos en la carta. Prueba con una foto más nítida o añade los platos a mano.",
       generic: "Ha ocurrido un error. Inténtalo de nuevo en unos minutos.",
+      createFailed:
+        "No se han podido añadir los platos. Revisa que todos tengan nombre e inténtalo de nuevo.",
     },
   },
   appearance: {

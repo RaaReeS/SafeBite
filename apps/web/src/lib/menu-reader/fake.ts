@@ -1,6 +1,6 @@
 import "server-only";
 import { MenuReaderError } from "./errors";
-import type { MenuReader } from "./index";
+import { readPages, type MenuReader } from "./index";
 
 /** Tamaño (en píxeles) de la imagen con la que los tests simulan que el servicio falla. */
 export const FAKE_FAILURE_SIDE = 3;
@@ -20,37 +20,44 @@ function jpegSize(dataUrl: string): { width: number; height: number } | null {
   return null;
 }
 
+/** Tamaño de la página con la que los tests simulan un error inesperado del servidor. */
+export const FAKE_UNEXPECTED_SIDE = 4;
+
+const FAKE_DISHES = [
+  {
+    name: "Gambas al ajillo",
+    description: "Con guindilla",
+    price: "12,50 €",
+    category: "Entrantes",
+    ingredients: null,
+    allergens: [{ allergen: "crustaceans", level: "contains" }],
+  },
+  {
+    name: "Ensalada verde",
+    description: null,
+    price: 8,
+    category: "Entrantes",
+    ingredients: "Lechuga, tomate",
+    allergens: [],
+  },
+];
+
 /**
- * Lector simulado para los tests (MENU_READER=fake): devuelve siempre la misma
- * carta y nunca llama a ningún servicio. Una página de 3×3 píxeles simula que
- * el servicio no responde.
+ * Lector simulado para los tests (MENU_READER=fake): cada página devuelve la
+ * misma carta y nunca se llama a ningún servicio. Una página de 3×3 píxeles
+ * simula que el servicio no responde; una de 4×4, un error inesperado.
  */
 export const fakeMenuReader: MenuReader = {
   async read(images) {
-    const failing = images.some((image) => {
+    return readPages(images, async (image) => {
       const size = jpegSize(image);
-      return size?.width === FAKE_FAILURE_SIDE && size.height === FAKE_FAILURE_SIDE;
+      if (size?.width === FAKE_FAILURE_SIDE && size.height === FAKE_FAILURE_SIDE) {
+        throw new MenuReaderError("Lector simulado: fallo pedido por el test");
+      }
+      if (size?.width === FAKE_UNEXPECTED_SIDE && size.height === FAKE_UNEXPECTED_SIDE) {
+        throw new Error("Lector simulado: error inesperado pedido por el test");
+      }
+      return FAKE_DISHES;
     });
-    if (failing) throw new MenuReaderError("Lector simulado: fallo pedido por el test");
-    return {
-      dishes: [
-        {
-          name: "Gambas al ajillo",
-          description: "Con guindilla",
-          price: "12,50 €",
-          category: "Entrantes",
-          ingredients: null,
-          allergens: [{ allergen: "crustaceans", level: "contains" }],
-        },
-        {
-          name: "Ensalada verde",
-          description: null,
-          price: 8,
-          category: "Entrantes",
-          ingredients: "Lechuga, tomate",
-          allergens: [],
-        },
-      ],
-    };
   },
 };

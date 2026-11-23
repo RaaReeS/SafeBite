@@ -183,17 +183,20 @@ export type Database = {
           created_at: string;
           id: string;
           restaurant_id: string;
+          succeeded: boolean;
         };
         ComputedFields: never;
         Insert: {
           created_at?: string;
           id?: string;
           restaurant_id: string;
+          succeeded?: boolean;
         };
         Update: {
           created_at?: string;
           id?: string;
           restaurant_id?: string;
+          succeeded?: boolean;
         };
         Relationships: [
           {
@@ -528,9 +531,10 @@ export type Database = {
         Returns: undefined;
       };
       admin_verify_email_code: { Args: { code: string }; Returns: string };
+      complete_menu_import: { Args: { p_import_id: string }; Returns: undefined };
       delete_own_account: { Args: Record<PropertyKey, never>; Returns: undefined };
       family_member_limit: { Args: Record<PropertyKey, never>; Returns: number };
-      register_menu_import: { Args: { p_restaurant_id: string }; Returns: undefined };
+      register_menu_import: { Args: { p_restaurant_id: string }; Returns: string };
       set_dish_allergens: {
         Args: { declarations: Json; target_dish_id: string };
         Returns: undefined;
