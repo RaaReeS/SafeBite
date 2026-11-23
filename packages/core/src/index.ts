@@ -110,3 +110,5 @@ export {
   type AllergenSuggestion,
   type SuggestedLevel,
 } from "./menu-import/suggest";
+export { htmlToText } from "./menu-import/html";
+export { checkMenuUrl, isPublicAddress, type MenuUrlCheck } from "./menu-import/url";

@@ -174,3 +174,47 @@ revisar».
 - La conversión del PDF y la reducción de las imágenes se hacen **en el navegador**: el servidor (en el
   plan gratis de Vercel) no hace trabajo pesado y se envía menos.
 - El diccionario empieza con unas 150 palabras habituales en cartas españolas y crecerá con el uso.
+
+## Ampliación (2026-11-23): importar desde un enlace o pegando el texto
+
+Decisión del usuario: «haz las dos, enlace y texto pegado».
+
+### Para el restaurante
+
+- La pantalla de importar tiene tres pestañas: **Fotos o PDF** (lo que ya existe), **Enlace** y
+  **Pegar texto**.
+- **Enlace:** pega la dirección de la carta (página web, PDF o imagen) y pulsa «Leer la carta».
+- **Pegar texto:** copia la carta desde su web y la pega (de 20 a 30 000 caracteres).
+- Después, la misma pantalla de revisión y el mismo límite de 5 lecturas buenas al día.
+
+### Cómo funciona
+
+- **Enlace:** el servidor descarga la dirección con protecciones contra SSRF:
+  - solo `http`/`https`, sin usuario ni contraseña y solo con los puertos 80 y 443;
+  - el nombre se resuelve y se rechaza cualquier dirección no pública (privadas, local, enlace
+    local, CGNAT, multicast, IPv6 local o equivalente a IPv4 privada). La comprobación se hace en la
+    propia conexión (`lookup`), así un cambio de DNS a mitad de la conexión tampoco sirve;
+  - como mucho 3 redirecciones, comprobando cada una;
+  - 10 s y 5 MB como máximo;
+  - solo HTML, PDF o imágenes (JPEG, PNG o WebP).
+- Según lo que devuelva el enlace:
+  - **HTML:** se extrae el texto (sin scripts, estilos ni etiquetas).
+  - **PDF:** se extrae el texto con PDF.js en el servidor. Si no tiene texto (es un escaneo), se
+    avisa: «descarga el PDF y súbelo como archivo».
+  - **Imagen:** va al modelo de visión, como las fotos.
+- Página sin texto suficiente (por ejemplo, una web hecha con JavaScript): se avisa y se propone
+  pegar el texto.
+- **Texto (pegado o extraído):** una petición de texto a Groq con las mismas instrucciones y la
+  misma validación (`parseMenuResponse`).
+- **Lógica pura en `core`**, con tests y mutación al 100 %:
+  - `isPublicAddress(ip)` y `checkMenuUrl(url)`;
+  - `htmlToText(html)`, que pasa el HTML a texto respetando los saltos de los bloques y descodifica
+    las entidades.
+- **Tests:** con `MENU_URL_FETCH=fake`, el descargador simulado devuelve contenido fijo para
+  direcciones de prueba (`https://carta.test/...`). Las direcciones privadas se rechazan antes,
+  también en los tests.
+
+### Fuera de alcance
+
+Leer webs que exigen iniciar sesión, ejecutar el JavaScript de la página o seguir los enlaces de
+una página a otra.
