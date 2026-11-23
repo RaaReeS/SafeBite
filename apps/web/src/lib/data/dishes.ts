@@ -1,12 +1,23 @@
 import "server-only";
-import { groupDeclarationsByDish } from "@safebite/core";
+import { groupDeclarationsByDish, normalizeImportedDish } from "@safebite/core";
 import { notFound } from "next/navigation";
 import { findMyRestaurantForDownload, getMyRestaurant } from "@/lib/data/restaurants";
 import { isUuid } from "@/lib/ids";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const DISH_COLUMNS =
-  "id, restaurant_id, name, description, price_cents, category, ingredients, is_active, sort_order, updated_at";
+  "id, restaurant_id, name, description, price_cents, category, ingredients, is_active, sort_order, updated_at, allergen_suggestions";
+
+/**
+ * Alérgenos propuestos al importar la carta (pendientes de confirmar). Se
+ * validan con la misma lógica que lo que envía el navegador.
+ */
+export function suggestionsOf(dish: { name: string; allergen_suggestions: unknown }) {
+  return (
+    normalizeImportedDish({ name: dish.name, suggestions: dish.allergen_suggestions })
+      ?.suggestions ?? []
+  );
+}
 
 /** Platos de un restaurante del dueño con sesión (404 si el restaurante no es suyo). */
 export async function listMyDishes(restaurantId: string) {

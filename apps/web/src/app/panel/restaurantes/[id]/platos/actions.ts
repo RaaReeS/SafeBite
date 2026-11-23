@@ -238,6 +238,14 @@ export async function saveDishAllergens(
     return { status: "error", message: t.common.genericError };
   }
 
+  // Lo guardado ya está confirmado por el dueño: las propuestas sobran.
+  const { error: clearError } = await supabase
+    .from("dishes")
+    .update({ allergen_suggestions: [] })
+    .eq("id", dishId);
+  if (clearError) {
+    console.error("No se han podido borrar las propuestas:", clearError.message);
+  }
   refresh();
   return { status: "success", message: t.allergens.saved };
 }

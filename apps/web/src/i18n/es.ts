@@ -15,6 +15,49 @@ export const es = {
     loading: "Cargando…",
   },
   menuImport: {
+    open: "Importar desde la carta",
+    title: "Importar desde la carta",
+    intro:
+      "Sube fotos o un PDF de tu carta y leeremos los platos por ti. Después podrás revisarlos y corregirlos antes de añadirlos.",
+    fileLabel: "Fotos o PDF de la carta",
+    fileHint:
+      "De 1 a 5 fotos (JPG, PNG o WebP) o un PDF de hasta 5 páginas. No guardamos los archivos.",
+    read: "Leer la carta",
+    reading: "Leyendo la carta… Puede tardar unos segundos.",
+    reviewLabel: "Platos leídos de la carta",
+    reviewTitle: "Revisa los platos",
+    reviewIntro: (n: number) =>
+      `Hemos encontrado ${n === 1 ? "1 plato" : `${n} platos`}. Corrige lo que haga falta y desmarca los que no quieras añadir.`,
+    responsibility:
+      "Alérgenos propuestos automáticamente: revisa cada uno antes de guardar. Tú eres responsable de la información (Reglamento UE 1169/2011).",
+    dishLegend: (n: number, name: string) => `Plato ${n}: ${name}`,
+    include: (name: string) => `Añadir «${name}»`,
+    untitled: "plato sin nombre",
+    fields: {
+      name: "Nombre",
+      price: "Precio (€)",
+      category: "Categoría",
+      description: "Descripción",
+      ingredients: "Ingredientes",
+    },
+    suggestedTitle: "Alérgenos propuestos (sin confirmar)",
+    noSuggestions: "Sin alérgenos propuestos: decláralos tú en cada plato.",
+    levels: { contains: "contiene", may_contain: "puede contener trazas" },
+    nameRequired: "Escribe el nombre del plato.",
+    noneIncluded: "Marca al menos un plato para añadirlo.",
+    add: (n: number) => (n === 1 ? "Añadir 1 plato" : `Añadir ${n} platos`),
+    startOver: "Elegir otros archivos",
+    imported: (n: number) =>
+      `${n === 1 ? "Se ha añadido 1 plato" : `Se han añadido ${n} platos`}. Hasta que revises sus alérgenos, tus clientes verán «sin datos».`,
+    toReview: "Alérgenos por revisar",
+    editorNotice:
+      "Los alérgenos marcados como «Propuesto» se han leído automáticamente de tu carta. No cuentan hasta que los revises y pulses «Guardar alérgenos».",
+    suggested: "Propuesto",
+    prepare: {
+      tooManyPages: "Como mucho 5 páginas: sube menos fotos o un PDF más corto.",
+      unsupported: "Sube fotos (JPG, PNG o WebP) o un PDF.",
+      unreadable: "No hemos podido abrir el archivo. Prueba con otra foto o PDF.",
+    },
     errors: {
       invalidFiles:
         "No hemos podido preparar la carta. Sube de 1 a 5 fotos (JPG, PNG o WebP) o un PDF de hasta 5 páginas.",

@@ -7,6 +7,7 @@ import {
   ALLERGEN_LEVELS,
   type Allergen,
   type AllergenLevel,
+  type AllergenSuggestion,
 } from "@safebite/core";
 import { useActionState, useRef, useState } from "react";
 import { FormStatus } from "@/components/form-status";
@@ -41,14 +42,29 @@ function toChoices(declarations: readonly { allergen: Allergen; level: AllergenL
 type AllergenEditorProps = {
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
   declarations: { allergen: Allergen; level: AllergenLevel }[];
+  /**
+   * Propuestas de la importación de la carta: se preseleccionan donde no hay
+   * nada declarado, marcadas «Propuesto». No cuentan hasta guardar.
+   */
+  suggestions?: AllergenSuggestion[];
 };
 
-export function AllergenEditor({ action, declarations }: AllergenEditorProps) {
+export function AllergenEditor({ action, declarations, suggestions = [] }: AllergenEditorProps) {
   const t = getMessages();
   const labels = ALLERGEN_LABELS.es;
   const [state, formAction, pending] = useActionState(action, initialFormState);
   const saved = toChoices(declarations);
-  const [choices, setChoices] = useState<Choices>(saved);
+  // Solo donde no hay declaración: lo que el dueño ya declaró manda.
+  const proposed = new Map(
+    suggestions
+      .filter((suggestion) => saved[suggestion.allergen] === UNDECLARED)
+      .map((suggestion) => [suggestion.allergen, suggestion.level] as const),
+  );
+  const [choices, setChoices] = useState<Choices>(() => {
+    const initial = { ...saved };
+    for (const [allergen, level] of proposed) initial[allergen] = level;
+    return initial;
+  });
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   const undeclared = ALLERGENS.filter((allergen) => choices[allergen] === UNDECLARED);
@@ -69,6 +85,7 @@ export function AllergenEditor({ action, declarations }: AllergenEditorProps) {
   return (
     <div className="flex flex-col gap-4">
       <Alert tone="info">{t.allergens.responsibility}</Alert>
+      {proposed.size > 0 ? <Alert tone="warning">{t.menuImport.editorNotice}</Alert> : null}
 
       <form action={formAction} aria-label={t.allergens.title} className="flex flex-col gap-4">
         <FormStatus state={state} />
@@ -83,9 +100,14 @@ export function AllergenEditor({ action, declarations }: AllergenEditorProps) {
             <fieldset key={allergen} className="px-4 py-3">
               {/* float: el legend se comporta como un bloque normal dentro del fieldset. */}
               <legend className="float-left w-full pb-2 text-sm font-semibold sm:w-60 sm:pb-0 sm:pt-1.5">
-                <span className="inline-flex items-center gap-2">
+                <span className="inline-flex flex-wrap items-center gap-2">
                   <AllergenIcon allergen={allergen} className="size-5 text-primary-text" />
                   {labels[allergen]}
+                  {proposed.has(allergen) ? (
+                    <span className="rounded-full bg-warning-bg px-2 py-0.5 text-xs font-semibold text-warning-fg">
+                      {t.menuImport.suggested}
+                    </span>
+                  ) : null}
                 </span>
               </legend>
               <div className="flex flex-wrap gap-1.5">
