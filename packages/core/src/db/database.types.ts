@@ -62,6 +62,7 @@ export type Database = {
       };
       dishes: {
         Row: {
+          allergen_suggestions: NonNullable<Json>;
           category: string | null;
           created_at: string;
           description: string | null;
@@ -76,6 +77,7 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          allergen_suggestions?: NonNullable<Json>;
           category?: string | null;
           created_at?: string;
           description?: string | null;
@@ -89,6 +91,7 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          allergen_suggestions?: NonNullable<Json>;
           category?: string | null;
           created_at?: string;
           description?: string | null;
@@ -171,6 +174,40 @@ export type Database = {
             columns: ["user_id"];
             isOneToOne: false;
             referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      menu_imports: {
+        Row: {
+          created_at: string;
+          id: string;
+          restaurant_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          id?: string;
+          restaurant_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          restaurant_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "menu_imports_restaurant_id_fkey";
+            columns: ["restaurant_id"];
+            isOneToOne: false;
+            referencedRelation: "public_restaurants";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "menu_imports_restaurant_id_fkey";
+            columns: ["restaurant_id"];
+            isOneToOne: false;
+            referencedRelation: "restaurants";
             referencedColumns: ["id"];
           },
         ];
@@ -493,6 +530,7 @@ export type Database = {
       admin_verify_email_code: { Args: { code: string }; Returns: string };
       delete_own_account: { Args: Record<PropertyKey, never>; Returns: undefined };
       family_member_limit: { Args: Record<PropertyKey, never>; Returns: number };
+      register_menu_import: { Args: { p_restaurant_id: string }; Returns: undefined };
       set_dish_allergens: {
         Args: { declarations: Json; target_dish_id: string };
         Returns: undefined;
