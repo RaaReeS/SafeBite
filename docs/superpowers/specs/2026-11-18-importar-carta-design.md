@@ -14,7 +14,7 @@ rebajar la seguridad del filtro.
 
 - **Alérgenos: opción B.** La IA los propone, pero **solo cuentan cuando el restaurante los confirma**.
 - **Gratis.** Sin Claude ni servicios de pago: **Groq, en su plan gratuito**, con un modelo de visión
-  (hoy `qwen/qwen3.6-27b`). Gemini quedó descartado porque su plan gratis no se puede usar en
+  (hoy `qwen/qwen3.8-27b`). Gemini quedó descartado porque su plan gratis no se puede usar en
   aplicaciones para usuarios de la UE.
 - **Proveedor intercambiable**, por si Groq cambia sus condiciones o retira el modelo.
 

@@ -4,7 +4,7 @@ import { MenuReaderError } from "./errors";
 import { readPages, type MenuReader } from "./index";
 
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-const DEFAULT_MODEL = "qwen/qwen3.6-27b";
+const DEFAULT_MODEL = "qwen/qwen3.8-27b";
 /** Por debajo de los 60 s que Vercel da a la función (maxDuration), con margen. */
 const TIMEOUT_MS = 45_000;
 

@@ -28,7 +28,7 @@
   - de 1 a 5 imágenes por lectura, cada una de 4 MB como máximo en forma de data URL JPEG;
   - 5 lecturas al día por restaurante (error `SB429`).
 - **Configuración:** `MENU_READER=fake` en los tests. `GROQ_API_KEY` y `GROQ_MODEL` (por defecto
-  `qwen/qwen3.6-27b`) solo en el servidor.
+  `qwen/qwen3.8-27b`) solo en el servidor.
 - **Textos de la base de datos:**
   - nombre de 1 a 120 caracteres;
   - descripción, 1000 como máximo;
@@ -144,7 +144,7 @@
 - `interface MenuReader { read(images: string[]): Promise<unknown> }` y `getMenuReader(): MenuReader`
   (`MENU_READER=fake` → `fake`; si no, `groq`).
 - `groq.ts`: `POST https://api.groq.com/openai/v1/chat/completions` con:
-  - `model` = `GROQ_MODEL` o `qwen/qwen3.6-27b`;
+  - `model` = `GROQ_MODEL` o `qwen/qwen3.8-27b`;
   - las imágenes como `image_url`;
   - `response_format: {type:"json_object"}`;
   - tiempo máximo de 60 s (`AbortSignal.timeout`).
