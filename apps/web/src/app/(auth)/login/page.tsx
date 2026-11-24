@@ -35,7 +35,8 @@ export default function LoginPage({ searchParams }: PageProps<"/login">) {
 async function LoginContent({ searchParams }: Pick<PageProps<"/login">, "searchParams">) {
   const t = getMessages();
   const params = await searchParams;
-  const next = safeRedirectPath(params.next);
+  // Sin página de origen, el servidor elige la zona según el tipo de cuenta.
+  const next = safeRedirectPath(params.next, "");
 
   return (
     <>

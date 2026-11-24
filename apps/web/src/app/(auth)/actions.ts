@@ -3,14 +3,13 @@
 import {
   emailSchema,
   newPasswordSchema,
-  safeRedirectPath,
   signInSchema,
   signUpSchema,
 } from "@safebite/core";
 import { redirect } from "next/navigation";
 import { env } from "@/env";
 import { getMessages } from "@/i18n";
-import { destinationAfterEmailLink } from "@/lib/auth-destination";
+import { destinationAfterEmailLink, destinationAfterLogin } from "@/lib/auth-destination";
 import { textField, toFieldErrors, type FormState } from "@/lib/forms";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -106,7 +105,7 @@ export async function signIn(_prev: FormState, formData: FormData): Promise<Form
     return { status: "error", message, values: { email } };
   }
 
-  redirect(safeRedirectPath(textField(formData, "next")));
+  redirect(await destinationAfterLogin(supabase, textField(formData, "next")));
 }
 
 export async function resendConfirmation(_prev: FormState, formData: FormData): Promise<FormState> {
