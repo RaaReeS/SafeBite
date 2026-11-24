@@ -148,13 +148,30 @@ test.describe("inicio de sesión", () => {
   });
 
   test("una cuenta de comensal entra en su área y no en el panel", async ({ page }) => {
+    // Va directa a su área: el inicio de sesión ya la manda a /comensal, sin
+    // pasar por el panel de restaurantes para que este la devuelva.
+    const loginResponse = page.waitForResponse(
+      (response) => response.request().method() === "POST" && response.url().endsWith("/login"),
+    );
     await login(page, SEED_DINER.email, SEED_DINER.password);
+    expect((await loginResponse).headers()["x-action-redirect"]).toMatch(/^\/comensal(;|$)/);
     await expect(page).toHaveURL(/\/comensal$/);
     await expect(
       page.getByRole("heading", { name: `Hola, ${SEED_DINER.email.split("@")[0]}` }),
     ).toBeVisible();
     await page.goto("/panel");
     await expect(page).toHaveURL(/\/comensal$/);
+  });
+
+  test("al entrar desde un enlace de su área, el comensal vuelve a esa página", async ({
+    page,
+  }) => {
+    await page.goto("/comensal/alergias");
+    await expect(page).toHaveURL(/\/login\?next=%2Fcomensal%2Falergias$/);
+    await page.getByLabel("Email").fill(SEED_DINER.email);
+    await page.getByLabel("Contraseña").fill(SEED_DINER.password);
+    await page.getByRole("button", { name: "Entrar" }).click();
+    await expect(page).toHaveURL(/\/comensal\/alergias$/);
   });
 
   test("cerrar sesión impide volver al panel", async ({ page }) => {
